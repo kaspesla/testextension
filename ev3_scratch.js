@@ -43,8 +43,10 @@
   var poller = null;
   var watchdog = null;
   function tryNextDevice() {
-  device = potentialDevices.shift();
   if (!device) return;
+  
+    device = potentialDevices.shift();
+ 
   
   device.open({ stopBits: 1, bitRate: 115200, ctsFlowControl: 0 });
   console.log('Attempting connection with ' + device.id);
@@ -75,6 +77,7 @@
   if (device) device.close();
   if (poller) clearInterval(poller);
   device = null;
+  
   };
   
   ext.allMotorsOn = function()
