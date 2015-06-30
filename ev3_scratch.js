@@ -46,7 +46,7 @@
   device = potentialDevices.shift();
   if (!device) return;
   
-  device.open({ stopBits: 1, bitRate: 9600, ctsFlowControl: 0 });
+  device.open({ stopBits: 0, bitRate: 9600, ctsFlowControl: 0 });
   console.log('Attempting connection with ' + device.id);
   device.set_receive_handler(function(data) {
                              var inputData = new Uint8Array(data);
@@ -79,14 +79,14 @@
   
   ext.allMotorsOn = function()
   {
-    this.motorsOnCommand = new Buffer("0C000000800000A4000114A60001","hex");
+    this.motorsOnCommand = new Buffer("0C000100800000A4000114A60001","hex");
   
     device.send(this.motorsOnCommand);
   }
 
   ext.allMotorsOff = function()
   {
-  this.motorsOnCommand = new Buffer("09000100800000A3000100","hex");
+  this.motorsOnCommand = new Buffer("09000200800000A3000100","hex");
   
   device.send(this.motorsOnCommand);
   }
