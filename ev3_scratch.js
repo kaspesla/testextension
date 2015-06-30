@@ -30,8 +30,7 @@
   
   var potentialDevices = [];
   ext._deviceConnected = function(dev) {
-   if (device)
-    return;
+  
   console.log('_deviceConnected: ' + dev.id);
   if (dev.id.indexOf('/dev/tty.serialBrick') === 0)
   {
@@ -44,12 +43,10 @@
   var poller = null;
   var watchdog = null;
   function tryNextDevice() {
- 
-  
-    device = potentialDevices.shift();
+  device = potentialDevices.shift();
   if (!device) return;
   
-  device.open({ stopBits: 1, bitRate: 115200, ctsFlowControl: 0 });
+  device.open({ stopBits: 1, bitRate: 9600, ctsFlowControl: 0 });
   console.log('Attempting connection with ' + device.id);
   device.set_receive_handler(function(data) {
                              var inputData = new Uint8Array(data);
@@ -78,12 +75,10 @@
   if (device) device.close();
   if (poller) clearInterval(poller);
   device = null;
-  
   };
   
   ext.allMotorsOn = function()
   {
-  console.log("allMotorsOn");
     this.motorsOnCommand = new Buffer("0C000000800000A4000114A60001","hex");
   
     device.send(this.motorsOnCommand);
@@ -91,7 +86,6 @@
 
   ext.allMotorsOff = function()
   {
-  console.log("allMotorsOff");
   this.motorsOnCommand = new Buffer("09000100800000A3000100","hex");
   
   device.send(this.motorsOnCommand);
