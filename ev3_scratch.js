@@ -33,9 +33,9 @@
   
   console.log('_deviceConnected: ' + dev.id);
   
-  potentialDevices.push(dev);
-  if (!device)
-  tryNextDevice();
+ // potentialDevices.push(dev);
+  //if (!device)
+  //tryNextDevice();
   };
   
   var poller = null;
