@@ -82,7 +82,9 @@
   var serial_info = {type: 'serial'};
   ScratchExtensions.register('Example', descriptor, ext, serial_info);
   
-  // Register the extension
-  ScratchExtensions.register('EV3 Control', descriptor, ext, serial_info]);
-  })({});
+})({});
 
+function processInput(inputData) {
+    for (var i=0; i < inputData.length; i++) {
+    }
+}
