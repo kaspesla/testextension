@@ -32,10 +32,12 @@
   ext._deviceConnected = function(dev) {
   
   console.log('_deviceConnected: ' + dev.id);
-  
- // potentialDevices.push(dev);
-  //if (!device)
-  //tryNextDevice();
+  if (dev.id.indexOf('/dev/tty.serialBrick') === 0)
+  {
+      potentialDevices.push(dev);
+      if (!device)
+          tryNextDevice();
+  }
   };
   
   var poller = null;
@@ -55,6 +57,7 @@
                        //  queryFirmware();
                        }, 1000);
   
+  connected =true;
   watchdog = setTimeout(function() {
                         clearInterval(poller);
                         poller = null;
@@ -72,6 +75,20 @@
   device = null;
   };
   
+  ext.allMotorsOn = function()
+  {
+    this.motorsOnCommand = new Buffer("0C000100800000A4000114A60001","hex");
+  
+    device.send(this.motorsOnCommand);
+  }
+
+  ext.allMotorsOff = function()
+  {
+  this.motorsOnCommand = new Buffer("09000200800000A3000100","hex");
+  
+  device.send(this.motorsOnCommand);
+  }
+
   
   // Block and block menu descriptions
   var descriptor = {
