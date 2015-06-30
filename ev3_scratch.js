@@ -58,6 +58,7 @@
                        }, 1000);
   
   connected =true;
+  /*
   watchdog = setTimeout(function() {
                         clearInterval(poller);
                         poller = null;
@@ -66,6 +67,7 @@
                         device = null;
                         tryNextDevice();
                         }, 5000);
+   */
   }
   
   ext._shutdown = function() {
@@ -77,14 +79,14 @@
   
   ext.allMotorsOn = function()
   {
-    this.motorsOnCommand = new Buffer("0C000100800000A4000114A60001","hex");
+    this.motorsOnCommand = new Buffer("0C000000800000A4000114A60001","hex");
   
     device.send(this.motorsOnCommand);
   }
 
   ext.allMotorsOff = function()
   {
-  this.motorsOnCommand = new Buffer("09000200800000A3000100","hex");
+  this.motorsOnCommand = new Buffer("09000100800000A3000100","hex");
   
   device.send(this.motorsOnCommand);
   }
