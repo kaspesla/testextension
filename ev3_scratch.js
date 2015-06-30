@@ -84,7 +84,7 @@
 
   var serial_info = {type: 'serial'};
   ScratchExtensions.register('EV3 Control', descriptor, ext, serial_info);
-  
+  console.log('registered: ');
 })({});
 
 function processInput(inputData) {
