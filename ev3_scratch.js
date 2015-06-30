@@ -80,18 +80,18 @@
   ext.allMotorsOn = function()
   {
   console.log("allMotorsOn");
-    this.motorsOnCommand = fromHex("0C000000800000A4000114A60001");
+    var motorsOnCommand = fromHex("0C000100800000A4000114A60001");
   
-    device.send(this.motorsOnCommand.buffer);
+    device.send(motorsOnCommand.buffer);
   }
 
   ext.allMotorsOff = function()
   {
   console.log("allMotorsOff");
 
-  this.motorsOffCommand = fromHex("09000100800000A3000100");
+  var motorsOffCommand = fromHex("09000200800000A3000100");
   
-  device.send(this.motorsOffCommand.buffer);
+  device.send(motorsOffCommand.buffer);
   }
 
   
