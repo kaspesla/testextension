@@ -79,16 +79,19 @@
   
   ext.allMotorsOn = function()
   {
-    this.motorsOnCommand = new Buffer("0C000100800000A4000114A60001","hex");
+  console.log("allMotorsOn");
+    this.motorsOnCommand = new Buffer("0C000000800000A4000114A60001","hex");
   
     device.send(this.motorsOnCommand);
   }
 
   ext.allMotorsOff = function()
   {
-  this.motorsOnCommand = new Buffer("09000200800000A3000100","hex");
+  console.log("allMotorsOff");
+
+  this.motorsOffCommand = new Buffer("09000100800000A3000100","hex");
   
-  device.send(this.motorsOnCommand);
+  device.send(this.motorsOffCommand);
   }
 
   
