@@ -30,6 +30,9 @@
   
   var potentialDevices = [];
   ext._deviceConnected = function(dev) {
+  
+  console.log('_deviceConnected: ' + dev.id);
+  
   potentialDevices.push(dev);
   if (!device)
   tryNextDevice();
@@ -80,7 +83,7 @@
   };
 
   var serial_info = {type: 'serial'};
-  ScratchExtensions.register('Example', descriptor, ext, serial_info);
+  ScratchExtensions.register('EV3 Control', descriptor, ext, serial_info);
   
 })({});
 
