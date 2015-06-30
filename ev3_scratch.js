@@ -80,18 +80,18 @@
   ext.allMotorsOn = function()
   {
   console.log("allMotorsOn");
-    this.motorsOnCommand = new Buffer("0C000000800000A4000114A60001","hex");
+    this.motorsOnCommand = fromHex("0C000000800000A4000114A60001");
   
-    device.send(this.motorsOnCommand);
+    device.send(this.motorsOnCommand.buffer);
   }
 
   ext.allMotorsOff = function()
   {
   console.log("allMotorsOff");
 
-  this.motorsOffCommand = new Buffer("09000100800000A3000100","hex");
+  this.motorsOffCommand = fromHex("09000100800000A3000100");
   
-  device.send(this.motorsOffCommand);
+  device.send(this.motorsOffCommand.buffer);
   }
 
   
@@ -112,4 +112,13 @@
 function processInput(inputData) {
     for (var i=0; i < inputData.length; i++) {
     }
+    
+    function fromHex(str)
+    {
+        var arr = new Uint8Array(str.length / 2);
+        for (var i = 0; i < str.length; i += 2) {
+            arr[i / 2] = window.parseInt(str.substr(i, 2), 16);
+        }
+        return arr;
+    };
 }
