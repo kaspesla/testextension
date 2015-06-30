@@ -28,7 +28,7 @@
   ScratchExtensions.register('Example', descriptor, ext, serial_info);
   
   // Register the extension
-  ScratchExtensions.register('EV3 Control', descriptor, ext, serial_info]);
+  ScratchExtensions.register('EV3 Control', descriptor, ext, serial_info);
   })({});
 
 
