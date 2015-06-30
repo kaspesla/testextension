@@ -30,7 +30,8 @@
   
   var potentialDevices = [];
   ext._deviceConnected = function(dev) {
-  
+   if (device)
+    return;
   console.log('_deviceConnected: ' + dev.id);
   if (dev.id.indexOf('/dev/tty.serialBrick') === 0)
   {
@@ -43,10 +44,10 @@
   var poller = null;
   var watchdog = null;
   function tryNextDevice() {
-  if (!device) return;
+ 
   
     device = potentialDevices.shift();
- 
+  if (!device) return;
   
   device.open({ stopBits: 1, bitRate: 115200, ctsFlowControl: 0 });
   console.log('Attempting connection with ' + device.id);
