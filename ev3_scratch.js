@@ -48,11 +48,11 @@
   console.log('Attempting connection with ' + device.id);
   device.set_receive_handler(function(data) {
                              var inputData = new Uint8Array(data);
-                             processInput(inputData);
+                       //      processInput(inputData);
                              });
   
   poller = setInterval(function() {
-                       queryFirmware();
+                       //  queryFirmware();
                        }, 1000);
   
   watchdog = setTimeout(function() {
