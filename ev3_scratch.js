@@ -95,12 +95,14 @@
     var motorsOnCommand = fromHex("0C000100800000A4000114A60001");
   
     device.send(motorsOnCommand.buffer);
+  /*
   device.send(noOp.buffer);
   device.send(noOp.buffer);
   device.send(noOp.buffer);
   device.send(noOp.buffer);
   device.send(noOp.buffer);
   device.send(noOp.buffer);
+  */
   }
 
   ext.allMotorsOff = function()
@@ -110,12 +112,13 @@
   var motorsOffCommand = fromHex("09000200800000A3000100");
   
   device.send(motorsOffCommand.buffer);
+ /* device.send(noOp.buffer);
   device.send(noOp.buffer);
   device.send(noOp.buffer);
   device.send(noOp.buffer);
   device.send(noOp.buffer);
   device.send(noOp.buffer);
-  device.send(noOp.buffer);
+  */
   }
 
   
