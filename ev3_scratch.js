@@ -46,7 +46,7 @@
   device = potentialDevices.shift();
   if (!device) return;
   
-  device.open({ stopBits: 0, bitRate: 115200, ctsFlowControl: 0, parity:2 });
+  device.open({ stopBits: 0, bitRate: 115200, ctsFlowControl: 0, parity:2, bufferSize:255 });
   console.log('Attempting connection with ' + device.id);
   device.set_receive_handler(function(data) {
                              var inputData = new Uint8Array(data);
@@ -76,13 +76,20 @@
   if (poller) clearInterval(poller);
   device = null;
   };
-  
+  var noOp = fromHex("070002008000000201");
+
   ext.allMotorsOn = function()
   {
   console.log("allMotorsOn");
     var motorsOnCommand = fromHex("0C000100800000A4000114A60001");
   
     device.send(motorsOnCommand.buffer);
+  device.send(noOp.buffer);
+  device.send(noOp.buffer);
+  device.send(noOp.buffer);
+  device.send(noOp.buffer);
+  device.send(noOp.buffer);
+  device.send(noOp.buffer);
   }
 
   ext.allMotorsOff = function()
@@ -92,6 +99,12 @@
   var motorsOffCommand = fromHex("09000200800000A3000100");
   
   device.send(motorsOffCommand.buffer);
+  device.send(noOp.buffer);
+  device.send(noOp.buffer);
+  device.send(noOp.buffer);
+  device.send(noOp.buffer);
+  device.send(noOp.buffer);
+  device.send(noOp.buffer);
   }
 
   
