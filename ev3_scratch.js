@@ -76,6 +76,17 @@
   if (poller) clearInterval(poller);
   device = null;
   };
+  
+  function fromHex(str)
+  {
+  var arr = new Uint8Array(str.length / 2);
+  for (var i = 0; i < str.length; i += 2) {
+  arr[i / 2] = window.parseInt(str.substr(i, 2), 16);
+  }
+  return arr;
+  }
+
+  
   var noOp = fromHex("070002008000000201");
 
   ext.allMotorsOn = function()
@@ -126,12 +137,4 @@ function processInput(inputData) {
     for (var i=0; i < inputData.length; i++) {
     }
     
-    function fromHex(str)
-    {
-        var arr = new Uint8Array(str.length / 2);
-        for (var i = 0; i < str.length; i += 2) {
-            arr[i / 2] = window.parseInt(str.substr(i, 2), 16);
-        }
-        return arr;
-    };
 }
