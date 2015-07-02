@@ -118,7 +118,7 @@
   console.log("allMotorsOn");
     var motorsOnCommand = createMessage("800000A400068164A60006");
   
- //   device.send(motorsOnCommand.buffer);
+    device.send(motorsOnCommand.buffer);
 
   }
 
@@ -128,7 +128,7 @@
 
   var motorsOffCommand = createMessage("800000A3000600");
   
-  //device.send(motorsOffCommand.buffer);
+  device.send(motorsOffCommand.buffer);
 
   }
 
