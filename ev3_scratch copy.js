@@ -111,14 +111,14 @@
   }
   
   
-  var noOp = fromHex("8000000201");
+  var noOp = fromHex("070002008000000201");
 
   ext.allMotorsOn = function()
   {
   console.log("allMotorsOn");
-    var motorsOnCommand = createMessage("800000A4000614A60001");
+    var motorsOnCommand = createMessage("0C000100800000A4000614A60001");
   
- //   device.send(motorsOnCommand.buffer);
+    device.send(motorsOnCommand.buffer);
 
   }
 
@@ -126,9 +126,9 @@
   {
   console.log("allMotorsOff");
 
-  var motorsOffCommand = createMessage("800000A3000100");
+  var motorsOffCommand = fromHex("09000200800000A3000100");
   
-  //device.send(motorsOffCommand.buffer);
+  device.send(motorsOffCommand.buffer);
 
   }
 
