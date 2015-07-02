@@ -89,7 +89,7 @@
   var counter = 0;
   function createMessage(str)
   {
-  var length = ((str.length() / 2) + 2);
+  var length = ((str.length / 2) + 2);
 
   var a = new ArrayBuffer(4);
   var c = new Uint16Array(a);
