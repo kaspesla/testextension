@@ -100,7 +100,7 @@
   var mess = new Uint8Array((str.length / 2) + 4);
   
   for (var i = 0; i < 4; i ++) {
-  mess[i] = arr[i]);
+  mess[i] = arr[i];
   }
   
   for (var i = 0; i < str.length; i += 2) {
