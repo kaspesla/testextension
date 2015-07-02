@@ -96,7 +96,7 @@
   var arr = new Uint8Array(a);
   c[1] = counter;
   c[0] = length;
-  
+  counter++;
   var mess = new Uint8Array((str.length / 2) + 4);
   
   for (var i = 0; i < 4; i ++) {
