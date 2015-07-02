@@ -32,7 +32,7 @@
   ext._deviceConnected = function(dev) {
   
   console.log('_deviceConnected: ' + dev.id);
-  if (dev.id.indexOf('/dev/tty.serialBrick') === 0)
+  if (dev.id.indexOf('/dev/tty.serialBrick') === 0 && dev.id.indexOf('-SerialPort') != -1)
   {
       potentialDevices.push(dev);
       if (!device)
