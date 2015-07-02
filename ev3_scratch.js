@@ -116,7 +116,7 @@
   ext.allMotorsOn = function()
   {
   console.log("allMotorsOn");
-    var motorsOnCommand = createMessage("800000A4000614A60001");
+    var motorsOnCommand = createMessage("800000A400068164A60006");
   
  //   device.send(motorsOnCommand.buffer);
 
@@ -126,7 +126,7 @@
   {
   console.log("allMotorsOff");
 
-  var motorsOffCommand = createMessage("800000A3000100");
+  var motorsOffCommand = createMessage("800000A3000600");
   
   //device.send(motorsOffCommand.buffer);
 
