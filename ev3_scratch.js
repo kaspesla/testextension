@@ -46,7 +46,7 @@
   device = potentialDevices.shift();
   if (!device) return;
   
-  device.open({ stopBits: 0, bitRate: 115200, ctsFlowControl: 0, parity:2, bufferSize:255 });
+  //device.open({ stopBits: 0, bitRate: 115200, ctsFlowControl: 0, parity:2, bufferSize:255 });
   console.log('Attempting connection with ' + device.id);
   device.set_receive_handler(function(data) {
                              var inputData = new Uint8Array(data);
@@ -113,12 +113,60 @@
   
   var noOp = fromHex("8000000201");
 
-  ext.allMotorsOn = function()
+  function getMotorBitsHexString(which)
   {
-  console.log("allMotorsOn");
-    var motorsOnCommand = createMessage("800000A400068164A60006");
+     if (which == "A")
+        return "01";
+    else if (which == "B")
+        return "02";
+    else if (which == "C")
+        return "04";
+    else if (which == "D")
+        return "08";
+    else if (which == "B+C")
+        return "06";
+    else if (which == "A+D")
+        return "09";
+  else if (which == "all")
+        return "0F";
+
+    return "00";
+  }
   
-    device.send(motorsOnCommand.buffer);
+  function getPowerBitsHexString(power)
+  {
+    // f-ed up nonsensical unsigned 8-bit bit packing. see cOutputPackParam in c_output-c in EV3 firmware
+    var a = new ArrayBuffer(1);
+    var sarr = new Int8Array(a);
+    var uarr = new Uint8Array(a);
+  
+    sarr[0] = power;
+    var powerbits = uarr[0];
+    if (power > 32 && power < -32)
+    {
+        powerbits &= 0x0000003F;
+        return powerbits.toString(16);
+    }
+    else
+    {
+      return "81" + powerbits.toString(16);
+    }
+
+    return "00";
+  }
+  
+  ext.allMotorsOn = function(which, power)
+  {
+    console.log("motor " + which + " power: " + power);
+//    var motorsOnCommand = createMessage("800000A400068164A60006");
+ 
+    var motorBitField = getMotorBitsHexString(which);
+  
+  var powerBits = getPowerBitsHexString(power);
+  
+    var motorsOnCommand = createMessage("800000A400" + motorBitField + powerBits + "A600" + motorBitField);
+  console.log("sending: " + motorsOnCommand);
+ //   device.send(motorsOnCommand.buffer);
 
   }
 
@@ -126,7 +174,7 @@
   {
   console.log("allMotorsOff");
 
-  var motorsOffCommand = createMessage("800000A3000600");
+  var motorsOffCommand = createMessage("800000A3000F00");
   
   device.send(motorsOffCommand.buffer);
 
@@ -136,10 +184,13 @@
   // Block and block menu descriptions
   var descriptor = {
   blocks: [
-           [' ', 'turn motor on',                         'allMotorsOn'],
-           [' ', 'turn motor off',                        'allMotorsOff'],
+           [' ', 'motor %m.whichMotorPort speed %n',                         'allMotorsOn', 100],
+           [' ', 'all motors off',                        'allMotorsOff'],
+           ['h', 'when button pressed',  'whenButtonPressed', 'button pressed'],
 
-           ]
+           ],
+  menus: {
+  whichMotorPort: ['A', 'B', 'C', 'D', 'A+D', 'B+C'],
   };
 
   var serial_info = {type: 'serial'};
