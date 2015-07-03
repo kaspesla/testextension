@@ -135,6 +135,16 @@
     return "00";
   }
   
+  function hexcouplet(num)
+  {
+    var str = powerbits.toString(16);
+    if (str.length == 1)
+    {
+      return "0" + str;
+    }
+    return str;
+  }
+  
   function getPowerBitsHexString(power)
   {
     // f-ed up nonsensical unsigned 8-bit bit packing. see cOutputPackParam in c_output-c in EV3 firmware
@@ -147,11 +157,11 @@
     if (power < 32 && power > -32)
     {
         powerbits &= 0x0000003F;
-        return powerbits.toString(16);
+        return hexcouplet(powerbits);
     }
     else
     {
-      return "81" + powerbits.toString(16);
+      return "81" + hexcouplet(powerbits);
     }
 
     return "00";
