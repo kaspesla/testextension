@@ -168,7 +168,7 @@
     return "00";
   }
   
-  var DIRECT_COMMAND_PREFIX + "800000";
+  var DIRECT_COMMAND_PREFIX = "800000";
   var SET_MOTOR_SPEED = "A400";
   var SET_MOTOR_STOP = "A300";
   var SET_MOTOR_START = "A600";
