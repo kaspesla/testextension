@@ -144,7 +144,7 @@
   
     sarr[0] = power;
     var powerbits = uarr[0];
-    if (power > 32 && power < -32)
+    if (power < 32 && power > -32)
     {
         powerbits &= 0x0000003F;
         return powerbits.toString(16);
