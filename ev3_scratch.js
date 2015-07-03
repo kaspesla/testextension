@@ -4,25 +4,29 @@
   
   // Status reporting code
   // Use this to report missing hardware, plugin or unsupported browser
-  ext._getStatus = function() {
-  return {status: 2, msg: 'Ready'};
+  ext._getStatus = function()
+  {
+    return {status: 2, msg: 'Ready'};
   };
-  ext.my_first_block = function() {
-  // Code that gets executed when the block is run
-  };
-  
-  ext._getStatus = function() {
-  if (!connected)
-  return { status:1, msg:'Disconnected' };
-  else
-  return { status:2, msg:'Connected' };
+  ext.my_first_block = function()
+  {
+    // Code that gets executed when the block is run
   };
   
-  ext._deviceRemoved = function(dev) {
-  console.log('Device removed');
-  // Not currently implemented with serial devices
+  ext._getStatus = function()
+  {
+      if (!connected)
+        return { status:1, msg:'Disconnected' };
+      else
+        return { status:2, msg:'Connected' };
   };
   
+  ext._deviceRemoved = function(dev)
+  {
+    console.log('Device removed');
+    // Not currently implemented with serial devices
+  };
+
   
   var connected = false;
   var notifyConnection = false;
@@ -32,6 +36,12 @@
   ext._deviceConnected = function(dev) {
   
   //console.log('_deviceConnected: ' + dev.id);
+
+  // brick's serial port must be named like tty.serialBrick7-SerialPort
+  // this is how 10.10 is naming it automatically, the brick name being serialBrick7
+  // the Scratch plugin is only letting us know about serial ports with names that
+  // "begin with tty.usbmodem, tty.serial, or tty.usbserial" - according to khanning
+  
   if (dev.id.indexOf('/dev/tty.serialBrick') === 0 && dev.id.indexOf('-SerialPort') != -1)
   {
       potentialDevices.push(dev);
@@ -42,79 +52,100 @@
   
   var poller = null;
   var watchdog = null;
-  function tryNextDevice() {
-  device = potentialDevices.shift();
-  if (!device) return;
+  function tryNextDevice()
+  {
+    device = potentialDevices.shift();
+    if (!device)
+        return;
   
-  //device.open({ stopBits: 0, bitRate: 115200, ctsFlowControl: 0, parity:2, bufferSize:255 });
-  console.log('Attempting connection with ' + device.id);
-  device.set_receive_handler(function(data) {
-                             var inputData = new Uint8Array(data);
-                       //      processInput(inputData);
-                             });
-  
-  poller = setInterval(function() {
+    //device.open({ stopBits: 0, bitRate: 115200, ctsFlowControl: 0, parity:2, bufferSize:255 });
+    console.log('Attempting connection with ' + device.id);
+    device.set_receive_handler(receive_handler);
+
+    poller = setInterval(function() {
                        //  queryFirmware();
                        }, 1000);
-  
-  connected =true;
-  /*
-  watchdog = setTimeout(function() {
-                        clearInterval(poller);
-                        poller = null;
-                        device.set_receive_handler(null);
-                        device.close();
-                        device = null;
-                        tryNextDevice();
-                        }, 5000);
-   */
+
+    // need some way to see if connection is working, a watchdog ping or something
+    connected =true;
+      /*
+      watchdog = setTimeout(function() {
+                            clearInterval(poller);
+                            poller = null;
+                            device.set_receive_handler(null);
+                            device.close();
+                            device = null;
+                            tryNextDevice();
+                            }, 5000);
+       */
   }
   
-  ext._shutdown = function() {
-  // TODO: Bring all pins down 
-  if (device) device.close();
-  if (poller) clearInterval(poller);
-  device = null;
+  ext._shutdown = function()
+  {
+    if (device) device.close();
+    if (poller) clearInterval(poller);
+    device = null;
   };
+  
+  function createHexString(arr)
+  {
+      var result = "";
+      for (i in arr)
+      {
+          var str = arr[i].toString(16);
+          str = str.length == 0 ? "00" :
+          str.length == 1 ? "0" + str :
+          str.length == 2 ? str :
+          str.substring(str.length-2, str.length);
+          result += str;
+        }
+        return result;
+  }
+  
+  function receive_handler(data)
+  {
+    var inputData = new Uint8Array(data);
+    console.log("received: " + createHexString(inputData));
+  }
   
   function fromHex(str)
   {
-  var arr = new Uint8Array(str.length / 2);
-  for (var i = 0; i < str.length; i += 2) {
-  arr[i / 2] = window.parseInt(str.substr(i, 2), 16);
-  }
-  return arr;
+      var arr = new Uint8Array(str.length / 2);
+      for (var i = 0; i < str.length; i += 2)
+      {
+        arr[i / 2] = window.parseInt(str.substr(i, 2), 16);
+      }
+      return arr;
   }
 
   var counter = 0;
   function createMessage(str)
   {
-  console.log("message: " + str);
-  
-  var length = ((str.length / 2) + 2);
+      console.log("message: " + str);
+      
+      var length = ((str.length / 2) + 2);
 
-  var a = new ArrayBuffer(4);
-  var c = new Uint16Array(a);
-  var arr = new Uint8Array(a);
-  c[1] = counter;
-  c[0] = length;
-  counter++;
-  var mess = new Uint8Array((str.length / 2) + 4);
+      var a = new ArrayBuffer(4);
+      var c = new Uint16Array(a);
+      var arr = new Uint8Array(a);
+      c[1] = counter;
+      c[0] = length;
+      counter++;
+      var mess = new Uint8Array((str.length / 2) + 4);
+      
+      for (var i = 0; i < 4; i ++)
+      {
+        mess[i] = arr[i];
+      }
   
-  for (var i = 0; i < 4; i ++) {
-  mess[i] = arr[i];
+      for (var i = 0; i < str.length; i += 2)
+      {
+        mess[(i / 2) + 4] = window.parseInt(str.substr(i, 2), 16);
+      }
+      return mess;
   }
   
-  for (var i = 0; i < str.length; i += 2) {
-  mess[(i / 2) + 4] = window.parseInt(str.substr(i, 2), 16);
-  }
-  return mess;
   
-  }
-  
-  
-  var noOp = fromHex("8000000201");
-
   function getMotorBitsHexString(which)
   {
      if (which == "A")
@@ -129,7 +160,7 @@
         return "06";
     else if (which == "A+D")
         return "09";
-  else if (which == "all")
+    else if (which == "all")
         return "0F";
 
     return "00";
@@ -169,10 +200,12 @@
   }
   
   var DIRECT_COMMAND_PREFIX = "800000";
+  // direct command opcode/prefixes
   var SET_MOTOR_SPEED = "A400";
   var SET_MOTOR_STOP = "A300";
   var SET_MOTOR_START = "A600";
-  
+  var NOOP = "0201";
+    
   ext.allMotorsOn = function(which, power)
   {
     console.log("motor " + which + " power: " + power);
@@ -198,7 +231,6 @@
       var motorsOffCommand = createMessage(DIRECT_COMMAND_PREFIX + SET_MOTOR_STOP + motorBitField + howHex);
       
       device.send(motorsOffCommand.buffer);
-
   }
 
   
@@ -206,7 +238,7 @@
   var descriptor = {
   blocks: [
            [' ', 'motor %m.whichMotorPort speed %n',                         'allMotorsOn', 'B+C', 100],
-           [' ', 'all motors off %m.breakCoast',                        'allMotorsOff', 'break'],
+           [' ', 'all motors off  %m.breakCoast',                        'allMotorsOff', 'break'],
            ['h', 'when button pressed',  'whenButtonPressed', 'button pressed'],
 
            ],
@@ -221,8 +253,3 @@
   console.log('registered: ');
 })({});
 
-function processInput(inputData) {
-    for (var i=0; i < inputData.length; i++) {
-    }
-    
-}
