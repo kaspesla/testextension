@@ -206,7 +206,7 @@
   var descriptor = {
   blocks: [
            [' ', 'motor %m.whichMotorPort speed %n',                         'allMotorsOn', 'B+C', 100],
-           [' ', 'all motors off %m.breakCoast',                        'allMotorsOff'],
+           [' ', 'all motors off %m.breakCoast',                        'allMotorsOff', 'break'],
            ['h', 'when button pressed',  'whenButtonPressed', 'button pressed'],
 
            ],
