@@ -137,7 +137,7 @@
   
   function hexcouplet(num)
   {
-    var str = powerbits.toString(16);
+    var str = num.toString(16);
     if (str.length == 1)
     {
       return "0" + str;
