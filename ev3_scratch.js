@@ -287,13 +287,13 @@
            [' ', 'all motors off  %m.breakCoast',                        'allMotorsOff', 'break'],
            ['h', 'when button pressed',  'whenButtonPressed', 'button pressed'],
 
-           [' ', 'play tone  %m.note',                        'playTone', 'break'],
+           [' ', 'play tone  %m.note duration %n ms',                        'playTone', 'C5', 500],
 
            ],
   menus: {
   whichMotorPort: ['A', 'B', 'C', 'D', 'A+D', 'B+C'],
   breakCoast: ['break', 'coast'],
-  note:["D4","E4","F4","G4","A4","B4","C5","D5","E5","F5","G5","A5","B5","C6","D6","E6","F6","G6","A6","B6","","C#4","D#4","","F#4","G#4","A#4","","C#5","D#5","","F#5","G#5","A#5","","C#6","D#6","","F#6","G#6","A#6"],
+  note:["D4","E4","F4","G4","A4","B4","C5","D5","E5","F5","G5","A5","B5","C6","D6","E6","F6","G6","A6","B6","","C#4","D#4","","F#4","G#4","A#4","C#5","D#5","","F#5","G#5","A#5","","C#6","D#6","","F#6","G#6","A#6"],
     },
   };
 
