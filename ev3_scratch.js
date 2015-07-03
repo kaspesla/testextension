@@ -31,7 +31,7 @@
   var potentialDevices = [];
   ext._deviceConnected = function(dev) {
   
-  console.log('_deviceConnected: ' + dev.id);
+  //console.log('_deviceConnected: ' + dev.id);
   if (dev.id.indexOf('/dev/tty.serialBrick') === 0 && dev.id.indexOf('-SerialPort') != -1)
   {
       potentialDevices.push(dev);
@@ -184,7 +184,7 @@
   // Block and block menu descriptions
   var descriptor = {
   blocks: [
-           [' ', 'motor %m.whichMotorPort speed %n',                         'allMotorsOn', 100],
+           [' ', 'motor %m.whichMotorPort speed %n',                         'allMotorsOn', 'B+C', 100],
            [' ', 'all motors off',                        'allMotorsOff'],
            ['h', 'when button pressed',  'whenButtonPressed', 'button pressed'],
 
