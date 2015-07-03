@@ -190,7 +190,7 @@
 
            ],
   menus: {
-  whichMotorPort: ['A', 'B', 'C', 'D', 'A+D', 'B+C'],
+  whichMotorPort: ['A', 'B', 'C', 'D', 'A+D', 'B+C'] },
   };
 
   var serial_info = {type: 'serial'};
