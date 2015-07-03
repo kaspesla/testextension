@@ -52,13 +52,17 @@
   
   var poller = null;
   var watchdog = null;
+  var DEBUG_NO_EV3 = true;
+  
   function tryNextDevice()
   {
     device = potentialDevices.shift();
     if (!device)
         return;
   
-    //device.open({ stopBits: 0, bitRate: 115200, ctsFlowControl: 0, parity:2, bufferSize:255 });
+  if (!DEBUG_NO_EV3)
+  {
+    device.open({ stopBits: 0, bitRate: 115200, ctsFlowControl: 0, parity:2, bufferSize:255 });
     console.log('Attempting connection with ' + device.id);
     device.set_receive_handler(receive_handler);
 
@@ -68,6 +72,7 @@
 
     // need some way to see if connection is working, a watchdog ping or something
     connected =true;
+  }
       /*
       watchdog = setTimeout(function() {
                             clearInterval(poller);
@@ -82,17 +87,22 @@
   
   ext._shutdown = function()
   {
-    if (device) device.close();
-    if (poller) clearInterval(poller);
+    if (device && connected)
+        device.close();
+    if (poller)
+        clearInterval(poller);
+    connected = false;
     device = null;
   };
   
+  // create hex string from bytes
   function createHexString(arr)
   {
       var result = "";
       for (i in arr)
       {
           var str = arr[i].toString(16);
+          str = str.toUpperCase();
           str = str.length == 0 ? "00" :
           str.length == 1 ? "0" + str :
           str.length == 2 ? str :
@@ -107,22 +117,14 @@
     var inputData = new Uint8Array(data);
     console.log("received: " + createHexString(inputData));
   }
-  
-  function fromHex(str)
-  {
-      var arr = new Uint8Array(str.length / 2);
-      for (var i = 0; i < str.length; i += 2)
-      {
-        arr[i / 2] = window.parseInt(str.substr(i, 2), 16);
-      }
-      return arr;
-  }
 
   var counter = 0;
+  
+  // add counter and byte length encoding prefix. return Uint8Array of final message
   function createMessage(str)
   {
       console.log("message: " + str);
-      
+  
       var length = ((str.length / 2) + 2);
 
       var a = new ArrayBuffer(4);
@@ -145,7 +147,7 @@
       return mess;
   }
   
-  
+  // motor port bit field from menu choice string
   function getMotorBitsHexString(which)
   {
      if (which == "A")
@@ -166,6 +168,7 @@
     return "00";
   }
   
+  // create 8 bit hex couplet
   function hexcouplet(num)
   {
     var str = num.toString(16);
@@ -177,6 +180,7 @@
     return str;
   }
   
+  // power bytes using weird serialization method
   function getPowerBitsHexString(power)
   {
     // f-ed up nonsensical unsigned 8-bit bit packing. see cOutputPackParam in c_output-c in EV3 firmware
@@ -205,7 +209,13 @@
   var SET_MOTOR_STOP = "A300";
   var SET_MOTOR_START = "A600";
   var NOOP = "0201";
-    
+  
+  function sendCommand(commandArray)
+  {
+    if (connected && device)
+        device.send(commandArray.buffer);
+  }
+  
   ext.allMotorsOn = function(which, power)
   {
     console.log("motor " + which + " power: " + power);
@@ -214,7 +224,8 @@
     var powerBits = getPowerBitsHexString(power);
 
     var motorsOnCommand = createMessage(DIRECT_COMMAND_PREFIX + SET_MOTOR_SPEED + motorBitField + powerBits + SET_MOTOR_START + motorBitField);
-    device.send(motorsOnCommand.buffer);
+  
+    sendCommand(motorsOnCommand);
 
   }
 
@@ -230,7 +241,7 @@
       
       var motorsOffCommand = createMessage(DIRECT_COMMAND_PREFIX + SET_MOTOR_STOP + motorBitField + howHex);
       
-      device.send(motorsOffCommand.buffer);
+      sendCommand(motorsOffCommand);
   }
 
   
