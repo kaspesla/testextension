@@ -89,6 +89,8 @@
   var counter = 0;
   function createMessage(str)
   {
+  console.log("message: " + str);
+  
   var length = ((str.length / 2) + 2);
 
   var a = new ArrayBuffer(4);
@@ -165,7 +167,6 @@
   var powerBits = getPowerBitsHexString(power);
   
     var motorsOnCommand = createMessage("800000A400" + motorBitField + powerBits + "A600" + motorBitField);
-  console.log("sending: " + motorsOnCommand);
  //   device.send(motorsOnCommand.buffer);
 
   }
