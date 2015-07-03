@@ -138,6 +138,7 @@
   function hexcouplet(num)
   {
     var str = num.toString(16);
+    str = str.toUpperCase();
     if (str.length == 1)
     {
       return "0" + str;
@@ -167,27 +168,36 @@
     return "00";
   }
   
+  var DIRECT_COMMAND_PREFIX + "800000";
+  var SET_MOTOR_SPEED = "A400";
+  var SET_MOTOR_STOP = "A300";
+  var SET_MOTOR_START = "A600";
+  
   ext.allMotorsOn = function(which, power)
   {
     console.log("motor " + which + " power: " + power);
-//    var motorsOnCommand = createMessage("800000A400068164A60006");
- 
     var motorBitField = getMotorBitsHexString(which);
-  
-  var powerBits = getPowerBitsHexString(power);
-  
-    var motorsOnCommand = createMessage("800000A400" + motorBitField + powerBits + "A600" + motorBitField);
- //   device.send(motorsOnCommand.buffer);
+
+    var powerBits = getPowerBitsHexString(power);
+
+    var motorsOnCommand = createMessage(DIRECT_COMMAND_PREFIX + SET_MOTOR_SPEED + motorBitField + powerBits + SET_MOTOR_START + motorBitField);
+    device.send(motorsOnCommand.buffer);
 
   }
 
-  ext.allMotorsOff = function()
+  ext.allMotorsOff = function(how)
   {
-  console.log("allMotorsOff");
+      console.log("allMotorsOff");
+      
+      var motorBitField = getMotorBitsHexString("all");
 
-  var motorsOffCommand = createMessage("800000A3000F00");
-  
-  device.send(motorsOffCommand.buffer);
+      var howHex = '00';
+      if (how == 'break')
+         howHex = '01';
+      
+      var motorsOffCommand = createMessage(DIRECT_COMMAND_PREFIX + SET_MOTOR_STOP + motorBitField + howHex);
+      
+      device.send(motorsOffCommand.buffer);
 
   }
 
@@ -196,12 +206,14 @@
   var descriptor = {
   blocks: [
            [' ', 'motor %m.whichMotorPort speed %n',                         'allMotorsOn', 'B+C', 100],
-           [' ', 'all motors off',                        'allMotorsOff'],
+           [' ', 'all motors off %m.breakCoast',                        'allMotorsOff'],
            ['h', 'when button pressed',  'whenButtonPressed', 'button pressed'],
 
            ],
   menus: {
-  whichMotorPort: ['A', 'B', 'C', 'D', 'A+D', 'B+C'] },
+  whichMotorPort: ['A', 'B', 'C', 'D', 'A+D', 'B+C'],
+  breakCoast: ['break', 'coast'],
+    },
   };
 
   var serial_info = {type: 'serial'};
