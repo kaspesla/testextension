@@ -8,10 +8,6 @@
   {
     return {status: 2, msg: 'Ready'};
   };
-  ext.my_first_block = function()
-  {
-    // Code that gets executed when the block is run
-  };
   
   ext._getStatus = function()
   {
@@ -229,6 +225,45 @@
 
   }
 
+  var frequencies = [
+  ["C4", 262],
+  ["D4", 294],
+  ["E4", 330],
+  ["F4", 349],
+  ["G4", 392],
+  ["A4", 440],
+  ["B4", 494],
+  ["C5", 523],
+  ["D5", 587],
+  ["E5", 659],
+  ["F5", 698],
+  ["G5", 784],
+  ["A5", 880],
+  ["B5", 988],
+  ["C6", 1047],
+  ["D6", 1175],
+  ["E6", 1319],
+  ["F6", 1397],
+  ["G6", 1568],
+  ["A6", 1760],
+  ["B6", 1976],
+  ["C#4", 277],
+  ["D#4", 311],
+  ["F#4", 370],
+  ["G#4", 415],
+  ["A#4", 466],
+  ["C#5", 554],
+  ["D#5", 622],
+  ["F#5", 740],
+  ["G#5", 831],
+  ["A#5", 932],
+  ["C#6", 1109],
+  ["D#6", 1245],
+  ["F#6", 1480],
+  ["G#6", 1661],
+  ["A#6", 1865]
+                     ];
+   
   ext.allMotorsOff = function(how)
   {
       console.log("allMotorsOff");
@@ -252,10 +287,13 @@
            [' ', 'all motors off  %m.breakCoast',                        'allMotorsOff', 'break'],
            ['h', 'when button pressed',  'whenButtonPressed', 'button pressed'],
 
+           [' ', 'play tone  %m.note',                        'playTone', 'break'],
+
            ],
   menus: {
   whichMotorPort: ['A', 'B', 'C', 'D', 'A+D', 'B+C'],
   breakCoast: ['break', 'coast'],
+  note:["D4","E4","F4","G4","A4","B4","C5","D5","E5","F5","G5","A5","B5","C6","D6","E6","F6","G6","A6","B6","","C#4","D#4","","F#4","G#4","A#4","","C#5","D#5","","F#5","G#5","A#5","","C#6","D#6","","F#6","G#6","A#6"],
     },
   };
 
