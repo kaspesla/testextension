@@ -109,7 +109,7 @@
   }
   
   var waitingForResponseFor = "";
-  var waitingCallback;
+  var waitingCallback = 0;
 
   var global_port_tested = -1;
   var global_touch_pressed = [false, false, false, false];
