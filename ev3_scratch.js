@@ -108,7 +108,7 @@
         return result;
   }
   
-  var waitingCallbacks = [[]];
+  var waitingCallbacks = [[],[],[],[]];
   var waitingQueries = [];
   var global_touch_pressed = [false, false, false, false];
   var global_sensor_queried = [false, false, false, false];
