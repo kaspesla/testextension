@@ -278,13 +278,11 @@
   function readSensorPort(port)
   {
     readFromSensor(port, TOUCH_SENSOR, 0);
-  
+    return 123;
   }
   
   function readFromSensor(port, type, mode)
   {
-    var volString = getPackedOutputHexString(volume, 1);
-
       var readCommand = createMessage(DIRECT_COMMAND_REPLY_PREFIX +
                                            READ_SENSOR +
                                            hexcouplet(port-1) +
