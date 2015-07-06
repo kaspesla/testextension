@@ -140,7 +140,7 @@
   // add counter and byte length encoding prefix. return Uint8Array of final message
   function createMessage(str)
   {
-      console.log("message: " + str);
+//console.log("message: " + str);
   
       var length = ((str.length / 2) + 2);
 
@@ -161,6 +161,9 @@
       {
         mess[(i / 2) + 4] = window.parseInt(str.substr(i, 2), 16);
       }
+  
+     console.log("sending: " + createHexString(mess));
+
       return mess;
   }
   
