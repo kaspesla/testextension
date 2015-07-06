@@ -297,9 +297,9 @@
     if (!global_sensor_queried[portInt])
     {
         global_sensor_queried[portInt] = true;
-        readFromSensor(port, TOUCH_SENSOR, 0);
+        readFromSensor(portInt, TOUCH_SENSOR, 0);
     }
-    return global_touch_pressed[port-1];
+    return global_touch_pressed[portInt];
   }
   
   ext.readSensorPort = function(port, callback)
@@ -310,7 +310,7 @@
     if (!global_sensor_queried[portInt])
     {
       global_sensor_queried[portInt] = true;
-      readFromSensor(port, TOUCH_SENSOR, 0);
+      readFromSensor(portInt, TOUCH_SENSOR, 0);
     }
   }
   
@@ -323,7 +323,7 @@
   
           var readCommand = createMessage(DIRECT_COMMAND_REPLY_PREFIX +
                                                READ_SENSOR +
-                                               hexcouplet(port-1) +
+                                               hexcouplet(port) +
                                                type +
                                                 "0060");
       
