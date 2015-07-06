@@ -265,7 +265,7 @@
       sendCommand(motorsOffCommand);
   }
 
-  ext.whenButtonPressed(whichInput)
+  ext.whenButtonPressed = function(whichInput)
   {
   
     console.log("whenButtonPressed: " + whichInput);
