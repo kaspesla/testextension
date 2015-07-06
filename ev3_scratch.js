@@ -111,7 +111,9 @@
   var waitingForResponseFor = "";
   var waitingCallback;
 
-  
+  var globaL_port_tested = 0;
+  var global_touch_pressed = [false, false, false, false];
+
   function receive_handler(data)
   {
     var inputData = new Uint8Array(data);
@@ -120,10 +122,14 @@
    if (waitingForResponseFor == TOUCH_SENSOR)
     {
         var result = inputData[5];
-        if (result == 100)
-            waitingCallback(true);
-        else
-            waitingCallback(false);
+        var resBool = (result == 100);
+        {
+            if (waitingCallback)
+                waitingCallback(resBool);
+            waitingCallback = 0;
+            global_touch_pressed[globaL_port_tested] = resBool;
+        }
+  
     }
   }
 
@@ -282,18 +288,17 @@
       sendCommand(motorsOffCommand);
   }
 
-  var alarm_went_off = false; // This becomes true after the alarm goes off
 
   ext.whenButtonPressed = function(whichInput)
   {
-  
-    return false;
+    globaL_port_tested = port;
+    readFromSensor(port, TOUCH_SENSOR, 0, callback);
+    return global_touch_pressed[port];
   }
   
   ext.readSensorPort = function(port, callback)
   {
     readFromSensor(port, TOUCH_SENSOR, 0, callback);
-    return 123;
   }
   
   function readFromSensor(port, type, mode, callback)
