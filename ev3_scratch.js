@@ -275,15 +275,21 @@
     return false;
   }
   
-  function readFromSensor(port, type, moe)
+  function readSensorPort(port)
+  {
+    readFromSensor(port, TOUCH_SENSOR, 0);
+  
+  }
+  
+  function readFromSensor(port, type, mode)
   {
     var volString = getPackedOutputHexString(volume, 1);
 
       var readCommand = createMessage(DIRECT_COMMAND_REPLY_PREFIX +
                                            READ_SENSOR +
                                            hexcouplet(port-1) +
-                                           TOUCH_SENSOR + ) +
-                                            "0060";
+                                           type +
+                                            "0060");
       
       sendCommand(readCommand);
   }
@@ -294,6 +300,7 @@
            [' ', 'motor %m.whichMotorPort speed %n',                         'allMotorsOn', 'B+C', 100],
            [' ', 'all motors off  %m.breakCoast',                        'allMotorsOff', 'break'],
            ['h', 'when %m.whichInputPort button pressed',  'whenButtonPressed', '1'],
+           ['r', 'read sensor %m.whichInputPort', 'readSensorPort', '1'],
            [' ', 'play tone  %m.note duration %n ms',                        'playTone', 'C5', 500],
            ],
   menus: {
