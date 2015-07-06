@@ -125,9 +125,9 @@
         var resBool = (result == 100);
         {
            var this_is_from_port = waitingQueries.shift();
-          global_touch_pressed[this_is_from_port-1] = resBool;
-          global_sensor_queried[this_is_from_port-1] = false;
-           while(callback = waitingCallbacks[this_is_from_port-1].shift())
+          global_touch_pressed[this_is_from_port] = resBool;
+          global_sensor_queried[this_is_from_port] = false;
+           while(callback = waitingCallbacks[this_is_from_port].shift())
            {
                 callback(resBool);
            }
@@ -293,9 +293,10 @@
 
   ext.whenButtonPressed = function(port)
   {
-    if (!global_sensor_queried[port-1])
+    var portInt = parseInt(port) - 1;
+    if (!global_sensor_queried[portInt])
     {
-        global_sensor_queried[port-1] = true;
+        global_sensor_queried[portInt] = true;
         readFromSensor(port, TOUCH_SENSOR, 0);
     }
     return global_touch_pressed[port-1];
@@ -303,10 +304,12 @@
   
   ext.readSensorPort = function(port, callback)
   {
-    waitingCallbacks[port-1].push(callback);
-    if (!global_sensor_queried[port-1])
+    var portInt = parseInt(port) - 1;
+
+    waitingCallbacks[portInt].push(callback);
+    if (!global_sensor_queried[portInt])
     {
-      global_sensor_queried[port-1] = true;
+      global_sensor_queried[portInt] = true;
       readFromSensor(port, TOUCH_SENSOR, 0);
     }
   }
