@@ -109,7 +109,7 @@
   }
   
   var waitingForResponseFor = "";
-  var waitingCallback = 0;
+  var waitingCallback;
 
   var global_port_tested = -1;
   var global_touch_pressed = [false, false, false, false];
@@ -308,7 +308,8 @@
   
   function readFromSensor(port, type, mode, callback)
   {
-      if (waitingCallback != 0)
+    // we'll need to push the callback if we want to throttle queries to the EV3 and call each one when the result comes back
+      //if (waitingCallback != 0)
       {
           var readCommand = createMessage(DIRECT_COMMAND_REPLY_PREFIX +
                                                READ_SENSOR +
