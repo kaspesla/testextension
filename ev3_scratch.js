@@ -265,12 +265,14 @@
       sendCommand(motorsOffCommand);
   }
 
+  var alarm_went_off = false; // This becomes true after the alarm goes off
+
   ext.whenButtonPressed = function(whichInput)
   {
   
   if (alarm_went_off === true) {
   alarm_went_off = false;
-  console('triggered!');
+  
   return true;
   }
   
@@ -278,7 +280,6 @@
   }
   
 
-  var alarm_went_off = false; // This becomes true after the alarm goes off
 
   ext.set_alarm = function(time) {
   window.setTimeout(function() {
