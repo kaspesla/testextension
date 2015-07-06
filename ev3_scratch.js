@@ -108,10 +108,23 @@
         return result;
   }
   
+  var waitingForResponseFor = "";
+  var waitingCallback;
+
+  
   function receive_handler(data)
   {
     var inputData = new Uint8Array(data);
     console.log("received: " + createHexString(inputData));
+  
+   if (waitingForResponseFor == TOUCH_SENSOR)
+    {
+        var result = inputData[5];
+        if (result == 100)
+            waitingCallback(true);
+        else
+            waitingCallback(false);
+    }
   }
 
   var counter = 0;
@@ -215,6 +228,8 @@
   var PLAYTONE = "9401";
   var READ_SENSOR = "9A00";
   var TOUCH_SENSOR = "10";
+  
+  
   function sendCommand(commandArray)
   {
     if (connected && device)
@@ -275,20 +290,22 @@
     return false;
   }
   
-  ext.readSensorPort = function(port)
+  ext.readSensorPort = function(port, callback)
   {
-    readFromSensor(port, TOUCH_SENSOR, 0);
+    readFromSensor(port, TOUCH_SENSOR, 0, callback);
     return 123;
   }
   
-  function readFromSensor(port, type, mode)
+  function readFromSensor(port, type, mode, callback)
   {
       var readCommand = createMessage(DIRECT_COMMAND_REPLY_PREFIX +
                                            READ_SENSOR +
                                            hexcouplet(port-1) +
                                            type +
                                             "0060");
-      
+  
+      waitingForResponseFor = type;
+      waitingCallback = callback;
       sendCommand(readCommand);
   }
   
@@ -298,7 +315,7 @@
            [' ', 'motor %m.whichMotorPort speed %n',                         'allMotorsOn', 'B+C', 100],
            [' ', 'all motors off  %m.breakCoast',                        'allMotorsOff', 'break'],
            ['h', 'when %m.whichInputPort button pressed',  'whenButtonPressed', '1'],
-           ['r', 'read sensor %m.whichInputPort', 'readSensorPort', '1'],
+           ['R', 'read sensor %m.whichInputPort', 'readSensorPort', '1'],
            [' ', 'play tone  %m.note duration %n ms',                        'playTone', 'C5', 500],
            ],
   menus: {
