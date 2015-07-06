@@ -292,6 +292,7 @@
 
   ext.whenButtonPressed = function(port)
   {
+   // don't request if still waiting
     if (global_port_tested == -1)
     {
         global_port_tested = port;
@@ -307,15 +308,18 @@
   
   function readFromSensor(port, type, mode, callback)
   {
-      var readCommand = createMessage(DIRECT_COMMAND_REPLY_PREFIX +
-                                           READ_SENSOR +
-                                           hexcouplet(port-1) +
-                                           type +
-                                            "0060");
-  
-      waitingForResponseFor = type;
-      waitingCallback = callback;
-      sendCommand(readCommand);
+      if (waitingCallback != 0)
+      {
+          var readCommand = createMessage(DIRECT_COMMAND_REPLY_PREFIX +
+                                               READ_SENSOR +
+                                               hexcouplet(port-1) +
+                                               type +
+                                                "0060");
+      
+          waitingForResponseFor = type;
+          waitingCallback = callback;
+          sendCommand(readCommand);
+      }
   }
   
   // Block and block menu descriptions
