@@ -108,29 +108,31 @@
         return result;
   }
   
-  var waitingForResponseFor = "";
-  var waitingCallback;
-
-  var global_port_tested = -1;
+  var waitingCallbacks = [];
   var global_touch_pressed = [false, false, false, false];
+  var global_sensor_queried = [false, false, false, false];
 
   function receive_handler(data)
   {
     var inputData = new Uint8Array(data);
     console.log("received: " + createHexString(inputData));
   
-   if (waitingForResponseFor == TOUCH_SENSOR)
+   // only support touch sensor for now
+ //   if (waitingForResponseFor == TOUCH_SENSOR)
     {
         var result = inputData[5];
         var resBool = (result == 100);
         {
-            if (waitingCallback)
-                waitingCallback(resBool);
-            waitingCallback = 0;
-            global_touch_pressed[global_port_tested] = resBool;
-            global_port_tested = -1;
-        }
   
+           while(waited = waitingCallback.shift())
+           {
+              var callback = waited[0];
+              var port = waited[1];
+              global_touch_pressed[port-1] = resBool;
+              global_sensor_queried[port-1] = false;
+              callback(resBool);
+           }
+        }
     }
   }
 
@@ -292,21 +294,25 @@
 
   ext.whenButtonPressed = function(port)
   {
-   // don't request if still waiting
-    if (global_port_tested == -1)
+    if (!global_sensor_queried[port-1])
     {
-        global_port_tested = port;
-        readFromSensor(port, TOUCH_SENSOR, 0, 0);
+        global_sensor_queried[port-1] = true;
+        readFromSensor(port, TOUCH_SENSOR, 0);
     }
-    return global_touch_pressed[port];
+    return global_touch_pressed[port-1];
   }
   
   ext.readSensorPort = function(port, callback)
   {
-    readFromSensor(port, TOUCH_SENSOR, 0, callback);
+    waitingCallbacks.push([callback, port]);
+    if (!global_sensor_queried[port-1])
+    {
+      global_sensor_queried[port-1] = true;
+      readFromSensor(port, TOUCH_SENSOR, 0);
+    }
   }
   
-  function readFromSensor(port, type, mode, callback)
+  function readFromSensor(port, type, mode)
   {
     // we'll need to push the callback if we want to throttle queries to the EV3 and call each one when the result comes back
       //if (waitingCallback != 0)
@@ -317,8 +323,7 @@
                                                type +
                                                 "0060");
       
-          waitingForResponseFor = type;
-          waitingCallback = callback;
+  
           sendCommand(readCommand);
       }
   }
