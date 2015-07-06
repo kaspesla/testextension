@@ -111,7 +111,7 @@
   var waitingForResponseFor = "";
   var waitingCallback;
 
-  var globaL_port_tested = 0;
+  var global_port_tested = 0;
   var global_touch_pressed = [false, false, false, false];
 
   function receive_handler(data)
@@ -127,7 +127,7 @@
             if (waitingCallback)
                 waitingCallback(resBool);
             waitingCallback = 0;
-            global_touch_pressed[globaL_port_tested] = resBool;
+            global_touch_pressed[global_port_tested] = resBool;
         }
   
     }
@@ -289,9 +289,9 @@
   }
 
 
-  ext.whenButtonPressed = function(whichInput)
+  ext.whenButtonPressed = function(port)
   {
-    globaL_port_tested = port;
+    global_port_tested = port;
     readFromSensor(port, TOUCH_SENSOR, 0, callback);
     return global_touch_pressed[port];
   }
