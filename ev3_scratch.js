@@ -180,7 +180,7 @@
   function getPackedOutputHexString(num, lc)
   {
     // f-ed up nonsensical unsigned bit packing. see cOutputPackParam in c_output-c in EV3 firmware
-    var a = new ArrayBuffer(1);
+    var a = new ArrayBuffer(4);
     var sarr = new Int8Array(a);
     var uarr = new Uint8Array(a);
   
