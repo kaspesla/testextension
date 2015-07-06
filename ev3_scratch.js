@@ -111,7 +111,7 @@
   var waitingCallbacks = [[],[],[],[]];
   var waitingQueries = [];
   var global_touch_pressed = [false, false, false, false];
-  var global_sensor_queried = [false, false, false, false];
+  var global_sensor_queried = [0, 0, 0, 0];
 
   function receive_handler(data)
   {
@@ -126,7 +126,7 @@
         {
            var this_is_from_port = waitingQueries.shift();
           global_touch_pressed[this_is_from_port] = resBool;
-          global_sensor_queried[this_is_from_port] = false;
+          global_sensor_queried[this_is_from_port]--;
            while(callback = waitingCallbacks[this_is_from_port].shift())
            {
                 callback(resBool);
@@ -294,9 +294,9 @@
   ext.whenButtonPressed = function(port)
   {
     var portInt = parseInt(port) - 1;
-    if (!global_sensor_queried[portInt])
+    if (global_sensor_queried[portInt] == 0)
     {
-        global_sensor_queried[portInt] = true;
+        global_sensor_queried[portInt]++;
         readFromSensor(portInt, TOUCH_SENSOR, 0);
     }
     return global_touch_pressed[portInt];
@@ -307,9 +307,9 @@
     var portInt = parseInt(port) - 1;
 
     waitingCallbacks[portInt].push(callback);
-    if (!global_sensor_queried[portInt])
+    if (global_sensor_queried[portInt] == 0)
     {
-      global_sensor_queried[portInt] = true;
+      global_sensor_queried[portInt]++;
       readFromSensor(portInt, TOUCH_SENSOR, 0);
     }
   }
