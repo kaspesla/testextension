@@ -130,7 +130,8 @@
               var port = waited[1];
               global_touch_pressed[port-1] = resBool;
               global_sensor_queried[port-1] = false;
-              callback(resBool);
+              if (callback)
+                callback(resBool);
            }
         }
     }
@@ -297,6 +298,8 @@
     if (!global_sensor_queried[port-1])
     {
         global_sensor_queried[port-1] = true;
+        // add a bogus callback so query gets reset
+        waitingCallbacks.push([0, port]);
         readFromSensor(port, TOUCH_SENSOR, 0);
     }
     return global_touch_pressed[port-1];
