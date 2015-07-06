@@ -275,7 +275,7 @@
     return false;
   }
   
-  function readSensorPort(port)
+  ext.readSensorPort = function(port)
   {
     readFromSensor(port, TOUCH_SENSOR, 0);
     return 123;
