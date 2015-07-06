@@ -269,6 +269,8 @@
   {
   
     console.log("whenButtonPressed: " + whichInput);
+  
+  return true;
   }
   
   // Block and block menu descriptions
