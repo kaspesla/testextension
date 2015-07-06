@@ -292,7 +292,7 @@
   ext.whenButtonPressed = function(port)
   {
     global_port_tested = port;
-    readFromSensor(port, TOUCH_SENSOR, 0, callback);
+    readFromSensor(port, TOUCH_SENSOR, 0, 0);
     return global_touch_pressed[port];
   }
   
