@@ -235,7 +235,7 @@
       var freq = frequencies[tone];
       console.log("playTone " + tone + " duration: " + duration + " freq: " + freq);
       var volume = 2;
-      var volString + getPackedOutputHexString(volume, 1);
+      var volString = getPackedOutputHexString(volume, 1);
       var freqString = getPackedOutputHexString(freq, 2);
       var durString = getPackedOutputHexString(duration, 2);
   
