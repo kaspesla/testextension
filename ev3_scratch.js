@@ -109,6 +109,7 @@
   }
   
   var waitingCallbacks = [];
+  var waitingQueries = [];
   var global_touch_pressed = [false, false, false, false];
   var global_sensor_queried = [false, false, false, false];
 
@@ -123,14 +124,11 @@
         var result = inputData[5];
         var resBool = (result == 100);
         {
-  
-           while(waited = waitingCallbacks.shift())
+           var this_is_from_port = waitingQueries.shift();
+          global_touch_pressed[this_is_from_port-1] = resBool;
+          global_sensor_queried[this_is_from_port-1] = false;
+           while(callback = waitingCallbacks[this_is_from_port-1].shift())
            {
-              var callback = waited[0];
-              var port = waited[1];
-              global_touch_pressed[port-1] = resBool;
-              global_sensor_queried[port-1] = false;
-              if (callback)
                 callback(resBool);
            }
         }
@@ -298,8 +296,6 @@
     if (!global_sensor_queried[port-1])
     {
         global_sensor_queried[port-1] = true;
-        // add a bogus callback so query gets reset
-        waitingCallbacks.push([0, port]);
         readFromSensor(port, TOUCH_SENSOR, 0);
     }
     return global_touch_pressed[port-1];
@@ -307,7 +303,7 @@
   
   ext.readSensorPort = function(port, callback)
   {
-    waitingCallbacks.push([callback, port]);
+    waitingCallbacks[port-1].push(callback);
     if (!global_sensor_queried[port-1])
     {
       global_sensor_queried[port-1] = true;
@@ -320,6 +316,8 @@
     // we'll need to push the callback if we want to throttle queries to the EV3 and call each one when the result comes back
       //if (waitingCallback != 0)
       {
+            waitingQueries.push(port);
+  
           var readCommand = createMessage(DIRECT_COMMAND_REPLY_PREFIX +
                                                READ_SENSOR +
                                                hexcouplet(port-1) +
