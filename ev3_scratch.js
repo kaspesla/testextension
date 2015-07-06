@@ -124,7 +124,7 @@
         var resBool = (result == 100);
         {
   
-           while(waited = waitingCallback.shift())
+           while(waited = waitingCallbacks.shift())
            {
               var callback = waited[0];
               var port = waited[1];
