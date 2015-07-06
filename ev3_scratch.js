@@ -48,7 +48,7 @@
   
   var poller = null;
   var watchdog = null;
-  var DEBUG_NO_EV3 = true;
+  var DEBUG_NO_EV3 = false;
   
   function tryNextDevice()
   {
