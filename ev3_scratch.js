@@ -273,9 +273,9 @@
       var freqString = getPackedOutputHexString(freq, 2);
       var durString = getPackedOutputHexString(duration, 2);
       
-      var toneCommand = createMessage(DIRECT_COMMAND_PREFIX + PLAYTONE + volString + "82E803" + durString);
+      var toneCommand = createMessage(DIRECT_COMMAND_PREFIX + PLAYTONE + volString + freqString + durString);
 
-      sendCommand(motorsOnCommand);
+      sendCommand(toneCommand);
   }
   
   ext.allMotorsOff = function(how)
