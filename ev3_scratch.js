@@ -270,6 +270,7 @@
   
   if (alarm_went_off === true) {
   alarm_went_off = false;
+  console('triggered!');
   return true;
   }
   
