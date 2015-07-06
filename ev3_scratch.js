@@ -206,13 +206,15 @@
   }
   
   var DIRECT_COMMAND_PREFIX = "800000";
+  var DIRECT_COMMAND_REPLY_PREFIX = "000100";
   // direct command opcode/prefixes
   var SET_MOTOR_SPEED = "A400";
   var SET_MOTOR_STOP = "A300";
   var SET_MOTOR_START = "A600";
   var NOOP = "0201";
   var PLAYTONE = "9401";
-  
+  var READ_SENSOR = "9A00";
+  var TOUCH_SENSOR = "10";
   function sendCommand(commandArray)
   {
     if (connected && device)
@@ -270,24 +272,21 @@
   ext.whenButtonPressed = function(whichInput)
   {
   
-  if (alarm_went_off === true) {
-  alarm_went_off = false;
-  
-  return true;
+    return false;
   }
   
-  return false;
+  function readFromSensor(port, type, moe)
+  {
+    var volString = getPackedOutputHexString(volume, 1);
+
+      var readCommand = createMessage(DIRECT_COMMAND_REPLY_PREFIX +
+                                           READ_SENSOR +
+                                           hexcouplet(port-1) +
+                                           TOUCH_SENSOR + ) +
+                                            "0060";
+      
+      sendCommand(readCommand);
   }
-  
-
-
-  ext.set_alarm = function(time) {
-  window.setTimeout(function() {
-                    alarm_went_off = true;
-                    }, time*1000);
-  };
-  
-
   
   // Block and block menu descriptions
   var descriptor = {
@@ -295,11 +294,7 @@
            [' ', 'motor %m.whichMotorPort speed %n',                         'allMotorsOn', 'B+C', 100],
            [' ', 'all motors off  %m.breakCoast',                        'allMotorsOff', 'break'],
            ['h', 'when %m.whichInputPort button pressed',  'whenButtonPressed', '1'],
-
            [' ', 'play tone  %m.note duration %n ms',                        'playTone', 'C5', 500],
-           ['h', 'when alarm goes off', 'when_alarm'],
-           ['', 'run alarm after %n seconds', 'set_alarm', '2'],
-
            ],
   menus: {
   whichMotorPort: ['A', 'B', 'C', 'D', 'A+D', 'B+C'],
