@@ -48,7 +48,7 @@
   
   var poller = null;
   var watchdog = null;
-  var DEBUG_NO_EV3 = false;
+  var DEBUG_NO_EV3 = true;
   
   function tryNextDevice()
   {
@@ -176,24 +176,28 @@
     return str;
   }
   
-  // power bytes using weird serialization method
-  function getPowerBitsHexString(power)
+  // int bytes using weird serialization method
+  function getPackedOutputHexString(num, lc)
   {
-    // f-ed up nonsensical unsigned 8-bit bit packing. see cOutputPackParam in c_output-c in EV3 firmware
+    // f-ed up nonsensical unsigned bit packing. see cOutputPackParam in c_output-c in EV3 firmware
     var a = new ArrayBuffer(1);
     var sarr = new Int8Array(a);
     var uarr = new Uint8Array(a);
   
-    sarr[0] = power;
-    var powerbits = uarr[0];
-    if (power < 32 && power > -32)
+    sarr[0] = num;
+    if (lc == 0) //power < 32 && power > -32)
     {
+        var powerbits = uarr[0];
         powerbits &= 0x0000003F;
         return hexcouplet(powerbits);
     }
-    else
+    else if (lc == 1) //(power < 127 && power > -127)
     {
-      return "81" + hexcouplet(powerbits);
+      return "81" + hexcouplet(uarr[0]);
+    }
+    else if (lc == 2) //(power < 32767 && power > 32767)
+    {
+        return "82" + hexcouplet(uarr[0]) + hexcouplet(uarr[1]);
     }
 
     return "00";
@@ -205,6 +209,7 @@
   var SET_MOTOR_STOP = "A300";
   var SET_MOTOR_START = "A600";
   var NOOP = "0201";
+  var PLAYTONE = "9401";
   
   function sendCommand(commandArray)
   {
@@ -217,7 +222,7 @@
     console.log("motor " + which + " power: " + power);
     var motorBitField = getMotorBitsHexString(which);
 
-    var powerBits = getPowerBitsHexString(power);
+    var powerBits = getPackedOutputHexString(power, 1);
 
     var motorsOnCommand = createMessage(DIRECT_COMMAND_PREFIX + SET_MOTOR_SPEED + motorBitField + powerBits + SET_MOTOR_START + motorBitField);
   
@@ -225,6 +230,20 @@
 
   }
 
+  ext.playTone = function(tone, duration)
+  {
+      var freq = frequencies[tone];
+      console.log("playTone " + tone + " duration: " + duration + " freq: " + freq);
+      var volume = 2;
+      var volString + getPackedOutputHexString(volume, 1);
+      var freqString = getPackedOutputHexString(freq, 2);
+      var durString = getPackedOutputHexString(duration, 2);
+  
+      var toneCommand = createMessage(DIRECT_COMMAND_PREFIX + PLAYTONE + volString + freqString + powerBits + durString);
+  console.log(toneCommand);
+      sendCommand(motorsOnCommand);
+  }
+  
   var frequencies = [
   ["C4", 262],
   ["D4", 294],
@@ -293,7 +312,7 @@
   menus: {
   whichMotorPort: ['A', 'B', 'C', 'D', 'A+D', 'B+C'],
   breakCoast: ['break', 'coast'],
-  note:["D4","E4","F4","G4","A4","B4","C5","D5","E5","F5","G5","A5","B5","C6","D6","E6","F6","G6","A6","B6","","C#4","D#4","F#4","G#4","A#4","C#5","D#5","F#5","G#5","A#5","C#6","D#6","F#6","G#6","A#6"],
+  note:["D4","E4","F4","G4","A4","B4","C5","D5","E5","F5","G5","A5","B5","C6","D6","E6","F6","G6","A6","B6","C#4","D#4","F#4","G#4","A#4","C#5","D#5","F#5","G#5","A#5","C#6","D#6","F#6","G#6","A#6"],
     },
   };
 
