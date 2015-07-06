@@ -293,6 +293,8 @@
 
   ext.whenButtonPressed = function(port)
   {
+    if (!device || !connected)
+        return false;
     var portInt = parseInt(port) - 1;
     if (global_sensor_queried[portInt] == 0)
     {
