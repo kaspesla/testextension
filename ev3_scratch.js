@@ -327,7 +327,7 @@
     }
     else
     {
-        var p =  str.split("+");
+        var p =  ports.split("+");
         if (what == 'right')
         {
             motors(p[0], -1 * defaultPower);
