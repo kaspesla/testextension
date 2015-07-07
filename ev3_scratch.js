@@ -298,10 +298,10 @@
   {
       console.log("allMotorsOff");
  
-      motorsStop();
+      motorsStop(how);
   }
  
-  function motorsStop()
+  function motorsStop(how)
   {
       var motorBitField = getMotorBitsHexString("all");
 
@@ -316,7 +316,7 @@
 
   ext.steeringControl = function(ports, what, duration, callback)
   {
-    var defaultPower = 100;
+    var defaultPower = 50;
     if (what == 'forward')
     {
         motor(ports, defaultPower);
@@ -341,7 +341,7 @@
     }
     window.setTimeout(function()
     {
-        motorsStop();
+        motorsStop('break');
         callback();
     } , duration*1000);
   }
