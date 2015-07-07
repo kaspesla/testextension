@@ -256,7 +256,9 @@
   
   ext.allMotorsOn = function(which, power)
   {
-    console.log("motor " + which + " power: " + power);
+    clearDriveTimer();
+
+   console.log("motor " + which + " power: " + power);
   
     motor(which, power);
   }
@@ -290,15 +292,29 @@
       sendCommand(toneCommand);
   
        window.setTimeout(function() {
+                    driveTimer = 0;
                     callback();
                     }, duration);
   }
-  
+ 
+ function clearDriveTimer()
+ {
+    if (driveTimer)
+        clearInterval(driveTimer);
+    driveTimer = 0;
+    if (driveCallback)
+        driveCallback();
+    driveCallback = 0;
+}
+ 
   ext.allMotorsOff = function(how)
   {
- 
+      clearDriveTimer();
       motorsStop(how);
   }
+ 
+ var driveTimer = 0;
+ driveCallback = 0;
  
   function motorsStop(how)
   {
@@ -317,6 +333,7 @@
 
   ext.steeringControl = function(ports, what, duration, callback)
   {
+    clearDriveTimer();
     var defaultPower = 50;
     if (what == 'forward')
     {
@@ -340,7 +357,8 @@
          motor(p[0],  defaultPower);
          }
     }
-    window.setTimeout(function()
+    driveCallback = callback;
+    driveTimer = window.setTimeout(function()
     {
         motorsStop('coast');
         callback();
