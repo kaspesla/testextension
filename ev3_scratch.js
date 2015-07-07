@@ -329,12 +329,12 @@
     else
     {
         var p =  ports.split("+");
-        if (what == 'right')
+        if (what == 'left')
         {
             motor(p[0], -1 * defaultPower);
             motor(p[1],  defaultPower);
         }
-        else if (what == 'left')
+        else if (what == 'right')
          {
          motor(p[1], -1 * defaultPower);
          motor(p[0],  defaultPower);
@@ -342,7 +342,7 @@
     }
     window.setTimeout(function()
     {
-        motorsStop('break');
+        motorsStop('coast');
         callback();
     } , duration*1000);
   }
