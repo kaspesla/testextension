@@ -296,13 +296,14 @@
   
   ext.allMotorsOff = function(how)
   {
-      console.log("allMotorsOff");
  
       motorsStop(how);
   }
  
   function motorsStop(how)
   {
+      console.log("motorsStop");
+
       var motorBitField = getMotorBitsHexString("all");
 
       var howHex = '00';
