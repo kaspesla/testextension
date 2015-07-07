@@ -324,20 +324,20 @@
     }
     else if (what == 'reverse')
     {
-        motors(ports, -1 * defaultPower);
+        motor(ports, -1 * defaultPower);
     }
     else
     {
         var p =  ports.split("+");
         if (what == 'right')
         {
-            motors(p[0], -1 * defaultPower);
-            motors(p[1],  defaultPower);
+            motor(p[0], -1 * defaultPower);
+            motor(p[1],  defaultPower);
         }
         else if (what == 'left')
          {
-         motors(p[1], -1 * defaultPower);
-         motors(p[0],  defaultPower);
+         motor(p[1], -1 * defaultPower);
+         motor(p[0],  defaultPower);
          }
     }
     window.setTimeout(function()
