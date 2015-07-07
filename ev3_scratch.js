@@ -316,27 +316,27 @@
 
   ext.steeringControl = function(ports, what, duration, callback)
   {
-    int power = 100;
+    var defaultPower = 100;
     if (what == 'forward')
     {
-        motor(ports, power);
+        motor(ports, defaultPower);
     }
     else if (what == 'reverse')
     {
-        motors(ports, -1 * power);
+        motors(ports, -1 * defaultPower);
     }
     else
     {
         var p =  str.split("+");
         if (what == 'right')
         {
-            motors(p[0], -1 * power);
-            motors(p[1],  power);
+            motors(p[0], -1 * defaultPower);
+            motors(p[1],  defaultPower);
         }
         else if (what == 'left')
          {
-         motors(p[1], -1 * power);
-         motors(p[0],  power);
+         motors(p[1], -1 * defaultPower);
+         motors(p[0],  defaultPower);
          }
     }
     window.setTimeout(function()
