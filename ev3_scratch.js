@@ -393,12 +393,12 @@
   // Block and block menu descriptions
   var descriptor = {
   blocks: [
-           [' ', 'motor %m.whichMotorPort speed %n',                    'allMotorsOn',      'B+C', 100],
            ['w', 'drive %m.dualMotors %m.turnStyle %n seconds',         'steeringControl',  'B+C', 'forward', 3],
+           [' ', 'motor %m.whichMotorPort speed %n',                    'allMotorsOn',      'B+C', 100],
            [' ', 'all motors off  %m.breakCoast',                       'allMotorsOff',     'break'],
-           ['h', 'when %m.whichInputPort button pressed',               'whenButtonPressed','1'],
-           ['R', 'button %m.whichInputPort pressed',                    'readSensorPort',   '1'],
-           ['w', 'play tone  %m.note duration %n ms',                   'playTone',         'C5', 500],
+           ['h', 'when button pressed %m.whichInputPort',               'whenButtonPressed','1'],
+           ['R', 'button pressed %m.whichInputPort',                    'readSensorPort',   '1'],
+           ['w', 'play tone %m.note duration %n ms',                   'playTone',         'C5', 500],
            ],
   menus: {
   whichMotorPort:   ['A', 'B', 'C', 'D', 'A+D', 'B+C'],
