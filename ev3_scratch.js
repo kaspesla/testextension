@@ -1,4 +1,11 @@
- (function(ext) {
+// EV3 ScratchX Plugin
+// Copyright 2015 Ken Aspeslagh @massivevector
+// Only tested on Mac. Brick must be named starting with "serial" if the plugin is to recognize it.
+// Rename the brick before pairing it with the Mac or else the name gets cached and the serial port will have the old name
+// Mine bricks are named serialBrick1 (etc)
+// Turn off the iPod/iPhone/iPad checkbox on the EV3 Bluetooth settings or else it will not work at all
+
+(function(ext) {
   // Cleanup function when the extension is unloaded
   ext._shutdown = function() {};
   
@@ -250,6 +257,12 @@
   ext.allMotorsOn = function(which, power)
   {
     console.log("motor " + which + " power: " + power);
+  
+    motor(which, power);
+  }
+  
+  function motor(which, power)
+  {
     var motorBitField = getMotorBitsHexString(which);
 
     var powerBits = getPackedOutputHexString(power, 1);
@@ -257,7 +270,6 @@
     var motorsOnCommand = createMessage(DIRECT_COMMAND_PREFIX + SET_MOTOR_SPEED + motorBitField + powerBits + SET_MOTOR_START + motorBitField);
   
     sendCommand(motorsOnCommand);
-
   }
 
   
@@ -285,7 +297,12 @@
   ext.allMotorsOff = function(how)
   {
       console.log("allMotorsOff");
-      
+ 
+      motorsStop();
+  }
+ 
+  function motorsStop()
+  {
       var motorBitField = getMotorBitsHexString("all");
 
       var howHex = '00';
@@ -297,7 +314,38 @@
       sendCommand(motorsOffCommand);
   }
 
-
+  ext.steeringControl = function(ports, what, duration, callback)
+  {
+    int power = 100;
+    if (what == 'forward')
+    {
+        motor(ports, power);
+    }
+    else if (what == 'reverse')
+    {
+        motors(ports, -1 * power);
+    }
+    else
+    {
+        var p =  str.split("+");
+        if (what == 'right')
+        {
+            motors(p[0], -1 * power);
+            motors(p[1],  power);
+        }
+        else if (what == 'left')
+         {
+         motors(p[1], -1 * power);
+         motors(p[0],  power);
+         }
+    }
+    window.setTimeout(function()
+    {
+        motorsStop();
+        callback();
+    } , duration*1000);
+  }
+ 
   ext.whenButtonPressed = function(port)
   {
     if (!device || !connected)
@@ -344,16 +392,19 @@
   // Block and block menu descriptions
   var descriptor = {
   blocks: [
-           [' ', 'motor %m.whichMotorPort speed %n',                         'allMotorsOn', 'B+C', 100],
-           [' ', 'all motors off  %m.breakCoast',                        'allMotorsOff', 'break'],
-           ['h', 'when %m.whichInputPort button pressed',  'whenButtonPressed', '1'],
-           ['R', 'read sensor %m.whichInputPort', 'readSensorPort', '1'],
-           ['w', 'play tone  %m.note duration %n ms',                        'playTone', 'C5', 500],
+           [' ', 'motor %m.whichMotorPort speed %n',                    'allMotorsOn',      'B+C', 100],
+           ['w', 'drive %m.dualMotors %m.turnStyle %n seconds',         'steeringControl',  'B+C', 'forward', 3],
+           [' ', 'all motors off  %m.breakCoast',                       'allMotorsOff',     'break'],
+           ['h', 'when %m.whichInputPort button pressed',               'whenButtonPressed','1'],
+           ['R', 'button %m.whichInputPort pressed',                    'readSensorPort',   '1'],
+           ['w', 'play tone  %m.note duration %n ms',                   'playTone',         'C5', 500],
            ],
   menus: {
-  whichMotorPort: ['A', 'B', 'C', 'D', 'A+D', 'B+C'],
-  breakCoast: ['break', 'coast'],
-  note:["D4","E4","F4","G4","A4","B4","C5","D5","E5","F5","G5","A5","B5","C6","D6","E6","F6","G6","A6","B6","C#4","D#4","F#4","G#4","A#4","C#5","D#5","F#5","G#5","A#5","C#6","D#6","F#6","G#6","A#6"],
+  whichMotorPort:   ['A', 'B', 'C', 'D', 'A+D', 'B+C'],
+  dualMotors:       ['A+D', 'B+C'],
+  turnStyle:        ['forward', 'reverse', 'right', 'left'],
+  breakCoast:       ['break', 'coast'],
+  note:["C4","D4","E4","F4","G4","A4","B4","C5","D5","E5","F5","G5","A5","B5","C6","D6","E6","F6","G6","A6","B6","C#4","D#4","F#4","G#4","A#4","C#5","D#5","F#5","G#5","A#5","C#6","D#6","F#6","G#6","A#6"],
     whichInputPort: ['1', '2', '3', '4'],
     },
   };
