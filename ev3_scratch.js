@@ -246,7 +246,11 @@
   var PLAYTONE = "9401";
   var READ_SENSOR = "9A00";
   var TOUCH_SENSOR = "10";
-  
+  var COLOR_SENSOR = "1D";
+  var REFLECTED_INTENSITY = "00";
+  var AMBIENT_INTENSITY = "01";
+  var COLOR_VALUE = "02";
+ 
   
   function sendCommand(commandArray)
   {
@@ -365,20 +369,33 @@
     } , duration*1000);
   }
  
+  function readTouchSensor(portInt)
+  {
+     if (global_sensor_queried[portInt] == 0)
+     {
+       global_sensor_queried[portInt]++;
+       readFromSensor(portInt, TOUCH_SENSOR, "00");
+     }
+  }
+ 
   ext.whenButtonPressed = function(port)
   {
     if (!device || !connected)
         return false;
     var portInt = parseInt(port) - 1;
-    if (global_sensor_queried[portInt] == 0)
-    {
-        global_sensor_queried[portInt]++;
-        readFromSensor(portInt, TOUCH_SENSOR, 0);
-    }
+    readTouchSensor(portInt);
     return global_touch_pressed[portInt];
   }
   
-  ext.readSensorPort = function(port, callback)
+  ext.readTouchSensorPort = function(port, callback)
+  {
+    var portInt = parseInt(port) - 1;
+
+    waitingCallbacks[portInt].push(callback);
+    readTouchSensor(portInt);
+  }
+ 
+  ext.readColorSensorPort = function(port, callback)
   {
     var portInt = parseInt(port) - 1;
 
@@ -386,10 +403,10 @@
     if (global_sensor_queried[portInt] == 0)
     {
       global_sensor_queried[portInt]++;
-      readFromSensor(portInt, TOUCH_SENSOR, 0);
+      readFromSensor(portInt, COLOR_SENSOR, AMBIENT_INTENSITY);
     }
   }
-  
+
   function readFromSensor(port, type, mode)
   {
     // we'll need to push the callback if we want to throttle queries to the EV3 and call each one when the result comes back
@@ -401,9 +418,8 @@
                                                READ_SENSOR +
                                                hexcouplet(port) +
                                                type +
-                                                "0060");
-      
-  
+                                                mode + "60");
+ 
           sendCommand(readCommand);
       }
   }
@@ -415,8 +431,9 @@
            [' ', 'motor %m.whichMotorPort speed %n',                    'allMotorsOn',      'B+C', 100],
            [' ', 'all motors off  %m.breakCoast',                       'allMotorsOff',     'break'],
            ['h', 'when button pressed %m.whichInputPort',               'whenButtonPressed','1'],
-           ['R', 'button pressed %m.whichInputPort',                    'readSensorPort',   '1'],
-           ['w', 'play tone %m.note duration %n ms',                   'playTone',         'C5', 500],
+           ['R', 'button pressed %m.whichInputPort',                    'readTouchSensorPort',   '1'],
+           ['w', 'play tone %m.note duration %n ms',                    'playTone',         'C5', 500],
+           ['R', 'color sensor %m.whichInputPort',                      'readColorSensorPort',   '1'],
            ],
   menus: {
   whichMotorPort:   ['A', 'B', 'C', 'D', 'A+D', 'B+C'],
