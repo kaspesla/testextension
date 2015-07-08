@@ -152,7 +152,7 @@
             }
             else
             {
-                theresult = "none";
+                theResult = "none";
             }
         }
     }
