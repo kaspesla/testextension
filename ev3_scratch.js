@@ -395,15 +395,19 @@
     readTouchSensor(portInt);
   }
  
-  ext.readColorSensorPort = function(port, callback)
+  ext.readColorSensorPort = function(port, mode, callback)
   {
+    var modeCode = AMBIENT_INTENSITY;
+    if (mode == 'reflected') { modeCode = REFLECTED_INTENSITY; }
+    if (mode == 'color') { modeCode = COLOR_VALUE; }
+ 
     var portInt = parseInt(port) - 1;
 
     waitingCallbacks[portInt].push(callback);
     if (global_sensor_queried[portInt] == 0)
     {
       global_sensor_queried[portInt]++;
-      readFromSensor(portInt, COLOR_SENSOR, AMBIENT_INTENSITY);
+      readFromSensor(portInt, COLOR_SENSOR, modeCode);
     }
   }
 
@@ -433,15 +437,16 @@
            ['h', 'when button pressed %m.whichInputPort',               'whenButtonPressed','1'],
            ['R', 'button pressed %m.whichInputPort',                    'readTouchSensorPort',   '1'],
            ['w', 'play tone %m.note duration %n ms',                    'playTone',         'C5', 500],
-           ['R', 'color sensor %m.whichInputPort',                      'readColorSensorPort',   '1'],
+           ['R', 'light sensor %m.whichInputPort %m.lightSensorMode',   'readColorSensorPort',   '1', 'color'],
            ],
   menus: {
   whichMotorPort:   ['A', 'B', 'C', 'D', 'A+D', 'B+C'],
   dualMotors:       ['A+D', 'B+C'],
   turnStyle:        ['forward', 'reverse', 'right', 'left'],
   breakCoast:       ['break', 'coast'],
+  lightSensorMode:  ['reflected', 'ambient', 'color'],
   note:["C4","D4","E4","F4","G4","A4","B4","C5","D5","E5","F5","G5","A5","B5","C6","D6","E6","F6","G6","A6","B6","C#4","D#4","F#4","G#4","A#4","C#5","D#5","F#5","G#5","A#5","C#6","D#6","F#6","G#6","A#6"],
-    whichInputPort: ['1', '2', '3', '4'],
+  whichInputPort: ['1', '2', '3', '4'],
     },
   };
 
