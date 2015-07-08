@@ -125,20 +125,43 @@
     var inputData = new Uint8Array(data);
     console.log("received: " + createHexString(inputData));
   
-   // only support touch sensor for now
- //   if (waitingForResponseFor == TOUCH_SENSOR)
+    var result = inputData[5];
+    var query_info = waitingQueries.shift();
+    var this_is_from_port = query_info[0];
+    var mode = query_info[1];
+    var modeType = query_info[2];
+     
+    var theResult = "";
+    if (mode == TOUCH_SENSOR)
     {
-        var result = inputData[5];
-        var resBool = (result == 100);
+        theResult = (result == 100);
+    }
+    else if (mode == COLOR_SENSOR)
+    {
+        if (modeType == AMBIENT_INTENSITY || modeType == REFLECTED_INTENSITY)
         {
-           var this_is_from_port = waitingQueries.shift();
-          global_touch_pressed[this_is_from_port] = resBool;
-          global_sensor_queried[this_is_from_port]--;
-           while(callback = waitingCallbacks[this_is_from_port].shift())
-           {
-                callback(resBool);
-           }
+            theResult = result;
         }
+        else if (modeType == COLOR_VALUE)
+        {
+            var hexcoup = hexcouplet(result);
+            var res = colors[hexcoup];
+            if (res)
+            {
+                theResult = res;
+            }
+            else
+            {
+                theresult = "none";
+            }
+        }
+    }
+
+    global_touch_pressed[this_is_from_port] = theResult;
+    global_sensor_queried[this_is_from_port]--;
+    while(callback = waitingCallbacks[this_is_from_port].shift())
+    {
+        callback(theResult);
     }
   }
 
@@ -281,7 +304,8 @@
   
   var frequencies = { "C4" : 262, "D4" : 294, "E4" : 330, "F4" : 349, "G4" : 392, "A4" : 440, "B4" : 494, "C5" : 523, "D5" : 587, "E5" : 659, "F5" : 698, "G5" : 784, "A5" : 880, "B5" : 988, "C6" : 1047, "D6" : 1175, "E6" : 1319, "F6" : 1397, "G6" : 1568, "A6" : 1760, "B6" : 1976, "C#4" : 277, "D#4" : 311, "F#4" : 370, "G#4" : 415, "A#4" : 466, "C#5" : 554, "D#5" : 622, "F#5" : 740, "G#5" : 831, "A#5" : 932, "C#6" : 1109, "D#6" : 1245, "F#6" : 1480, "G#6" : 1661, "A#6" : 1865 };
   
-  
+ var colors = { "0C" : "black",  "19" : "blue",  "19" : "blue",  "25" : "green",  "32" : "yellow",  "3e" : "red",  "4b" : "white",  "57" : "brown" };
+ 
   ext.playTone = function(tone, duration, callback)
   {
       var freq = frequencies[tone];
@@ -416,7 +440,7 @@
     // we'll need to push the callback if we want to throttle queries to the EV3 and call each one when the result comes back
       //if (waitingCallback != 0)
       {
-            waitingQueries.push(port);
+          waitingQueries.push([port, type, mode]);
   
           var readCommand = createMessage(DIRECT_COMMAND_REPLY_PREFIX +
                                                READ_SENSOR +
