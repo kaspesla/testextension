@@ -448,7 +448,7 @@
     if (global_sensor_queried[portInt] == 0)
     {
       global_sensor_queried[portInt]++;
-      readFromSensor(portInt, COLOR_SENSOR, modeCode);
+      readFromSensor(portInt, COLOR_SENSOR, 0);
     }
   }
  
@@ -479,7 +479,7 @@
            ['R', 'button pressed %m.whichInputPort',                    'readTouchSensorPort',   '1'],
            ['w', 'play tone %m.note duration %n ms',                    'playTone',         'C5', 500],
            ['R', 'light sensor %m.whichInputPort %m.lightSensorMode',   'readColorSensorPort',   '1', 'color'],
-           ['R', 'light distance %m.whichInputPort',   'readDistanceSensorPort',   '1'],
+           ['R', 'measure distance %m.whichInputPort',   'readDistanceSensorPort',   '1'],
            ],
   menus: {
   whichMotorPort:   ['A', 'B', 'C', 'D', 'A+D', 'B+C'],
