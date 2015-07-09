@@ -275,7 +275,7 @@
   var READ_SENSOR = "9A00";
   var TOUCH_SENSOR = "10";
   var COLOR_SENSOR = "1D";
-  var IR_SENSOR = "21";
+  var IR_SENSOR = "1D"; // this seems to work... IR sensor should be 0x21 but that isn't working
   var REFLECTED_INTENSITY = "00";
   var AMBIENT_INTENSITY = "01";
   var COLOR_VALUE = "02";
