@@ -271,6 +271,7 @@
   var SET_MOTOR_START = "A600";
   var NOOP = "0201";
   var PLAYTONE = "9401";
+  var mode0 = "00";
   var READ_SENSOR = "9A00";
   var TOUCH_SENSOR = "10";
   var COLOR_SENSOR = "1D";
@@ -403,7 +404,7 @@
      if (global_sensor_queried[portInt] == 0)
      {
        global_sensor_queried[portInt]++;
-       readFromSensor(portInt, TOUCH_SENSOR, "00");
+       readFromSensor(portInt, TOUCH_SENSOR, mode0);
      }
   }
  
@@ -448,7 +449,7 @@
     if (global_sensor_queried[portInt] == 0)
     {
       global_sensor_queried[portInt]++;
-      readFromSensor(portInt, IR_SENSOR, 0);
+      readFromSensor(portInt, IR_SENSOR, mode0);
     }
   }
  
