@@ -156,7 +156,11 @@
             }
         }
     }
-
+    else //if (mode == IR_SENSOR)
+    {
+       theResult = result;
+ 
+    }
     global_touch_pressed[this_is_from_port] = theResult;
     global_sensor_queried[this_is_from_port]--;
     while(callback = waitingCallbacks[this_is_from_port].shift())
@@ -270,6 +274,7 @@
   var READ_SENSOR = "9A00";
   var TOUCH_SENSOR = "10";
   var COLOR_SENSOR = "1D";
+  var IR_SENSOR = "21";
   var REFLECTED_INTENSITY = "00";
   var AMBIENT_INTENSITY = "01";
   var COLOR_VALUE = "02";
@@ -431,10 +436,22 @@
     if (global_sensor_queried[portInt] == 0)
     {
       global_sensor_queried[portInt]++;
+      readFromSensor(portInt, IR_SENSOR, modeCode);
+    }
+  }
+ 
+  ext.readDistanceSensorPort = function(port, callback)
+  {
+    var portInt = parseInt(port) - 1;
+
+    waitingCallbacks[portInt].push(callback);
+    if (global_sensor_queried[portInt] == 0)
+    {
+      global_sensor_queried[portInt]++;
       readFromSensor(portInt, COLOR_SENSOR, modeCode);
     }
   }
-
+ 
   function readFromSensor(port, type, mode)
   {
     // we'll need to push the callback if we want to throttle queries to the EV3 and call each one when the result comes back
@@ -462,6 +479,7 @@
            ['R', 'button pressed %m.whichInputPort',                    'readTouchSensorPort',   '1'],
            ['w', 'play tone %m.note duration %n ms',                    'playTone',         'C5', 500],
            ['R', 'light sensor %m.whichInputPort %m.lightSensorMode',   'readColorSensorPort',   '1', 'color'],
+           ['R', 'light distance %m.whichInputPort',   'readDistanceSensorPort',   '1'],
            ],
   menus: {
   whichMotorPort:   ['A', 'B', 'C', 'D', 'A+D', 'B+C'],
