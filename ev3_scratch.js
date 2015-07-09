@@ -132,11 +132,11 @@
     var modeType = query_info[2];
      
     var theResult = "";
-   if (theResult == 128)
- {
-   // bogus reading
-    theResult = -1;
- }
+    if (result == 0x80)
+    {
+      // bogus reading. gets this on first check
+      result = -1;
+    }
     if (mode == TOUCH_SENSOR)
     {
         theResult = (result == 100);
