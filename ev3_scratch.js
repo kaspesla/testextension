@@ -436,7 +436,7 @@
     if (global_sensor_queried[portInt] == 0)
     {
       global_sensor_queried[portInt]++;
-      readFromSensor(portInt, IR_SENSOR, modeCode);
+      readFromSensor(portInt, COLOR_SENSOR, modeCode);
     }
   }
  
@@ -448,7 +448,7 @@
     if (global_sensor_queried[portInt] == 0)
     {
       global_sensor_queried[portInt]++;
-      readFromSensor(portInt, COLOR_SENSOR, 0);
+      readFromSensor(portInt, IR_SENSOR, 0);
     }
   }
  
