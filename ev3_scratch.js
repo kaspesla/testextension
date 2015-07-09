@@ -454,7 +454,7 @@
     if (global_sensor_queried[portInt] == 0)
     {
       global_sensor_queried[portInt]++;
-      readFromSensor(portInt, IR_SENSOR, "01");
+      readFromSensor(portInt, IR_SENSOR, mode0);
     }
   }
  
