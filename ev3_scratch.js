@@ -1,9 +1,9 @@
 // EV3 ScratchX Plugin
 // Copyright 2015 Ken Aspeslagh @massivevector
-// Only tested on Mac. Brick must be named starting with "serial" if the plugin is to recognize it.
+// Only tested on Mac. On Mac, ev3 brick must be named starting with "serial" if the plugin is to recognize it.
 // Rename the brick before pairing it with the Mac or else the name gets cached and the serial port will have the old name
-// Mine bricks are named serialBrick1 (etc)
-// Turn off the iPod/iPhone/iPad checkbox on the EV3 Bluetooth settings or else it will not work at all
+// My bricks are named serialBrick1 (etc)
+// Turn off the iPod/iPhone/iPad checkbox on the EV3 Bluetooth settings after pairing or else it will not work at all
 
 (function(ext) {
   // Cleanup function when the extension is unloaded
@@ -132,17 +132,18 @@
     var modeType = query_info[2];
      
     var theResult = "";
-    if (result == 0x80)
-    {
-      // bogus reading. gets this on first check
-      result = -1;
-    }
+
     if (mode == TOUCH_SENSOR)
     {
         theResult = (result == 100);
     }
     else if (mode == COLOR_SENSOR)
     {
+        if (result == 0x80)
+        {
+        // bogus reading. gets this on first check
+            result = -1;
+        }
         if (modeType == AMBIENT_INTENSITY || modeType == REFLECTED_INTENSITY)
         {
             theResult = result;
