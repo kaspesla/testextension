@@ -154,18 +154,10 @@
     }
     else if (mode == IR_SENSOR)
     {
-        theResult = getFloatResult(inputData);
     }
     else if (mode == READ_FROM_MOTOR)
     {
-        var a = new ArrayBuffer(4);
-        var c = new Float32Array(a);
-        var arr = new Uint8Array(a);
-        arr[0] = inputData[6];
-        arr[1] = inputData[7];
-        arr[2] = inputData[8]
-        arr[3] = inputData[9]
-        theResult = c[0];
+        theResult = getFloatResult(inputData);
     }
  
     global_touch_pressed[this_is_from_port] = theResult;
