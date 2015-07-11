@@ -481,8 +481,8 @@
     waitingQueries.push([port, type, mode]);
  
     var readCommand = createMessage(DIRECT_COMMAND_REPLY_SENSOR_PREFIX +
-                                 INPUT_DEVICE + "00" // layer
-                                 hexcouplet(port) + "00" // type
+                                 INPUT_DEVICE + "00" + // layer
+                                 hexcouplet(port) + "00" + // type
                                  mode +
                                  "0160");
  
