@@ -165,7 +165,7 @@
     }
     else if (mode == IR_SENSOR)
     {
-        var result = inputData[8] & (inputData[9] << 8);
+        var result = inputData[7] | (inputData[8] << 8);
 
        theResult = result;
  
