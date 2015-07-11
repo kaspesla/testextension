@@ -524,7 +524,7 @@
      if (global_sensor_queried[portInt] == 0)
      {
         global_sensor_queried[portInt]++;
-        readFromAMotor(portInt, READ_FROM_MOTOR, "02");
+        readFromAMotor(portInt, READ_FROM_MOTOR, "01");
      }
  }
  
@@ -537,7 +537,7 @@
                                  INPUT_DEVICE_READY_SI + "00" + // layer
                                  hexcouplet(port+12) + "00" + // type
                                  mode +
-                                 "026061"); // result stuff
+                                 "0160"); // result stuff
     sendCommand(readCommand);
  }
  
