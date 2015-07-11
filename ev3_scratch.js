@@ -463,7 +463,7 @@
     if (global_sensor_queried[portInt] == 0)
     {
       global_sensor_queried[portInt]++;
-      readFromSensor2(portInt, IR_SENSOR, "01");
+      readFromSensor2(portInt, IR_SENSOR, "00");
     }
   }
  
