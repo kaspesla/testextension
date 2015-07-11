@@ -537,7 +537,7 @@
                                  INPUT_DEVICE_READY_SI + "00" + // layer
                                  hexcouplet(port+12) + "00" + // type
                                  mode +
-                                 "0160"); // result stuff
+                                 "026061"); // result stuff
     sendCommand(readCommand);
  }
  
