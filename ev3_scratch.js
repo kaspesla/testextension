@@ -139,41 +139,24 @@
     }
     else if (mode == COLOR_SENSOR)
     {
-        var result = inputData[5];
-       if (result == 0x80)
-        {
-        // bogus reading. gets this on first check
-            result = -1;
-        }
+        var num = getFloatResult(inputData);
         if (modeType == AMBIENT_INTENSITY || modeType == REFLECTED_INTENSITY)
         {
-            theResult = result;
+            theResult = num;
         }
         else if (modeType == COLOR_VALUE)
         {
-            var hexcoup = hexcouplet(result);
-            var res = colors[hexcoup];
-            if (res)
-            {
-                theResult = res;
-            }
+            if (num >= 0 && num < 7)
+                theResult = colors[num];
             else
-            {
                 theResult = "none";
-            }
         }
     }
     else if (mode == IR_SENSOR)
     {
-         var a = new ArrayBuffer(4);
-         var c = new Float32Array(a);
-         var arr = new Uint8Array(a);
-         arr[0] = inputData[5];
-         arr[1] = inputData[6];
-         arr[2] = inputData[7]
-         arr[3] = inputData[8]
-         theResult = c[0];
+        theResult = getFloatResult(inputData);
     }
+ 
     global_touch_pressed[this_is_from_port] = theResult;
     global_sensor_queried[this_is_from_port]--;
     while(callback = waitingCallbacks[this_is_from_port].shift())
@@ -182,8 +165,20 @@
     }
   }
 
+ function getFloatResult(inputData)
+ {
+     var a = new ArrayBuffer(4);
+     var c = new Float32Array(a);
+     var arr = new Uint8Array(a);
+     arr[0] = inputData[5];
+     arr[1] = inputData[6];
+     arr[2] = inputData[7]
+     arr[3] = inputData[8]
+     return c[0];
+ }
+ 
   var counter = 0;
-  
+ 
   // add counter and byte length encoding prefix. return Uint8Array of final message
   function createMessage(str)
   {
@@ -326,7 +321,7 @@
   
   var frequencies = { "C4" : 262, "D4" : 294, "E4" : 330, "F4" : 349, "G4" : 392, "A4" : 440, "B4" : 494, "C5" : 523, "D5" : 587, "E5" : 659, "F5" : 698, "G5" : 784, "A5" : 880, "B5" : 988, "C6" : 1047, "D6" : 1175, "E6" : 1319, "F6" : 1397, "G6" : 1568, "A6" : 1760, "B6" : 1976, "C#4" : 277, "D#4" : 311, "F#4" : 370, "G#4" : 415, "A#4" : 466, "C#5" : 554, "D#5" : 622, "F#5" : 740, "G#5" : 831, "A#5" : 932, "C#6" : 1109, "D#6" : 1245, "F#6" : 1480, "G#6" : 1661, "A#6" : 1865 };
   
- var colors = { "0C" : "black",  "19" : "blue",  "19" : "blue",  "25" : "green",  "32" : "yellow",  "3E" : "red",  "4B" : "white",  "57" : "brown" };
+ var colors = [ "black", "blue", "green", "yellow", "red", "white", "brown" ];
  
   ext.playTone = function(tone, duration, callback)
   {
