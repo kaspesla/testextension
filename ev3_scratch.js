@@ -115,10 +115,10 @@
         return result;
   }
   
-  var waitingCallbacks = [[],[],[],[]];
+  var waitingCallbacks = [[],[],[],[],[],[],[],[]];
   var waitingQueries = [];
-  var global_touch_pressed = [false, false, false, false];
-  var global_sensor_queried = [0, 0, 0, 0];
+  var global_touch_pressed = [false, false, false, false,false, false, false, false];
+  var global_sensor_queried = [0, 0, 0, 0, 0, 0, 0, 0];
 
   function receive_handler(data)
   {
@@ -155,6 +155,17 @@
     else if (mode == IR_SENSOR)
     {
         theResult = getFloatResult(inputData);
+    }
+    else if (mode == READ_FROM_MOTOR)
+    {
+        var a = new ArrayBuffer(5);
+        var c = new Float32Array(a);
+        var arr = new Uint8Array(a);
+        arr[1] = inputData[5];
+        arr[2] = inputData[6];
+        arr[3] = inputData[7]
+        arr[4] = inputData[8]
+        theResult = c[0];
     }
  
     global_touch_pressed[this_is_from_port] = theResult;
@@ -229,7 +240,19 @@
 
     return "00";
   }
-  
+
+ function getMotorIndex(which)
+ {
+     if (which == "A")
+        return 4;
+     else if (which == "B")
+        return 5;
+     else if (which == "C")
+        return 6;
+     else if (which == "D")
+        return 7;
+ }
+
   // create 8 bit hex couplet
   function hexcouplet(num)
   {
@@ -274,6 +297,7 @@
   var DIRECT_COMMAND_PREFIX = "800000";
   var DIRECT_COMMAND_REPLY_PREFIX = "000100";
   var DIRECT_COMMAND_REPLY_SENSOR_PREFIX = "000400";
+  var DIRECT_COMMAND_REPLY_MOTOR_PREFIX = "000500";
   // direct command opcode/prefixes
   var SET_MOTOR_SPEED = "A400";
   var SET_MOTOR_STOP = "A300";
@@ -281,15 +305,17 @@
   var NOOP = "0201";
   var PLAYTONE = "9401";
   var INPUT_DEVICE_READY_SI = "991D";
+  var READ_SENSOR = "9A00";
+  var READ_MOTOR = "A800";
  
   var mode0 = "00";
-  var READ_SENSOR = "9A00";
   var TOUCH_SENSOR = "10";
   var COLOR_SENSOR = "1D";
   var IR_SENSOR = "21";
   var REFLECTED_INTENSITY = "00";
   var AMBIENT_INTENSITY = "01";
   var COLOR_VALUE = "02";
+  var READ_FROM_MOTOR = "FOOBAR";
  
   
   function sendCommand(commandArray)
@@ -491,6 +517,32 @@
     sendCommand(readCommand);
  }
  
+ ext.readFromMotor = function(which, callback)
+ {
+    var portInt = getMotorIndex(which);
+ 
+     waitingCallbacks[portInt].push(callback);
+     if (global_sensor_queried[portInt] == 0)
+     {
+        global_sensor_queried[portInt]++;
+        readFromAMotor(portInt, READ_FROM_MOTOR, mode0);
+     }
+ }
+ 
+ function readAFromMotor(port, type, mode)
+ {
+ 
+    waitingQueries.push([port, type, mode]);
+ 
+    var readCommand = createMessage(DIRECT_COMMAND_REPLY_MOTOR_PREFIX +
+                                 READ_MOTOR +
+                                 hexcouplet(port) +
+                                    "6061");
+ 
+    sendCommand(readCommand);
+ }
+ 
+ 
   // Block and block menu descriptions
   var descriptor = {
   blocks: [
@@ -502,9 +554,11 @@
            ['w', 'play tone %m.note duration %n ms',                    'playTone',         'C5', 500],
            ['R', 'light sensor %m.whichInputPort %m.lightSensorMode',   'readColorSensorPort',   '1', 'color'],
            ['R', 'measure distance %m.whichInputPort',   'readDistanceSensorPort',   '1'],
+           ['R', 'motor position %m.whichMotorIndividual',   'readFromMotor',   'B'],
            ],
   menus: {
   whichMotorPort:   ['A', 'B', 'C', 'D', 'A+D', 'B+C'],
+  whichMotorIndividual:   ['A', 'B', 'C', 'D'],
   dualMotors:       ['A+D', 'B+C'],
   turnStyle:        ['forward', 'reverse', 'right', 'left'],
   breakCoast:       ['break', 'coast'],
