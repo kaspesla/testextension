@@ -168,8 +168,8 @@
          var a = new ArrayBuffer(2);
          var c = new Uint16Array(a);
          var arr = new Uint8Array(a);
-         arr[0] = result[7];
-         arr[1] = result[8];
+         arr[0] = inputData[7];
+         arr[1] = inputData[8];
          theResult = c[0];
     }
     global_touch_pressed[this_is_from_port] = theResult;
