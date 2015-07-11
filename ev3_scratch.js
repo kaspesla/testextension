@@ -278,7 +278,7 @@
   var SET_MOTOR_START = "A600";
   var NOOP = "0201";
   var PLAYTONE = "9401";
-  var INPUT_DEVICE_READY_SI = "991D"
+  var INPUT_DEVICE_READY_SI = "991D";
  
   var mode0 = "00";
   var READ_SENSOR = "9A00";
@@ -481,10 +481,10 @@
     waitingQueries.push([port, type, mode]);
  
     var readCommand = createMessage(DIRECT_COMMAND_REPLY_SENSOR_PREFIX +
-                                 INPUT_DEVICE + "00" + // layer
+                                 INPUT_DEVICE_READY_SI + "00" + // layer
                                  hexcouplet(port) + "00" + // type
                                  mode +
-                                 "0160");
+                                 "0160"); // result stuff
  
     sendCommand(readCommand);
  }
