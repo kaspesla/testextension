@@ -463,7 +463,7 @@
     if (global_sensor_queried[portInt] == 0)
     {
       global_sensor_queried[portInt]++;
-      readFromSensor2(portInt, IR_SENSOR, mode0);
+      readFromSensor2(portInt, IR_SENSOR, "01");
     }
   }
  
@@ -487,7 +487,7 @@
  
     var readCommand = createMessage(DIRECT_COMMAND_REPLY_SENSOR_PREFIX +
                                  INPUT_DEVICE_READY_SI + "00" + // layer
-                                 hexcouplet(port) + type + // type
+                                 hexcouplet(port) + "00" + // type
                                  mode +
                                  "0160"); // result stuff
  
