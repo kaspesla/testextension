@@ -529,7 +529,7 @@
      }
  }
  
- function readAFromMotor(port, type, mode)
+ function readFromAMotor(port, type, mode)
  {
  
     waitingQueries.push([port, type, mode]);
