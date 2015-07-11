@@ -508,7 +508,7 @@
     sendCommand(readCommand);
  }
  
- ext.readFromMotor = function(which, mmode, callback)
+ ext.readFromMotor = function(mmode, which, callback)
  {
     var portInt = getMotorIndex(which);
     var mode = "01"; // position
