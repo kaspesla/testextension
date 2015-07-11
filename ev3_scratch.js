@@ -125,7 +125,6 @@
     var inputData = new Uint8Array(data);
     console.log("received: " + createHexString(inputData));
   
-    var result = inputData[5];
     var query_info = waitingQueries.shift();
     var this_is_from_port = query_info[0];
     var mode = query_info[1];
@@ -135,11 +134,13 @@
 
     if (mode == TOUCH_SENSOR)
     {
+        var result = inputData[5];
         theResult = (result == 100);
     }
     else if (mode == COLOR_SENSOR)
     {
-        if (result == 0x80)
+        var result = inputData[5];
+       if (result == 0x80)
         {
         // bogus reading. gets this on first check
             result = -1;
@@ -162,8 +163,10 @@
             }
         }
     }
-    else //if (mode == IR_SENSOR)
+    else if (mode == IR_SENSOR)
     {
+        var result = inputData[8] & (inputData[9] << 8);
+
        theResult = result;
  
     }
@@ -284,7 +287,7 @@
   var READ_SENSOR = "9A00";
   var TOUCH_SENSOR = "10";
   var COLOR_SENSOR = "1D";
-  var IR_SENSOR = "1D"; // this seems to work... IR sensor should be 0x21 but that isn't working
+  var IR_SENSOR = "21";
   var REFLECTED_INTENSITY = "00";
   var AMBIENT_INTENSITY = "01";
   var COLOR_VALUE = "02";
