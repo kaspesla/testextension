@@ -170,8 +170,8 @@
          var arr = new Uint8Array(a);
          arr[0] = inputData[8];
          arr[1] = inputData[7];
-         arr[3] = inputData[6]
-         arr[4] = inputData[5]
+         arr[2] = inputData[6]
+         arr[3] = inputData[5]
          theResult = c[0];
     }
     global_touch_pressed[this_is_from_port] = theResult;
