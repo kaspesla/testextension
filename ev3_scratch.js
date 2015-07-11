@@ -536,7 +536,7 @@
  
     var readCommand = createMessage(DIRECT_COMMAND_REPLY_MOTOR_PREFIX +
                                  READ_MOTOR +
-                                 hexcouplet(port) +
+                                 hexcouplet(port-4) +
                                     "6061");
  
     sendCommand(readCommand);
