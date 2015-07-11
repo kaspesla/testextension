@@ -306,7 +306,6 @@
   var PLAYTONE = "9401";
   var INPUT_DEVICE_READY_SI = "991D";
   var READ_SENSOR = "9A00";
-  var READ_MOTOR = "A800";
  
   var mode0 = "00";
   var TOUCH_SENSOR = "10";
@@ -525,7 +524,7 @@
      if (global_sensor_queried[portInt] == 0)
      {
         global_sensor_queried[portInt]++;
-        readFromAMotor(portInt, READ_FROM_MOTOR, mode0);
+        readFromAMotor(portInt, READ_FROM_MOTOR, "02");
      }
  }
  
@@ -534,11 +533,11 @@
  
     waitingQueries.push([port, type, mode]);
  
-    var readCommand = createMessage(DIRECT_COMMAND_REPLY_MOTOR_PREFIX +
-                                 READ_MOTOR +
-                                 hexcouplet(port-4) +
-                                    "6061");
- 
+    var readCommand = createMessage(DIRECT_COMMAND_REPLY_SENSOR_PREFIX +
+                                 INPUT_DEVICE_READY_SI + "00" + // layer
+                                 hexcouplet(port+12) + "00" + // type
+                                 mode +
+                                 "0160"); // result stuff
     sendCommand(readCommand);
  }
  
