@@ -139,7 +139,7 @@
     }
     else if (mode == COLOR_SENSOR)
     {
-        var num = getFloatResult(inputData);
+        var num = Math.floor(getFloatResult(inputData));
         if (modeType == AMBIENT_INTENSITY || modeType == REFLECTED_INTENSITY)
         {
             theResult = num;
