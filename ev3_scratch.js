@@ -271,12 +271,15 @@
   
   var DIRECT_COMMAND_PREFIX = "800000";
   var DIRECT_COMMAND_REPLY_PREFIX = "000100";
+  var DIRECT_COMMAND_REPLY_SENSOR_PREFIX = "000400";
   // direct command opcode/prefixes
   var SET_MOTOR_SPEED = "A400";
   var SET_MOTOR_STOP = "A300";
   var SET_MOTOR_START = "A600";
   var NOOP = "0201";
   var PLAYTONE = "9401";
+  var INPUT_DEVICE_READY_SI = "991D"
+ 
   var mode0 = "00";
   var READ_SENSOR = "9A00";
   var TOUCH_SENSOR = "10";
@@ -443,7 +446,7 @@
     if (global_sensor_queried[portInt] == 0)
     {
       global_sensor_queried[portInt]++;
-      readFromSensor(portInt, COLOR_SENSOR, modeCode);
+      readFromSensor2(portInt, COLOR_SENSOR, modeCode);
     }
   }
  
@@ -455,27 +458,37 @@
     if (global_sensor_queried[portInt] == 0)
     {
       global_sensor_queried[portInt]++;
-      readFromSensor(portInt, IR_SENSOR, mode0);
+      readFromSensor2(portInt, IR_SENSOR, mode0);
     }
   }
  
   function readFromSensor(port, type, mode)
   {
-    // we'll need to push the callback if we want to throttle queries to the EV3 and call each one when the result comes back
-      //if (waitingCallback != 0)
-      {
-          waitingQueries.push([port, type, mode]);
-  
-          var readCommand = createMessage(DIRECT_COMMAND_REPLY_PREFIX +
-                                               READ_SENSOR +
-                                               hexcouplet(port) +
-                                               type +
-                                                mode + "60");
- 
-          sendCommand(readCommand);
-      }
+
+      waitingQueries.push([port, type, mode]);
+
+      var readCommand = createMessage(DIRECT_COMMAND_REPLY_PREFIX +
+                                           READ_SENSOR +
+                                           hexcouplet(port) +
+                                           type +
+                                            mode + "60");
+
+      sendCommand(readCommand);
   }
-  
+
+ function readFromSensor2(port, type, mode)
+ {
+    waitingQueries.push([port, type, mode]);
+ 
+    var readCommand = createMessage(DIRECT_COMMAND_REPLY_SENSOR_PREFIX +
+                                 INPUT_DEVICE + "00" // layer
+                                 hexcouplet(port) + "00" // type
+                                 mode +
+                                 "0160");
+ 
+    sendCommand(readCommand);
+ }
+ 
   // Block and block menu descriptions
   var descriptor = {
   blocks: [
