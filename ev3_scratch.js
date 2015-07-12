@@ -540,8 +540,8 @@
   var descriptor = {
   blocks: [
            ['w', 'drive %m.dualMotors %m.turnStyle %n seconds',         'steeringControl',  'B+C', 'forward', 3],
-           [' ', 'motor %m.whichMotorPort speed %n',                    'allMotorsOn',      'B+C', 100],
-           [' ', 'all motors off  %m.breakCoast',                       'allMotorsOff',     'break'],
+           [' ', 'start motor %m.whichMotorPort speed %n',                    'allMotorsOn',      'B+C', 100],
+           [' ', 'stop all motors %m.breakCoast',                       'allMotorsOff',     'break'],
            ['h', 'when button pressed %m.whichInputPort',               'whenButtonPressed','1'],
            ['R', 'button pressed %m.whichInputPort',                    'readTouchSensorPort',   '1'],
            ['w', 'play tone %m.note duration %n ms',                    'playTone',         'C5', 500],
