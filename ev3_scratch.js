@@ -363,7 +363,7 @@
  
  ext.playFreq = function(freq, duration, callback)
  {
-     console.log("playFreq " + tone + " duration: " + duration + " freq: " + freq);
+     console.log("playFreq duration: " + duration + " freq: " + freq);
      var volume = 100;
      var volString = getPackedOutputHexString(volume, 1);
      var freqString = getPackedOutputHexString(freq, 2);
