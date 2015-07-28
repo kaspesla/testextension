@@ -157,7 +157,9 @@
         else if (modeType == COLOR_RAW_RGB)  // is color_raw encoded as a string, hex, or number? Find out in the next episode of screwing around with unneeded 1990's opcode-esque networking!
         {
             theResult = num; //maybe? probably not, but here's hoping it's this simple.
+        }
     }
+    
     else if (mode == IR_SENSOR)
     {
         theResult = getFloatResult(inputData);
