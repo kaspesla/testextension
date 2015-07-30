@@ -118,10 +118,10 @@
         return result;
   }
   
-  var waitingCallbacks = [[],[],[],[],[],[],[],[]];
+  var waitingCallbacks = [[],[],[],[],[],[],[],[], []];
   var waitingQueries = [];
-  var global_touch_pressed = [false, false, false, false,false, false, false, false];
-  var global_sensor_queried = [0, 0, 0, 0, 0, 0, 0, 0];
+  var global_touch_pressed = [false, false, false, false,false, false, false, false, false];
+  var global_sensor_queried = [0, 0, 0, 0, 0, 0, 0, 0, 0];
 
   function receive_handler(data)
   {
@@ -168,6 +168,13 @@
     {
         theResult = getFloatResult(inputData);
     }
+    else if (mode == UIREAD)
+    {
+        if (modeType == UIREAD_BATTERY)
+        {
+            theResult = inputData[5];
+        }
+     }
  
     global_touch_pressed[this_is_from_port] = theResult;
     global_sensor_queried[this_is_from_port]--;
@@ -307,6 +314,8 @@
   var PLAYTONE = "9401";
   var INPUT_DEVICE_READY_SI = "991D";
   var READ_SENSOR = "9A00";
+  var UIREAD  = "81"; // opUI_READ
+  var UIREAD_BATTERY = "18"; // GET_LBATT
  
   var mode0 = "00";
   var TOUCH_SENSOR = "10";
@@ -584,7 +593,27 @@
                                  "0160"); // result stuff
     sendCommand(readCommand);
  }
+
+ ext.readBatteryLevel = function(callback)
+ {
+    var portInt = 8; // bogus port number
+     waitingCallbacks[portInt].push(callback);
+     if (global_sensor_queried[portInt] == 0)
+     {
+        global_sensor_queried[portInt]++;
+        UIRead(portInt, UIREAD_BATTERY);
+     }
+ }
  
+ function UIRead(port, subtype)
+ {
+    waitingQueries.push([port, UIREAD, subtype]);
+ 
+    var readCommand = createMessage(DIRECT_COMMAND_REPLY_PREFIX +
+                                 UIREAD + subtype +
+                                 "0160"); // result stuff
+    sendCommand(readCommand);
+ }
  
   // Block and block menu descriptions
   var descriptor = {
@@ -599,6 +628,9 @@
            ['R', 'light sensor %m.whichInputPort %m.lightSensorMode',   'readColorSensorPort',   '1', 'color'],
            ['R', 'measure distance %m.whichInputPort',   'readDistanceSensorPort',   '1'],
            ['R', 'motor %m.motorInputMode %m.whichMotorIndividual',   'readFromMotor',   'position', 'B'],
+
+           ['R', 'battery level',   'readBatteryLevel'],
+
            ],
   menus: {
   whichMotorPort:   ['A', 'B', 'C', 'D', 'A+D', 'B+C'],
