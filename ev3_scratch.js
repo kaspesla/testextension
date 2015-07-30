@@ -56,28 +56,36 @@
   var poller = null;
   var watchdog = null;
   var DEBUG_NO_EV3 = false;
-  
+  var theDevice = null;
+ 
+function reconnect()
+ {
+    theDevice.open({ stopBits: 0, bitRate: 115200, ctsFlowControl: 0, parity:2, bufferSize:255 });
+    console.log('Attempting connection with ' + theDevice.id);
+    theDevice.set_receive_handler(receive_handler);
+ 
+ //   poller = setInterval(function() {
+ //                    //  queryFirmware();
+ //                  }, 1000);
+ 
+ // need some way to see if connection is working, a watchdog ping or something
+ 
+ // I'll see if I can figure out how the connection is working,
+ // then I'll try to help with this - Mac
+    connected =true;
+ }
+ 
   function tryNextDevice()
   {
     device = potentialDevices.shift();
     if (!device)
         return;
-  
+ 
+   theDevice = device;
+ 
   if (!DEBUG_NO_EV3)
   {
-    device.open({ stopBits: 0, bitRate: 115200, ctsFlowControl: 0, parity:2, bufferSize:255 });
-    console.log('Attempting connection with ' + device.id);
-    device.set_receive_handler(receive_handler);
-
-    poller = setInterval(function() {
-                       //  queryFirmware();
-                       }, 1000);
-
-    // need some way to see if connection is working, a watchdog ping or something
-  
-    // I'll see if I can figure out how the connection is working,
-    // then I'll try to help with this - Mac
-    connected =true;
+    reconnect();
   }
       /*
       watchdog = setTimeout(function() {
@@ -605,13 +613,18 @@
      }
  }
  
+ ext.reconnectToDevice = function()
+ {
+    reconnect();
+ }
+ 
  function UIRead(port, subtype)
  {
     waitingQueries.push([port, UIREAD, subtype]);
  
-    var readCommand = createMessage(DIRECT_COMMAND_REPLY_SENSOR_PREFIX +
+    var readCommand = createMessage(DIRECT_COMMAND_REPLY_PREFIX +
                                  UIREAD + subtype +
-                                 "0160"); // result stuff
+                                 "60"); // result stuff
     sendCommand(readCommand);
  }
  
@@ -630,7 +643,7 @@
            ['R', 'motor %m.motorInputMode %m.whichMotorIndividual',   'readFromMotor',   'position', 'B'],
 
            ['R', 'battery level',   'readBatteryLevel'],
-
+           [' ', 'reconnectToDevice'],
            ],
   menus: {
   whichMotorPort:   ['A', 'B', 'C', 'D', 'A+D', 'B+C'],
