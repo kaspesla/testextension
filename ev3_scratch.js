@@ -323,7 +323,7 @@ function reconnect()
   var INPUT_DEVICE_READY_SI = "991D";
   var READ_SENSOR = "9A00";
   var UIREAD  = "81"; // opUI_READ
-  var UIREAD_BATTERY = "18"; // GET_LBATT
+  var UIREAD_BATTERY = "12"; // GET_LBATT
  
   var mode0 = "00";
   var TOUCH_SENSOR = "10";
@@ -622,9 +622,9 @@ function reconnect()
  {
     waitingQueries.push([port, UIREAD, subtype]);
  
-    var readCommand = createMessage(DIRECT_COMMAND_REPLY_PREFIX +
+    var readCommand = createMessage(DIRECT_COMMAND_REPLY_SENSOR_PREFIX +
                                  UIREAD + subtype +
-                                 "60"); // result stuff
+                                 "6010"); // result stuff
     sendCommand(readCommand);
  }
  
