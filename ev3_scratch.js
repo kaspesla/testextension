@@ -622,9 +622,9 @@ function reconnect()
  {
     waitingQueries.push([port, UIREAD, subtype]);
  
-    var readCommand = createMessage(DIRECT_COMMAND_REPLY_SENSOR_PREFIX +
+    var readCommand = createMessage(DIRECT_COMMAND_REPLY_PREFIX +
                                  UIREAD + subtype +
-                                 "6010"); // result stuff
+                                 "60"); // result stuff
     sendCommand(readCommand);
  }
  
