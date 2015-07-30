@@ -609,9 +609,9 @@
  {
     waitingQueries.push([port, UIREAD, subtype]);
  
-    var readCommand = createMessage(DIRECT_COMMAND_REPLY_PREFIX +
+    var readCommand = createMessage(DIRECT_COMMAND_REPLY_SENSOR_PREFIX +
                                  UIREAD + subtype +
-                                 "60"); // result stuff
+                                 "0160"); // result stuff
     sendCommand(readCommand);
  }
  
