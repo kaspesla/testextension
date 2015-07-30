@@ -74,15 +74,17 @@ function reconnect()
  // then I'll try to help with this - Mac
     connected =true;
     
-    playFreqM2M(262, 100); //milliseconds, right?
+    window.setTimeout(function() {
+                          playFreqM2M(262, 100);
+                       }, 200);
 
      window.setTimeout(function() {
                           playFreqM2M(392, 100);
-                       }, 100);
+                       }, 300);
      
      window.setTimeout(function() {
                           playFreqM2M(523, 100);
-                       }, 200);
+                       }, 400);
  }
  
   function tryNextDevice()
