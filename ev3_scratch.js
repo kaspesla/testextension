@@ -69,7 +69,7 @@ function reconnect()
 
 function batteryCheck(result)
 {
-  console.log("got battery level at connect: " + result);
+   console.log("got battery level at connect: " + result);
 }
 
 function testConnection()
@@ -80,9 +80,7 @@ function testConnection()
    window.setTimeout(function() {
                           readThatBatteryLevel(batteryCheck);
                        }, 500);
- 
-   readThatBatteryLevel()
-}
+ }
 
 function playStartUpTones()
 {
