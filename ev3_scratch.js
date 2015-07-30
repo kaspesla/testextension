@@ -643,7 +643,7 @@ function reconnect()
            ['R', 'motor %m.motorInputMode %m.whichMotorIndividual',   'readFromMotor',   'position', 'B'],
 
            ['R', 'battery level',   'readBatteryLevel'],
-           [' ', 'reconnectToDevice'],
+           [' ', 'reconnect', 'reconnectToDevice'],
            ],
   menus: {
   whichMotorPort:   ['A', 'B', 'C', 'D', 'A+D', 'B+C'],
