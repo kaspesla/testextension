@@ -88,7 +88,7 @@ function pingBatteryWatchdog()
 {
     testTheConnection(pingBatteryCheckCallback);
     waitingForPing = true;
-    pingTimeout = setInterval(pingTimeOutCallback, 1000);
+    pingTimeout = setTimeout(pingTimeOutCallback, 1000);
 }
 
 function pingTimeOutCallback()
@@ -107,7 +107,7 @@ function pingBatteryCheckCallback(result)
 {
    console.log("pinged battery level: " + result);
    if (pingTimeout)
-    clearInterval(pingTimeout);
+    clearTimeout(pingTimeout);
    waitingForPing = false;
 }
 
