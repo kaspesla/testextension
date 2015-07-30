@@ -9,13 +9,6 @@
   // Cleanup function when the extension is unloaded
   ext._shutdown = function() {};
   
-  // Status reporting code
-  // Use this to report missing hardware, plugin or unsupported browser
-  ext._getStatus = function()
-  {
-    return {status: 2, msg: 'Ready'};
-  };
-  
   ext._getStatus = function()
   {
       if (!connected)
@@ -32,6 +25,7 @@
 
   
   var connected = false;
+  var connecting = false;
   var notifyConnection = false;
   var device = null;
   
@@ -64,12 +58,17 @@ function reconnect()
     console.log('Attempting connection with ' + theDevice.id);
     theDevice.set_receive_handler(receive_handler);
  
-    //testTheConnection();
+    connecting = true;
+    testTheConnection();
 }
 
 function batteryCheck(result)
 {
    console.log("got battery level at connect: " + result);
+   
+   connected = true;
+   
+   playStartUpTones();
 }
 
 function testTheConnection()
@@ -79,12 +78,11 @@ function testTheConnection()
  //                  }, 1000);
    window.setTimeout(function() {
                           readThatBatteryLevel(batteryCheck);
-                       }, 1000);
+                       }, 500);
  }
 
 function playStartUpTones()
 {
-    connected =true;
     var tonedelay = 1000;
     window.setTimeout(function() {
                           playFreqM2M(262, 100);
@@ -129,7 +127,7 @@ function playStartUpTones()
         device.close();
     if (poller)
         clearInterval(poller);
-    connected = false;
+    satus = false;
     device = null;
   };
   
@@ -382,7 +380,7 @@ function playStartUpTones()
   
   function sendCommand(commandArray)
   {
-    if (connected && device)
+    if ((connected || connecting) && device)
         device.send(commandArray.buffer);
   }
   
