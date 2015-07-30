@@ -611,7 +611,7 @@
  
     var readCommand = createMessage(DIRECT_COMMAND_REPLY_PREFIX +
                                  UIREAD + subtype +
-                                 "0160"); // result stuff
+                                 "60"); // result stuff
     sendCommand(readCommand);
  }
  
