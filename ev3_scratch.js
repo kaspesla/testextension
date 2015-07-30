@@ -73,6 +73,9 @@ function reconnect()
  // I'll see if I can figure out how the connection is working,
  // then I'll try to help with this - Mac
     connected =true;
+    playFreqM2M(262, 100) //milliseconds, right?
+    playFreqM2M(392, 100)
+    playFreqM2M(523, 100)
  }
  
   function tryNextDevice()
@@ -331,15 +334,15 @@ function reconnect()
   var ULTRASONIC_SENSOR = "1E";
   var ULTRSONIC_CM = "00";
   var ULTRSONIC_INCH = "01";
-  var ULTRSONIC_LISTEN = "02"; //no idea
-  var ULTRSONIC_SI_CM = "03"; //nope
-  var ULTRSONIC_SI_INCH = "04"; //yeah no.
-  var ULTRSONIC_DC_CM = "05"; //nada
+  var ULTRSONIC_LISTEN = "02";
+  var ULTRSONIC_SI_CM = "03";
+  var ULTRSONIC_SI_INCH = "04";
+  var ULTRSONIC_DC_CM = "05"; 
   var ULTRSONIC_DC_INCH = "06"; //I'm just putting this in for the sake of knowing I didn't miss any.
   var WHY_IS_THERE_A_GAP_HERE = "1F"; //Just so I don't think I'm missing one 
   var GYRO_SENSOR = "20";
   var GYRO_ANGLE = "00";
-  var GYRO_RATE = "01"; //hmm
+  var GYRO_RATE = "01";
   var GYRO_FAST = "02"; //very descriptive, LEGO firmware writers
   var GYRO_RATE_AND_ANGLE = "03"; //I kid you not, this is a real thing. WHYYYY?
   var GYRO_CALIBRATION = "04";
@@ -424,7 +427,18 @@ function reconnect()
                        callback();
                        }, duration);
  }
-
+playFreqM2M = function(freq, duration)
+ {
+     console.log("playFreqM2M duration: " + duration + " freq: " + freq);
+     var volume = 100;
+     var volString = getPackedOutputHexString(volume, 1);
+     var freqString = getPackedOutputHexString(freq, 2);
+     var durString = getPackedOutputHexString(duration, 2);
+     
+     var toneCommand = createMessage(DIRECT_COMMAND_PREFIX + PLAYTONE + volString + freqString + durString);
+     
+     sendCommand(toneCommand);
+     
  function clearDriveTimer()
  {
     if (driveTimer)
