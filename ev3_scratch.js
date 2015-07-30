@@ -48,7 +48,9 @@
   };
   
   var poller = null;
-  var watchdog = null;
+  var pingTimeout = null;
+  var waitingForPing = false;
+
   var DEBUG_NO_EV3 = false;
   var theDevice = null;
  
@@ -59,25 +61,61 @@ function reconnect()
     theDevice.set_receive_handler(receive_handler);
  
     connecting = true;
-    testTheConnection();
+    testTheConnection(startupBatteryCheckCallback);
 }
 
-function batteryCheck(result)
+function startupBatteryCheckCallback(result)
 {
    console.log("got battery level at connect: " + result);
    
    connected = true;
+   connecting = false;
    
    playStartUpTones();
+   
+   setupWatchdog();
 }
 
-function testTheConnection()
+function setupWatchdog()
 {
-   //   poller = setInterval(function() {
- //                    //  queryFirmware();
- //                  }, 1000);
+    if (poller)
+        clearInterval(poller);
+
+   poller = setInterval(pingBatteryWatchdog, 5000);
+}
+
+function pingBatteryWatchdog()
+{
+    testTheConnection(pingBatteryCheckCallback);
+    waitingForPing = true;
+    pingTimeout = setInterval(pingTimeOutCallback, 1000);
+}
+
+function pingTimeOutCallback()
+{
+   if (waitingForPing == true)
+   {
+     console.log("Ping timed out!");
+      if (poller)
+        clearInterval(poller);
+      
+      connected = false;
+   }
+}
+
+function pingBatteryCheckCallback(result)
+{
+   console.log("pinged battery level: " + result);
+   if (pingTimeout)
+    clearInterval(pingTimeout);
+   waitingForPing = false;
+}
+
+
+function testTheConnection(theCallback)
+{
    window.setTimeout(function() {
-                          readThatBatteryLevel(batteryCheck);
+                          readThatBatteryLevel(theCallback);
                        }, 500);
  }
 
