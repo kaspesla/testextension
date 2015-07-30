@@ -427,7 +427,8 @@ function reconnect()
                        callback();
                        }, duration);
  }
-playFreqM2M = function(freq, duration)
+ 
+function playFreqM2M(freq, duration)
  {
      console.log("playFreqM2M duration: " + duration + " freq: " + freq);
      var volume = 100;
@@ -438,7 +439,9 @@ playFreqM2M = function(freq, duration)
      var toneCommand = createMessage(DIRECT_COMMAND_PREFIX + PLAYTONE + volString + freqString + durString);
      
      sendCommand(toneCommand);
+  
  }
+ 
  function clearDriveTimer()
  {
     if (driveTimer)
