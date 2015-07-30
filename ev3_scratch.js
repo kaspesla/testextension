@@ -64,7 +64,7 @@ function reconnect()
     console.log('Attempting connection with ' + theDevice.id);
     theDevice.set_receive_handler(receive_handler);
  
-    testConnection();
+    testTheConnection();
 }
 
 function batteryCheck(result)
@@ -72,14 +72,14 @@ function batteryCheck(result)
    console.log("got battery level at connect: " + result);
 }
 
-function testConnection()
+function testTheConnection()
 {
    //   poller = setInterval(function() {
  //                    //  queryFirmware();
  //                  }, 1000);
    window.setTimeout(function() {
                           readThatBatteryLevel(batteryCheck);
-                       }, 500);
+                       }, 1000);
  }
 
 function playStartUpTones()
