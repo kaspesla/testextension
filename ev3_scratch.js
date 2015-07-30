@@ -64,14 +64,28 @@ function reconnect()
     console.log('Attempting connection with ' + theDevice.id);
     theDevice.set_receive_handler(receive_handler);
  
- //   poller = setInterval(function() {
+    testConnection();
+}
+
+function batteryCheck(result)
+{
+  console.log("got battery level at connect: " + result);
+}
+
+function testConnection()
+{
+   //   poller = setInterval(function() {
  //                    //  queryFirmware();
  //                  }, 1000);
+   window.setTimeout(function() {
+                          readThatBatteryLevel(batteryCheck);
+                       }, 500);
  
- // need some way to see if connection is working, a watchdog ping or something
- 
- // I'll see if I can figure out how the connection is working,
- // then I'll try to help with this - Mac
+   readThatBatteryLevel()
+}
+
+function playStartUpTones()
+{
     connected =true;
     var tonedelay = 1000;
     window.setTimeout(function() {
@@ -629,6 +643,11 @@ function playFreqM2M(freq, duration)
  }
 
  ext.readBatteryLevel = function(callback)
+ {
+   readThatBatteryLevel(callback);
+ }
+ 
+ function readThatBatteryLevel(callback)
  {
     var portInt = 8; // bogus port number
      waitingCallbacks[portInt].push(callback);
