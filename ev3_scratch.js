@@ -73,9 +73,9 @@ function reconnect()
  // I'll see if I can figure out how the connection is working,
  // then I'll try to help with this - Mac
     connected =true;
-    playFreqM2M(262, 100) //milliseconds, right?
-    playFreqM2M(392, 100)
-    playFreqM2M(523, 100)
+    playFreqM2M(262, 100); //milliseconds, right?
+    playFreqM2M(392, 100);
+    playFreqM2M(523, 100);
  }
  
   function tryNextDevice()
@@ -438,7 +438,7 @@ playFreqM2M = function(freq, duration)
      var toneCommand = createMessage(DIRECT_COMMAND_PREFIX + PLAYTONE + volString + freqString + durString);
      
      sendCommand(toneCommand);
-     
+ }
  function clearDriveTimer()
  {
     if (driveTimer)
