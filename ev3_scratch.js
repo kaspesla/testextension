@@ -64,7 +64,7 @@ function reconnect()
     console.log('Attempting connection with ' + theDevice.id);
     theDevice.set_receive_handler(receive_handler);
  
-    testTheConnection();
+    //testTheConnection();
 }
 
 function batteryCheck(result)
