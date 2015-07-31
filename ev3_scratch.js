@@ -49,7 +49,10 @@
   
   var poller = null;
   var pingTimeout = null;
+  var connectionTimeout = null;
+  
   var waitingForPing = false;
+  var waitingForInitialConnection = false;
 
   var DEBUG_NO_EV3 = false;
   var theDevice = null;
@@ -62,6 +65,8 @@ function reconnect()
  
     connecting = true;
     testTheConnection(startupBatteryCheckCallback);
+    waitingForInitialConnection = true;
+    connectionTimeout = setTimeout(connectionTimeOutCallback, 2000);
 }
 
 function startupBatteryCheckCallback(result)
@@ -100,6 +105,29 @@ function pingTimeOutCallback()
         clearInterval(poller);
       
       connected = false;
+      
+         var r = confirm("The connection was lost. Press OK to reconnect.");
+       if (r == true) {
+         reconnect();
+        } else {
+         // do nothing
+        }
+   }
+}
+
+function connectionTimeOutCallback()
+{
+   if (waitingForInitialConnection == true)
+   {
+     console.log("Initial connection timed out!");
+     connecting = false;
+     
+     var r = confirm("Did not connect to a brick. Press OK to try again.");
+    if (r == true) {
+      reconnect();
+    } else {
+     // do nothing
+    }
    }
 }
 
@@ -193,6 +221,9 @@ function playStartUpTones()
 
   function receive_handler(data)
   {
+    if (!(connected || connecting))
+      return;
+      
     var inputData = new Uint8Array(data);
     console.log("received: " + createHexString(inputData));
   
@@ -722,7 +753,7 @@ function playFreqM2M(freq, duration)
            ['R', 'motor %m.motorInputMode %m.whichMotorIndividual',   'readFromMotor',   'position', 'B'],
 
            ['R', 'battery level',   'readBatteryLevel'],
-           [' ', 'reconnect', 'reconnectToDevice'],
+  //         [' ', 'reconnect', 'reconnectToDevice'],
            ],
   menus: {
   whichMotorPort:   ['A', 'B', 'C', 'D', 'A+D', 'B+C'],
