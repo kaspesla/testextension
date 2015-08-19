@@ -121,10 +121,6 @@ function pingTimeOutCallback()
          // do nothing
         }
    }
-    else
-    {
-        console.log(timeStamp() + ": Got reply to ping");
-    }
  }
 
 function connectionTimeOutCallback()
@@ -145,7 +141,7 @@ function connectionTimeOutCallback()
 
 function pingBatteryCheckCallback(result)
 {
-   console.log("pinged battery level: " + result);
+   console.log(timeStamp() + "pinged battery level: " + result);
    if (pingTimeout)
     clearTimeout(pingTimeout);
    waitingForPing = false;
