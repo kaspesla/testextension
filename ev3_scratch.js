@@ -72,7 +72,9 @@ function reconnect()
 function startupBatteryCheckCallback(result)
 {
    console.log("got battery level at connect: " + result);
-   
+ 
+   waitingForInitialConnection = false;
+
    connected = true;
    connecting = false;
    
