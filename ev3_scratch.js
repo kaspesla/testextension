@@ -129,12 +129,13 @@ function pingTimeOutCallback()
       
       connected = false;
       
-        var r = confirm("The connection was lost. Check your brick and refresh the page to reconnect. (Don't forget to save your project first!)");
-       if (r == true) {
+        alert("The connection was lost. Check your brick and refresh the page to reconnect. (Don't forget to save your project first!)");
+      /* if (r == true) {
          reconnect();
         } else {
          // do nothing
         }
+        */
    }
  }
 
@@ -147,12 +148,13 @@ function connectionTimeOutCallback()
  
      if (potentialDevices.length == 0)
      {
-       var r = confirm("Did not connect to a brick. Make sure the brick is:\n 1) powered on\n 2) (for Macs only) named starting with serial\n 3) paired with this Mac\n 4) the iPhone/iPad/iPod check box is NOT checked\n\nand then try reloading the webpage.");
-         if (r == true) {
+       alert("Did not connect to a brick. Make sure the brick is:\n 1) powered on\n 2) (for Macs only) named starting with serial\n 3) paired with this Mac\n 4) the iPhone/iPad/iPod check box is NOT checked\n\nand then try reloading the webpage.");
+       /*  if (r == true) {
          reconnect();
          } else {
          // do nothing
         }
+        */
     }
     else
     {
