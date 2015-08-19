@@ -129,7 +129,7 @@ function pingTimeOutCallback()
       
       connected = false;
       
-        alert("The connection was lost. Check your brick and refresh the page to reconnect. (Don't forget to save your project first!)");
+        alert("The connection to the brick was lost. Check your brick and refresh the page to reconnect. (Don't forget to save your project first!)");
       /* if (r == true) {
          reconnect();
         } else {
@@ -148,7 +148,7 @@ function connectionTimeOutCallback()
  
      if (potentialDevices.length == 0)
      {
-       alert("Did not connect to a brick. Make sure the brick is:\n 1) powered on\n 2) named starting with serial (if on a Mac)\n 3) paired with this computer\n 4) the iPhone/iPad/iPod check box is NOT checked\n 5) Do not start a connection to or from the brick in any other way. Let the Scratch plug-in handle it!\n\nand then try reloading the webpage.");
+       alert("Failed to connect to a brick.\n\nMake sure your brick is:\n 1) powered on with Bluetooth On\n 2) named starting with serial (if on a Mac)\n 3) paired with this computer\n 4) the iPhone/iPad/iPod check box is NOT checked\n 5) Do not start a connection to or from the brick in any other way. Let the Scratch plug-in handle it!\n\nand then try reloading the webpage.");
        /*  if (r == true) {
          reconnect();
          } else {
