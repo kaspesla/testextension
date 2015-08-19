@@ -28,7 +28,8 @@
   var connecting = false;
   var notifyConnection = false;
   var device = null;
-  
+  var warnedAboutBattery = false;
+ 
   var potentialDevices = [];
   ext._deviceConnected = function(dev) {
   
@@ -145,6 +146,12 @@ function pingBatteryCheckCallback(result)
    if (pingTimeout)
     clearTimeout(pingTimeout);
    waitingForPing = false;
+ 
+   if (result < 11 && !warnedAboutBattery)
+   {
+     alert("Your battery is getting low.");
+     warnedAboutBattery = true;
+   }
 }
 
 
