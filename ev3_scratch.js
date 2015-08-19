@@ -72,6 +72,8 @@
  
 function reconnect()
  {
+    clearSensorStatuses();
+ 
     theDevice.open({ stopBits: 0, bitRate: 115200, ctsFlowControl: 0, parity:2, bufferSize:255 });
     console.log(timeStamp() + ': Attempting connection with ' + theDevice.id);
     theDevice.set_receive_handler(receive_handler);
@@ -143,10 +145,9 @@ function connectionTimeOutCallback()
      console.log(timeStamp() + ": Initial connection timed out");
      connecting = false;
  
-     device = 0;
      if (potentialDevices.length == 0)
      {
-       var r = confirm("Did not connect to a brick. Make sure the brick is:\n 1) powered on\n 2) named starting with serial\n 3) paired with this Mac\n 4) the iPhone/iPad/iPod check box is NOT checked\n\nand then try reloading the webpage.");
+       var r = confirm("Did not connect to a brick. Make sure the brick is:\n 1) powered on\n 2) (for Macs only) named starting with serial\n 3) paired with this Mac\n 4) the iPhone/iPad/iPod check box is NOT checked\n\nand then try reloading the webpage.");
          if (r == true) {
          reconnect();
          } else {
@@ -200,8 +201,6 @@ function playStartUpTones()
  
   function tryNextDevice()
   {
-    clearSensorStatuses();
- 
     device = potentialDevices.shift();
     if (!device)
         return;
