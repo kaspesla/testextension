@@ -400,17 +400,17 @@ function playStartUpTones()
     sarr[0] = num & 0x000000FF;
     sarr[1] = (num >> 8) & 0x000000FF;
 
-    if (lc == 0) //power < 32 && power > -32)
+    if (lc == 0)
     {
         var powerbits = uarr[0];
         powerbits &= 0x0000003F;
         return hexcouplet(powerbits);
     }
-    else if (lc == 1) //(power < 127 && power > -127)
+    else if (lc == 1)
     {
       return "81" + hexcouplet(uarr[0]);
     }
-    else if (lc == 2) //(power < 32767 && power > 32767)
+    else if (lc == 2) 
     {
         return "82" + hexcouplet(uarr[0]) + hexcouplet(uarr[1]);
     }
