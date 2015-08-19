@@ -58,7 +58,7 @@
   var DEBUG_NO_EV3 = false;
   var theDevice = null;
  
- function clearSensorStatuses
+ function clearSensorStatuses()
  {
      var numSensorBlocks = 9;
      waitingQueries = [];
