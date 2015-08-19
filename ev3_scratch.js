@@ -151,14 +151,14 @@ function connectionTimeOutCallback()
          reconnect();
          } else {
          // do nothing
-         }
+        }
     }
     else
     {
         tryNextDevice();
     }
-  }
-}
+   }
+ }
 
 function pingBatteryCheckCallback(result)
 {
