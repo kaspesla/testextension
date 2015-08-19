@@ -146,18 +146,18 @@ function connectionTimeOutCallback()
      device = 0;
      if (potentialDevices.length == 0)
      {
-       alert("Did not connect to a brick. Make sure the brick is:\n 1) powered on\n 2) named starting with serial\n 3) paired with this Mac\n 4) the iPhone/iPad/iPod check box is NOT checked\n\nand then try reloading the webpage.");
-     }
-     else
-     {
+       var r = confirm("Did not connect to a brick. Make sure the brick is:\n 1) powered on\n 2) named starting with serial\n 3) paired with this Mac\n 4) the iPhone/iPad/iPod check box is NOT checked\n\nand then try reloading the webpage.");
+         if (r == true) {
+         reconnect();
+         } else {
+         // do nothing
+         }
+    }
+    else
+    {
         tryNextDevice();
-     }
-  /*  if (r == true) {
-      reconnect();
-    } else {
-     // do nothing
-    }*/
-   }
+    }
+ 
 }
 
 function pingBatteryCheckCallback(result)
