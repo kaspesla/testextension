@@ -131,12 +131,12 @@ function connectionTimeOutCallback()
      console.log(timeStamp() + ": Initial connection timed out");
      connecting = false;
      
-     var r = confirm("Did not connect to a brick. Make sure that the brick is:\n 1) on\n 2) named starting with serial\n 3) paired with this Mac\n 4) the iPhone/iPad/iPod check box is NOT checked\n and then press OK to try again. If you get another error, try reloading the webpage.");
-    if (r == true) {
+     alert("Did not connect to a brick. Make sure that the brick is:\n 1) on\n 2) named starting with serial\n 3) paired with this Mac\n 4) the iPhone/iPad/iPod check box is NOT checked\n and then try reloading the webpage.");
+  /*  if (r == true) {
       reconnect();
     } else {
      // do nothing
-    }
+    }*/
    }
 }
 
