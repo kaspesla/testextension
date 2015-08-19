@@ -88,14 +88,14 @@ function setupWatchdog()
     if (poller)
         clearInterval(poller);
 
-   poller = setInterval(pingBatteryWatchdog, 5000);
+   poller = setInterval(pingBatteryWatchdog, 10000);
 }
 
 function pingBatteryWatchdog()
 {
     testTheConnection(pingBatteryCheckCallback);
     waitingForPing = true;
-    pingTimeout = setTimeout(pingTimeOutCallback, 1000);
+    pingTimeout = setTimeout(pingTimeOutCallback, 2000);
 }
 
 function pingTimeOutCallback()
@@ -124,7 +124,7 @@ function connectionTimeOutCallback()
      console.log("Initial connection timed out!");
      connecting = false;
      
-     var r = confirm("Did not connect to a brick. Press OK to try again.");
+     var r = confirm("Did not connect to a brick. Make sure that the brick is on, the iPhone/iPad/iPod check box is NOT checked, and then press OK to try again. If you get another error, try reloading the webpage.");
     if (r == true) {
       reconnect();
     } else {
