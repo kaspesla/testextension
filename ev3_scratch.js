@@ -60,7 +60,7 @@
 function reconnect()
  {
     theDevice.open({ stopBits: 0, bitRate: 115200, ctsFlowControl: 0, parity:2, bufferSize:255 });
-    console.log('Attempting connection with ' + theDevice.id);
+    console.log(timeStamp() + ': Attempting connection with ' + theDevice.id);
     theDevice.set_receive_handler(receive_handler);
  
     connecting = true;
@@ -71,7 +71,7 @@ function reconnect()
 
 function startupBatteryCheckCallback(result)
 {
-   console.log("got battery level at connect: " + result);
+   console.log(timeStamp() + ": got battery level at connect: " + result);
  
    waitingForInitialConnection = false;
 
@@ -90,9 +90,15 @@ function setupWatchdog()
 
    poller = setInterval(pingBatteryWatchdog, 10000);
 }
+ 
+function timeStamp()
+{
+  return (new Date).toISOString().replace(/z|t/gi,' ').trim();
+}
 
 function pingBatteryWatchdog()
 {
+    console.log(timeStamp() + ": pingBatteryWatchdog");
     testTheConnection(pingBatteryCheckCallback);
     waitingForPing = true;
     pingTimeout = setTimeout(pingTimeOutCallback, 3000);
@@ -102,7 +108,7 @@ function pingTimeOutCallback()
 {
    if (waitingForPing == true)
    {
-     console.log("Ping timed out!");
+     console.log(timeStamp() + ": Ping timed out");
       if (poller)
         clearInterval(poller);
       
@@ -121,7 +127,7 @@ function connectionTimeOutCallback()
 {
    if (waitingForInitialConnection == true)
    {
-     console.log("Initial connection timed out!");
+     console.log(timeStamp() + ": Initial connection timed out");
      connecting = false;
      
      var r = confirm("Did not connect to a brick. Make sure that the brick is on, the iPhone/iPad/iPod check box is NOT checked, and then press OK to try again. If you get another error, try reloading the webpage.");
