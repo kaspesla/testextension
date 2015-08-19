@@ -121,7 +121,11 @@ function pingTimeOutCallback()
          // do nothing
         }
    }
-}
+    else
+    {
+        console.log(timeStamp() + ": Got reply to ping");
+    }
+ }
 
 function connectionTimeOutCallback()
 {
