@@ -148,7 +148,7 @@ function connectionTimeOutCallback()
  
      if (potentialDevices.length == 0)
      {
-       alert("Did not connect to a brick. Make sure the brick is:\n 1) powered on\n 2) (for Macs only) named starting with serial\n 3) paired with this Mac\n 4) the iPhone/iPad/iPod check box is NOT checked\n\nand then try reloading the webpage.");
+       alert("Did not connect to a brick. Make sure the brick is:\n 1) powered on\n 2) (for Macs only) named starting with serial\n 3) paired with this Mac\n 4) the iPhone/iPad/iPod check box is NOT checked\n 5) Do not start a connection to or from the brick in any other way. Let the Scratch plug-in handle it!\n\nand then try reloading the webpage.");
        /*  if (r == true) {
          reconnect();
          } else {
