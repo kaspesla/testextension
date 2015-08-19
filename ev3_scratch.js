@@ -58,8 +58,22 @@
   var DEBUG_NO_EV3 = false;
   var theDevice = null;
  
+ function clearSensorStatuses
+ {
+     var numSensorBlocks = 9;
+     waitingQueries = [];
+     for (x = 0; x < numSensorBlocks; x++)
+     {
+        waitingCallbacks[x] = [];
+        global_touch_pressed[x] = false;
+        global_sensor_queried[x] = 0;
+     }
+ }
+ 
 function reconnect()
  {
+    clearSensorStatuses();
+ 
     theDevice.open({ stopBits: 0, bitRate: 115200, ctsFlowControl: 0, parity:2, bufferSize:255 });
     console.log(timeStamp() + ': Attempting connection with ' + theDevice.id);
     theDevice.set_receive_handler(receive_handler);
