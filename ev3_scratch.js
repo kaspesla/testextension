@@ -40,7 +40,7 @@
   // the Scratch plugin is only letting us know about serial ports with names that
   // "begin with tty.usbmodem, tty.serial, or tty.usbserial" - according to khanning
   
-  if (dev.id.indexOf('/dev/tty.serialBrick') === 0 && dev.id.indexOf('-SerialPort') != -1)
+  if ((dev.id.indexOf('/dev/tty.serialBrick') === 0 && dev.id.indexOf('-SerialPort') != -1) || dev.id.indexOf('COM') === 0)
   {
       potentialDevices.push(dev);
       if (!device)
@@ -127,12 +127,12 @@ function pingTimeOutCallback()
       
       connected = false;
       
-        alert("The connection was lost. Check your brick and refresh the page to reconnect. (Don't forget to save your project first!)");
-       /*if (r == true) {
+        var r = confirm("The connection was lost. Check your brick and refresh the page to reconnect. (Don't forget to save your project first!)");
+       if (r == true) {
          reconnect();
         } else {
          // do nothing
-        }*/
+        }
    }
  }
 
