@@ -164,7 +164,7 @@ function connectionTimeOutCallback()
 function pingBatteryCheckCallback(result)
 {
    console.log(timeStamp() + ": pinged battery level: " + result);
-   if (pingTimeout)
+   if (pingTimeout)r
     clearTimeout(pingTimeout);
    waitingForPing = false;
  
@@ -257,11 +257,11 @@ function playStartUpTones()
 
   function receive_handler(data)
   {
-    if (!(connected || connecting))
-      return;
-      
     var inputData = new Uint8Array(data);
     console.log("received: " + createHexString(inputData));
+
+    if (!(connected || connecting))
+      return;
   
     var query_info = waitingQueries.shift();
     var this_is_from_port = query_info[0];
