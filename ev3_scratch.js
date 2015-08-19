@@ -72,8 +72,6 @@
  
 function reconnect()
  {
-    clearSensorStatuses();
- 
     theDevice.open({ stopBits: 0, bitRate: 115200, ctsFlowControl: 0, parity:2, bufferSize:255 });
     console.log(timeStamp() + ': Attempting connection with ' + theDevice.id);
     theDevice.set_receive_handler(receive_handler);
@@ -202,6 +200,8 @@ function playStartUpTones()
  
   function tryNextDevice()
   {
+    clearSensorStatuses();
+ 
     device = potentialDevices.shift();
     if (!device)
         return;
