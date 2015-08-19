@@ -165,7 +165,7 @@ function playStartUpTones()
         device.close();
     if (poller)
         clearInterval(poller);
-    satus = false;
+
     device = null;
   };
   
@@ -222,10 +222,12 @@ function playStartUpTones()
             else
                 theResult = "none";
         }
-        else if (modeType == COLOR_RAW_RGB)  // is color_raw encoded as a string, hex, or number? Find out in the next episode of screwing around with unneeded 1990's opcode-esque networking!
+ /*
+        else if (modeType == COLOR_RAW_RGB)  // is color_raw encoded as a string, hex, or number?
         {
             theResult = num; //maybe? probably not, but here's hoping it's this simple.
         }
+  */
     }
     
     else if (mode == IR_SENSOR)
@@ -721,8 +723,8 @@ function playFreqM2M(freq, duration)
            ['R', 'measure distance %m.whichInputPort',   'readDistanceSensorPort',   '1'],
            ['R', 'motor %m.motorInputMode %m.whichMotorIndividual',   'readFromMotor',   'position', 'B'],
 
-           ['R', 'battery level',   'readBatteryLevel'],
-           [' ', 'reconnect', 'reconnectToDevice'],
+       //    ['R', 'battery level',   'readBatteryLevel'],
+         //  [' ', 'reconnect', 'reconnectToDevice'],
            ],
   menus: {
   whichMotorPort:   ['A', 'B', 'C', 'D', 'A+D', 'B+C'],
@@ -730,7 +732,7 @@ function playFreqM2M(freq, duration)
   dualMotors:       ['A+D', 'B+C'],
   turnStyle:        ['forward', 'reverse', 'right', 'left'],
   breakCoast:       ['break', 'coast'],
-  lightSensorMode:  ['reflected', 'ambient', 'color', 'RGBcolor'],
+  lightSensorMode:  ['reflected', 'ambient', 'color'],
  motorInputMode: ['position', 'speed'],
   note:["C4","D4","E4","F4","G4","A4","B4","C5","D5","E5","F5","G5","A5","B5","C6","D6","E6","F6","G6","A6","B6","C#4","D#4","F#4","G#4","A#4","C#5","D#5","F#5","G#5","A#5","C#6","D#6","F#6","G#6","A#6"],
   whichInputPort: ['1', '2', '3', '4'],
