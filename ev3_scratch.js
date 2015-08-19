@@ -33,7 +33,7 @@
   var potentialDevices = [];
   ext._deviceConnected = function(dev) {
   
-  //console.log('_deviceConnected: ' + dev.id);
+   console.log('_deviceConnected: ' + dev.id);
 
   // brick's serial port must be named like tty.serialBrick7-SerialPort
   // this is how 10.10 is naming it automatically, the brick name being serialBrick7
@@ -130,8 +130,16 @@ function connectionTimeOutCallback()
    {
      console.log(timeStamp() + ": Initial connection timed out");
      connecting = false;
-     
-     alert("Did not connect to a brick. Make sure the brick is:\n 1) powered on\n 2) named starting with serial\n 3) paired with this Mac\n 4) the iPhone/iPad/iPod check box is NOT checked\n\nand then try reloading the webpage.");
+ 
+     device = nil;
+     if (potentialDevices.length == 0)
+     {
+       alert("Did not connect to a brick. Make sure the brick is:\n 1) powered on\n 2) named starting with serial\n 3) paired with this Mac\n 4) the iPhone/iPad/iPod check box is NOT checked\n\nand then try reloading the webpage.");
+     }
+     else
+     {
+        tryNextDevice();
+     }
   /*  if (r == true) {
       reconnect();
     } else {
@@ -410,7 +418,7 @@ function playStartUpTones()
     {
       return "81" + hexcouplet(uarr[0]);
     }
-    else if (lc == 2) 
+    else if (lc == 2)
     {
         return "82" + hexcouplet(uarr[0]) + hexcouplet(uarr[1]);
     }
