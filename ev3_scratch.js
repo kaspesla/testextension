@@ -157,7 +157,7 @@ function connectionTimeOutCallback()
     {
         tryNextDevice();
     }
- 
+  }
 }
 
 function pingBatteryCheckCallback(result)
