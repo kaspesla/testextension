@@ -171,11 +171,11 @@ function playStartUpTones()
 
      window.setTimeout(function() {
                           playFreqM2M(392, 100);
-                       }, tonedelay+100);
+                       }, tonedelay+150);
      
      window.setTimeout(function() {
                           playFreqM2M(523, 100);
-                       }, tonedelay+200);
+                       }, tonedelay+300);
  }
  
   function tryNextDevice()
