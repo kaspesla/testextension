@@ -66,7 +66,7 @@ function reconnect()
     connecting = true;
     testTheConnection(startupBatteryCheckCallback);
     waitingForInitialConnection = true;
-    connectionTimeout = setTimeout(connectionTimeOutCallback, 2000);
+    connectionTimeout = setTimeout(connectionTimeOutCallback, 3000);
 }
 
 function startupBatteryCheckCallback(result)
@@ -95,7 +95,7 @@ function pingBatteryWatchdog()
 {
     testTheConnection(pingBatteryCheckCallback);
     waitingForPing = true;
-    pingTimeout = setTimeout(pingTimeOutCallback, 2000);
+    pingTimeout = setTimeout(pingTimeOutCallback, 3000);
 }
 
 function pingTimeOutCallback()
