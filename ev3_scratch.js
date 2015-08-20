@@ -29,8 +29,8 @@
   var notifyConnection = false;
   var device = null;
   var warnedAboutBattery = false;
- 
   var potentialDevices = [];
+  var deviceTimeout = 0;
   ext._deviceConnected = function(dev) {
   
    console.log('_deviceConnected: ' + dev.id);
@@ -42,9 +42,11 @@
   
   if ((dev.id.indexOf('/dev/tty.serialBrick') === 0 && dev.id.indexOf('-SerialPort') != -1) || dev.id.indexOf('COM') === 0)
   {
+      if (deviceTimeout)
+        clearTimeout(deviceTimeout);
       potentialDevices.push(dev);
-      if (!device)
-          tryNextDevice();
+  
+      deviceTimeout = setTimeout(tryNextDevice, 500);
   }
   };
   
@@ -203,6 +205,8 @@ function playStartUpTones()
  
   function tryNextDevice()
   {
+    potentialDevices.sort();
+    potentialDevices.reverse();
     device = potentialDevices.shift();
     if (!device)
         return;
