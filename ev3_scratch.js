@@ -15,7 +15,7 @@
         return { status:1, msg:'Disconnected' };
       else
         return { status:2, msg:'Connected' };
-  };
+  };s
   
   ext._deviceRemoved = function(dev)
   {
@@ -43,8 +43,8 @@
   if ((dev.id.indexOf('/dev/tty.serialBrick') === 0 && dev.id.indexOf('-SerialPort') != -1) || dev.id.indexOf('COM') === 0)
   {
 
-      if (potentialDevices.indexOf(dev) == -1)
-         potentialDevices.push(dev);
+    if (potentialDevices.filter(function(e) e.id == dev.id).length == 0) {
+          potentialDevices.push(dev);
       if (!deviceTimeout)
         deviceTimeout = setTimeout(tryNextDevice, 1000);
   }
@@ -205,8 +205,8 @@ function playStartUpTones()
  
   function tryNextDevice()
   {
-    potentialDevices.sort();
-    potentialDevices.reverse();
+    potentialDevices.sort((function(a, b){return b.id.localeCompare(a.id)}));
+
     console.log("devices: " + potentialDevices);
     device = potentialDevices.shift();
     if (!device)
