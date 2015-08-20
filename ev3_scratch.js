@@ -44,7 +44,7 @@
   {
 
     if (potentialDevices.filter(function(e) { return e.id == dev.id; }).length == 0) {
-          potentialDevices.push(dev);
+          potentialDevices.push(dev); }
       if (!deviceTimeout)
         deviceTimeout = setTimeout(tryNextDevice, 1000);
   }
