@@ -15,7 +15,7 @@
         return { status:1, msg:'Disconnected' };
       else
         return { status:2, msg:'Connected' };
-  };s
+  };
   
   ext._deviceRemoved = function(dev)
   {
