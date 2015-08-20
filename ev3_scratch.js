@@ -207,6 +207,7 @@ function playStartUpTones()
   {
     potentialDevices.sort();
     potentialDevices.reverse();
+    console.log("devices: " + potentialDevices);
     device = potentialDevices.shift();
     if (!device)
         return;
