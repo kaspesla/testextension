@@ -44,7 +44,8 @@
   {
       if (deviceTimeout)
         clearTimeout(deviceTimeout);
-      potentialDevices.push(dev);
+      if (potentialDevices.indexOf(dev) == -1)
+         potentialDevices.push(dev);
   
       deviceTimeout = setTimeout(tryNextDevice, 500);
   }
