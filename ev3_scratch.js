@@ -42,12 +42,11 @@
   
   if ((dev.id.indexOf('/dev/tty.serialBrick') === 0 && dev.id.indexOf('-SerialPort') != -1) || dev.id.indexOf('COM') === 0)
   {
-      if (deviceTimeout)
-        clearTimeout(deviceTimeout);
+
       if (potentialDevices.indexOf(dev) == -1)
          potentialDevices.push(dev);
-  
-      deviceTimeout = setTimeout(tryNextDevice, 500);
+      if (!deviceTimeout)
+        deviceTimeout = setTimeout(tryNextDevice, 1000);
   }
   };
   
