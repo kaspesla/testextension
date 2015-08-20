@@ -43,7 +43,7 @@
   if ((dev.id.indexOf('/dev/tty.serialBrick') === 0 && dev.id.indexOf('-SerialPort') != -1) || dev.id.indexOf('COM') === 0)
   {
 
-    if (potentialDevices.filter(function(e) e.id == dev.id).length == 0) {
+    if (potentialDevices.filter(function(e) { return e.id == dev.id; }).length == 0) {
           potentialDevices.push(dev);
       if (!deviceTimeout)
         deviceTimeout = setTimeout(tryNextDevice, 1000);
