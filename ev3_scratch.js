@@ -137,7 +137,7 @@ function pingTimeOutCallback()
         alert("The connection to the brick was lost. Check your brick and refresh the page to reconnect. (Don't forget to save your project first!)");
       /* if (r == true) {
          reconnect();
-        } else {
+        } co {
          // do nothing
         }
         */
@@ -609,6 +609,11 @@ function playFreqM2M(freq, duration)
       
       sendCommand(motorsOffCommand);
   }
+  
+  function sendNOP
+  {
+     var nopCommand = createMessage(DIRECT_COMMAND_PREFIX + NOOP);
+  }
 
   ext.steeringControl = function(ports, what, duration, callback)
   {
@@ -766,6 +771,44 @@ function playFreqM2M(freq, duration)
      {
         global_sensor_queried[portInt]++;
         UIRead(portInt, UIREAD_BATTERY);
+        
+        sendNOP();
+                sendNOP();
+        sendNOP();
+        sendNOP();
+        sendNOP();
+        sendNOP();
+        sendNOP();
+        sendNOP();
+        sendNOP();
+        sendNOP();
+        sendNOP();
+        sendNOP();
+        sendNOP();
+        sendNOP();
+        sendNOP();
+        sendNOP();
+        sendNOP();
+        sendNOP();
+        sendNOP();
+        sendNOP();
+        sendNOP();
+        sendNOP();
+        sendNOP();
+        sendNOP();
+        sendNOP();
+        sendNOP();
+        sendNOP();
+        sendNOP();
+        sendNOP();
+        sendNOP();
+        sendNOP();
+        sendNOP();
+        sendNOP();
+        sendNOP();
+        sendNOP();
+        sendNOP();
+
      }
  }
  
