@@ -79,7 +79,7 @@ function reconnect()
     clearSensorStatuses();
     counter = 0; 
     
-    theDevice.open({ stopBits: 0, bitRate: 115200, ctsFlowControl: 0, parity:2, bufferSize:255 });
+    theDevice.open({ stopBits: 0, bitRate: 57600 /*115200*/, ctsFlowControl: 0}); //, parity:2, bufferSize:255 });
     console.log(timeStamp() + ': Attempting connection with ' + theDevice.id);
     theDevice.set_receive_handler(receive_handler);
  
@@ -771,44 +771,6 @@ function playFreqM2M(freq, duration)
      {
         global_sensor_queried[portInt]++;
         UIRead(portInt, UIREAD_BATTERY);
-        
-        sendNOP();
-                sendNOP();
-        sendNOP();
-        sendNOP();
-        sendNOP();
-        sendNOP();
-        sendNOP();
-        sendNOP();
-        sendNOP();
-        sendNOP();
-        sendNOP();
-        sendNOP();
-        sendNOP();
-        sendNOP();
-        sendNOP();
-        sendNOP();
-        sendNOP();
-        sendNOP();
-        sendNOP();
-        sendNOP();
-        sendNOP();
-        sendNOP();
-        sendNOP();
-        sendNOP();
-        sendNOP();
-        sendNOP();
-        sendNOP();
-        sendNOP();
-        sendNOP();
-        sendNOP();
-        sendNOP();
-        sendNOP();
-        sendNOP();
-        sendNOP();
-        sendNOP();
-        sendNOP();
-
      }
  }
  
