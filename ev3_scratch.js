@@ -86,7 +86,7 @@ function reconnect()
     connecting = true;
     testTheConnection(startupBatteryCheckCallback);
     waitingForInitialConnection = true;
-    connectionTimeout = setTimeout(connectionTimeOutCallback, 3000);
+    connectionTimeout = setTimeout(connectionTimeOutCallback, 30000);
 }
 
 function startupBatteryCheckCallback(result)
