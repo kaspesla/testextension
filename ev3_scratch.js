@@ -610,7 +610,7 @@ function playFreqM2M(freq, duration)
       sendCommand(motorsOffCommand);
   }
   
-  function sendNOP
+  function sendNOP()
   {
      var nopCommand = createMessage(DIRECT_COMMAND_PREFIX + NOOP);
   }
