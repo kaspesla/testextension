@@ -33,7 +33,7 @@
   var deviceTimeout = 0;
   ext._deviceConnected = function(dev) {
   
-   console.log('_deviceConnected: ' + dev.id);
+   console.log(timeStamp() + '_deviceConnected: ' + dev.id);
 
   // brick's serial port must be named like tty.serialBrick7-SerialPort
   // this is how 10.10 is naming it automatically, the brick name being serialBrick7
@@ -46,7 +46,7 @@
     if (potentialDevices.filter(function(e) { return e.id == dev.id; }).length == 0) {
           potentialDevices.push(dev); }
       if (!deviceTimeout)
-        deviceTimeout = setTimeout(tryNextDevice, 1000);
+        deviceTimeout = setTimeout(tryNextDevice, 3000);
   }
   };
   
