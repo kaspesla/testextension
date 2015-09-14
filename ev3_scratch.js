@@ -99,8 +99,9 @@ function startupBatteryCheckCallback(result)
    connecting = false;
    
    playStartUpTones();
-   
- //  setupWatchdog();
+ 
+   // no watchdog right now.  reconnection is too flakey so there is no point
+   //  setupWatchdog();
 }
 
 function setupWatchdog()
@@ -327,6 +328,7 @@ function playStartUpTones()
     global_sensor_queried[this_is_from_port]--;
     while(callback = waitingCallbacks[this_is_from_port].shift())
     {
+        console.log("result: " + theResult);
         callback(theResult);
     }
   }
