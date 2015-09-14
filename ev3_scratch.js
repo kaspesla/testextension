@@ -745,7 +745,7 @@ function playFreqM2M(freq, duration)
  
     var readCommand = createMessage(DIRECT_COMMAND_REPLY_SENSOR_PREFIX +
                                  INPUT_DEVICE_READY_SI + "00" + // layer
-                                 hexcouplet(port) + "00" + // type
+                                 hexcouplet(port) + type + // type
                                  mode +
                                  "0160"); // result stuff
  
