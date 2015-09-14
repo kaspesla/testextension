@@ -312,6 +312,10 @@ function playStartUpTones()
     {
         theResult = getFloatResult(inputData);
     }
+    else if (mode == GYRO_SENSOR)
+    {
+       theResult = getFloatResult(inputData);
+    }
     else if (mode == READ_FROM_MOTOR)
     {
         theResult = getFloatResult(inputData);
@@ -474,20 +478,20 @@ function playStartUpTones()
   var ULTRSONIC_SI_CM = "03";
   var ULTRSONIC_SI_INCH = "04";
   var ULTRSONIC_DC_CM = "05"; 
-  var ULTRSONIC_DC_INCH = "06"; //I'm just putting this in for the sake of knowing I didn't miss any.
-  var WHY_IS_THERE_A_GAP_HERE = "1F"; //Just so I don't think I'm missing one 
+  var ULTRSONIC_DC_INCH = "06";
+
   var GYRO_SENSOR = "20";
   var GYRO_ANGLE = "00";
   var GYRO_RATE = "01";
-  var GYRO_FAST = "02"; //very descriptive, LEGO firmware writers
-  var GYRO_RATE_AND_ANGLE = "03"; //I kid you not, this is a real thing. WHYYYY?
+  var GYRO_FAST = "02";
+  var GYRO_RATE_AND_ANGLE = "03";
   var GYRO_CALIBRATION = "04";
   var IR_SENSOR = "21";
   var IR_PROX = "00";
   var IR_SEEKER = "01";
   var IR_REMOTE = "02"
-  var IR_REMOTE_ADVANCE = "03"; //I have no clue what this is.
-  var IR_CALIBRATION = "05"; //Yep, no clue what some of these do. I don't think many, if any people do.
+  var IR_REMOTE_ADVANCE = "03";
+  var IR_CALIBRATION = "05";
   var REFLECTED_INTENSITY = "00";
   var AMBIENT_INTENSITY = "01";
   var COLOR_VALUE = "02";
@@ -694,6 +698,21 @@ function playFreqM2M(freq, duration)
     }
   }
  
+  ext.readGyroPort = function(port, mode, callback)
+  {
+    var modeCode = GYRO_ANGLE;
+    if (mode == 'rate') { modeCode = GYRO_RATE; }
+ 
+    var portInt = parseInt(port) - 1;
+ 
+    waitingCallbacks[portInt].push(callback);
+    if (global_sensor_queried[portInt] == 0)
+    {
+      global_sensor_queried[portInt]++;
+      readFromSensor2(portInt, GYRO_SENSOR, modeCode);
+    }
+  }
+ 
   ext.readDistanceSensorPort = function(port, callback)
   {
     var portInt = parseInt(port) - 1;
@@ -747,6 +766,7 @@ function playFreqM2M(freq, duration)
      }
  }
  
+ // this routine is awful similar to readFromSensor2...
  function readFromAMotor(port, type, mode)
  {
  
@@ -803,6 +823,7 @@ function playFreqM2M(freq, duration)
            ['w', 'play frequency %n duration %n ms',                    'playFreq',         '262', 500],
            ['R', 'light sensor %m.whichInputPort %m.lightSensorMode',   'readColorSensorPort',   '1', 'color'],
            ['R', 'measure distance %m.whichInputPort',   'readDistanceSensorPort',   '1'],
+           ['R', 'gyro  %m.gyroMode %m.whichInputPort',   'readGyroPort',  'angle', '1'],
            ['R', 'motor %m.motorInputMode %m.whichMotorIndividual',   'readFromMotor',   'position', 'B'],
 
        //    ['R', 'battery level',   'readBatteryLevel'],
@@ -815,7 +836,8 @@ function playFreqM2M(freq, duration)
   turnStyle:        ['forward', 'reverse', 'right', 'left'],
   breakCoast:       ['break', 'coast'],
   lightSensorMode:  ['reflected', 'ambient', 'color'],
- motorInputMode: ['position', 'speed'],
+  motorInputMode: ['position', 'speed'],
+  gyroMode: ['angle', 'rate'],
   note:["C4","D4","E4","F4","G4","A4","B4","C5","D5","E5","F5","G5","A5","B5","C6","D6","E6","F6","G6","A6","B6","C#4","D#4","F#4","G#4","A#4","C#5","D#5","F#5","G#5","A#5","C#6","D#6","F#6","G#6","A#6"],
   whichInputPort: ['1', '2', '3', '4'],
     },
