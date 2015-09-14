@@ -486,7 +486,7 @@ function playStartUpTones()
   var GYRO_FAST = "02";
   var GYRO_RATE_AND_ANGLE = "03";
   var GYRO_CALIBRATION = "04";
-  var IR_SENSOR = "00"; // use 00 here instead of 21
+  var IR_SENSOR = "21";
   var IR_PROX = "00";
   var IR_SEEKER = "01";
   var IR_REMOTE = "02"
@@ -650,7 +650,10 @@ function playFreqM2M(freq, duration)
     driveCallback = callback;
     driveTimer = window.setTimeout(function()
     {
-        motorsStop('coast');
+        if (duration > 0) // allow zero duration to run motors asynchronously
+        {
+          motorsStop('coast');
+        }
         callback();
     } , duration*1000);
   }
@@ -745,7 +748,7 @@ function playFreqM2M(freq, duration)
  
     var readCommand = createMessage(DIRECT_COMMAND_REPLY_SENSOR_PREFIX +
                                  INPUT_DEVICE_READY_SI + "00" + // layer
-                                 hexcouplet(port) + type + // type
+                                 hexcouplet(port) + "00" + // type
                                  mode +
                                  "0160"); // result stuff
  
