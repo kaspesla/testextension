@@ -698,7 +698,7 @@ function playFreqM2M(freq, duration)
     }
   }
  
-  ext.readGyroPort = function(port, mode, callback)
+  ext.readGyroPort = function(mode, port, callback)
   {
     var modeCode = GYRO_ANGLE;
     if (mode == 'rate') { modeCode = GYRO_RATE; }
