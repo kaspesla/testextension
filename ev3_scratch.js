@@ -486,7 +486,7 @@ function playStartUpTones()
   var GYRO_FAST = "02";
   var GYRO_RATE_AND_ANGLE = "03";
   var GYRO_CALIBRATION = "04";
-  var IR_SENSOR = "21";
+  var IR_SENSOR = "00"; // use 00 here instead of 21
   var IR_PROX = "00";
   var IR_SEEKER = "01";
   var IR_REMOTE = "02"
