@@ -878,7 +878,7 @@ function playFreqM2M(freq, duration)
            ['R', 'light sensor %m.whichInputPort %m.lightSensorMode',   'readColorSensorPort',   '1', 'color'],
            ['R', 'measure distance %m.whichInputPort',                  'readDistanceSensorPort',   '1'],
            ['R', 'remote button %m.whichInputPort',                     'readRemoteButtonPort',   '1'],
-           ['R', 'gyro  %m.gyroMode %m.whichInputPort',                 'readGyroPort',  'angle', '1'],
+          // ['R', 'gyro  %m.gyroMode %m.whichInputPort',                 'readGyroPort',  'angle', '1'],
            ['R', 'motor %m.motorInputMode %m.whichMotorIndividual',     'readFromMotor',   'position', 'B'],
 
        //    ['R', 'battery level',   'readBatteryLevel'],
