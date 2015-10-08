@@ -354,7 +354,7 @@ function playStartUpTones()
      arr[3] = inputData[8]
      return c[0];
  }
- 
+ /*
  function getIRButtonCodeForString(inButtonName)
  {
     for (var i = 0; i < IRbuttonNames.length; i++)
@@ -364,8 +364,9 @@ function playStartUpTones()
             return IRbuttonCodes[i];
         }
     }
+    return 0;
  }
- 
+ */
  function getIRButtonNameForCode(inButtonCode)
  {
      for (var i = 0; i < IRbuttonCodes.length; i++)
@@ -375,6 +376,7 @@ function playStartUpTones()
             return IRbuttonNames[i];
          }
      }
+    return "";
  }
 
   // add counter and byte length encoding prefix. return Uint8Array of final message
@@ -724,9 +726,7 @@ function playFreqM2M(freq, duration)
      var portInt = parseInt(port) - 1;
      readIRRemoteSensor(portInt);
  
-     var IRbuttonCode = getIRButtonCodeForString(IRbutton);
- 
-     return (global_ir_button_pressed[portInt] == IRbuttonCode);
+     return (global_ir_button_pressed[portInt] == IRbutton);
  }
  
   ext.readTouchSensorPort = function(port, callback)
