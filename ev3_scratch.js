@@ -67,8 +67,7 @@
      for (x = 0; x < numSensorBlocks; x++)
      {
         waitingCallbacks[x] = [];
-        global_touch_pressed[x] = false;
-        global_ir_button_pressed[x] = false;
+        global_sensor_result[x] = 0;
         global_sensor_queried[x] = 0;
      }
  }
@@ -264,8 +263,7 @@ function playStartUpTones()
   
   var waitingCallbacks = [[],[],[],[],[],[],[],[], []];
   var waitingQueries = [];
-  var global_touch_pressed = [false, false, false, false,false, false, false, false, false];
-  var global_ir_button_pressed = [false, false, false, false,false, false, false, false, false];
+  var global_sensor_result =  [0, 0, 0, 0, 0, 0, 0, 0, 0];
   var global_sensor_queried = [0, 0, 0, 0, 0, 0, 0, 0, 0];
 
   function receive_handler(data)
@@ -333,9 +331,8 @@ function playStartUpTones()
         }
      }
  
-    global_touch_pressed[this_is_from_port] = theResult;
+    global_sensor_result[this_is_from_port] = theResult;
     global_sensor_queried[this_is_from_port]--;
-    global_ir_button_pressed[this_is_from_port] = theResult;
     while(callback = waitingCallbacks[this_is_from_port].shift())
     {
         console.log("result: " + theResult);
@@ -703,7 +700,7 @@ function playFreqM2M(freq, duration)
         return false;
     var portInt = parseInt(port) - 1;
     readTouchSensor(portInt);
-    return global_touch_pressed[portInt];
+    return global_sensor_result[portInt];
   }
 
  ext.whenRemoteButtonPressed = function(IRbutton, port)
@@ -714,7 +711,7 @@ function playFreqM2M(freq, duration)
      var portInt = parseInt(port) - 1;
      readIRRemoteSensor(portInt);
  
-     return (global_ir_button_pressed[portInt] == IRbutton);
+     return (global_sensor_result[portInt] == IRbutton);
  }
  
   ext.readTouchSensorPort = function(port, callback)
@@ -733,14 +730,41 @@ function playFreqM2M(freq, duration)
     if (mode == 'RGBcolor') { modeCode = COLOR_RAW_RGB; }
  
     var portInt = parseInt(port) - 1;
-
     waitingCallbacks[portInt].push(callback);
-    if (global_sensor_queried[portInt] == 0)
-    {
-      global_sensor_queried[portInt]++;
-      readFromSensor2(portInt, COLOR_SENSOR, modeCode);
-    }
+
+    readFromColorSensor(portInt, modeCode);
   }
+ 
+ function readFromColorSensor(portInt, modeCode)
+ {
+     if (global_sensor_queried[portInt] == 0)
+     {
+        global_sensor_queried[portInt]++;
+        readFromSensor2(portInt, COLOR_SENSOR, modeCode);
+     }
+ }
+ 
+ var lineCheckingInterval = 0;
+
+ ext.waitUntilDarkLinePort = function(port, callback)
+ {
+    if (lineCheckingInterval)
+        clearInterval(lineCheckingInterval);
+    lineCheckingInterval = 0;
+    var modeCode = REFLECTED_INTENSITY;
+    var portInt = parseInt(port) - 1;
+ 
+    lineCheckingInterval = window.setInterval(function()
+    {
+        readFromColorSensor(portInt, modeCode);
+         if (global_sensor_result[portInt] > 50)
+         {
+                clearInterval(lineCheckingInterval);
+                lineCheckingInterval = 0;
+                callback();
+         }
+    }, 5);
+ }
  
   ext.readGyroPort = function(mode, port, callback)
   {
@@ -876,6 +900,7 @@ function playFreqM2M(freq, duration)
            ['w', 'play note %m.note duration %n ms',                    'playTone',         'C5', 500],
            ['w', 'play frequency %n duration %n ms',                    'playFreq',         '262', 500],
            ['R', 'light sensor %m.whichInputPort %m.lightSensorMode',   'readColorSensorPort',   '1', 'color'],
+           ['w', 'wait until light sensor %m.whichInputPort detects black line',   'waitUntilDarkLinePort',   '1'],
            ['R', 'measure distance %m.whichInputPort',                  'readDistanceSensorPort',   '1'],
            ['R', 'remote button %m.whichInputPort',                     'readRemoteButtonPort',   '1'],
           // ['R', 'gyro  %m.gyroMode %m.whichInputPort',                 'readGyroPort',  'angle', '1'],
