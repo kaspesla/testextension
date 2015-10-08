@@ -354,19 +354,7 @@ function playStartUpTones()
      arr[3] = inputData[8]
      return c[0];
  }
- /*
- function getIRButtonCodeForString(inButtonName)
- {
-    for (var i = 0; i < IRbuttonNames.length; i++)
-    {
-        if (inButtonName == IRbuttonNames[i])
-        {
-            return IRbuttonCodes[i];
-        }
-    }
-    return 0;
- }
- */
+
  function getIRButtonNameForCode(inButtonCode)
  {
      for (var i = 0; i < IRbuttonCodes.length; i++)
@@ -880,18 +868,18 @@ function playFreqM2M(freq, duration)
   var descriptor = {
   blocks: [
            ['w', 'drive %m.dualMotors %m.turnStyle %n seconds',         'steeringControl',  'B+C', 'forward', 3],
-           [' ', 'start motor %m.whichMotorPort speed %n',                    'allMotorsOn',      'B+C', 100],
+           [' ', 'start motor %m.whichMotorPort speed %n',              'allMotorsOn',      'B+C', 100],
            [' ', 'stop all motors %m.breakCoast',                       'allMotorsOff',     'break'],
-           ['h', 'when button pressed on port %m.whichInputPort',               'whenButtonPressed','1'],
-           ['h', 'when IR remote button %m.buttons pressed on port %m.whichInputPort',               'whenRemoteButtonPressed','1', '1'],
+           ['h', 'when button pressed on port %m.whichInputPort',       'whenButtonPressed','1'],
+           ['h', 'when IR remote %m.buttons pressed port %m.whichInputPort', 'whenRemoteButtonPressed','Top Left', '1'],
            ['R', 'button pressed %m.whichInputPort',                    'readTouchSensorPort',   '1'],
            ['w', 'play note %m.note duration %n ms',                    'playTone',         'C5', 500],
            ['w', 'play frequency %n duration %n ms',                    'playFreq',         '262', 500],
            ['R', 'light sensor %m.whichInputPort %m.lightSensorMode',   'readColorSensorPort',   '1', 'color'],
-           ['R', 'measure distance %m.whichInputPort',   'readDistanceSensorPort',   '1'],
-           ['R', 'remote button %m.whichInputPort',   'readRemoteButtonPort',   '1'],
-           ['R', 'gyro  %m.gyroMode %m.whichInputPort',   'readGyroPort',  'angle', '1'],
-           ['R', 'motor %m.motorInputMode %m.whichMotorIndividual',   'readFromMotor',   'position', 'B'],
+           ['R', 'measure distance %m.whichInputPort',                  'readDistanceSensorPort',   '1'],
+           ['R', 'remote button %m.whichInputPort',                     'readRemoteButtonPort',   '1'],
+           ['R', 'gyro  %m.gyroMode %m.whichInputPort',                 'readGyroPort',  'angle', '1'],
+           ['R', 'motor %m.motorInputMode %m.whichMotorIndividual',     'readFromMotor',   'position', 'B'],
 
        //    ['R', 'battery level',   'readBatteryLevel'],
        //  [' ', 'reconnect', 'reconnectToDevice'],
