@@ -757,7 +757,7 @@ function playFreqM2M(freq, duration)
     lineCheckingInterval = window.setInterval(function()
     {
         readFromColorSensor(portInt, modeCode);
-         if (global_sensor_result[portInt] > 50)
+         if (global_sensor_result[portInt] < 10)    // darkness or just not reflection (air)
          {
                 clearInterval(lineCheckingInterval);
                 lineCheckingInterval = 0;
