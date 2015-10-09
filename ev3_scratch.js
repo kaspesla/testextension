@@ -300,12 +300,6 @@ function playStartUpTones()
             else
                 theResult = "none";
         }
- /*
-        else if (modeType == COLOR_RAW_RGB)  // is color_raw encoded as a string, hex, or number?
-        {
-            theResult = num; //maybe? probably not, but here's hoping it's this simple.
-        }
-  */
     }
     
     else if (mode == IR_SENSOR)
