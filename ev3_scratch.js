@@ -5,9 +5,22 @@
 // My bricks are named serialBrick1 (etc)
 // Turn off the iPod/iPhone/iPad checkbox on the EV3 Bluetooth settings after pairing or else it will not work at all
 
+function timeStamp()
+{
+    return (new Date).toISOString().replace(/z|t/gi,' ').trim();
+}
+
+var DEBUG_NO_EV3 = false;
+var theDevice = null;
+
 (function(ext) {
   // Cleanup function when the extension is unloaded
-  ext._shutdown = function() {};
+  ext._shutdown = function()
+ {
+    console.log(timeStamp() +' SHUTDOWN' + theDevice.id);
+    if(theDevice)
+        theDevice.close();
+ };
   
   ext._getStatus = function()
   {
@@ -19,7 +32,7 @@
   
   ext._deviceRemoved = function(dev)
   {
-    console.log('Device removed');
+    console.log(timeStamp() +' Device removed');
     // Not currently implemented with serial devices
   };
 
@@ -57,8 +70,6 @@
   var waitingForPing = false;
   var waitingForInitialConnection = false;
 
-  var DEBUG_NO_EV3 = false;
-  var theDevice = null;
  
  function clearSensorStatuses()
  {
@@ -110,11 +121,6 @@ function setupWatchdog()
         clearInterval(poller);
 
    poller = setInterval(pingBatteryWatchdog, 10000);
-}
- 
-function timeStamp()
-{
-  return (new Date).toISOString().replace(/z|t/gi,' ').trim();
 }
 
 function pingBatteryWatchdog()
@@ -269,12 +275,15 @@ function playStartUpTones()
   function receive_handler(data)
   {
     var inputData = new Uint8Array(data);
-    console.log("received: " + createHexString(inputData));
+    console.log(timeStamp() + " received: " + createHexString(inputData));
 
     if (!(connected || connecting))
       return;
   
     var query_info = waitingQueries.shift();
+    if (!query_info)
+        return;
+ 
     var this_is_from_port = query_info[0];
     var mode = query_info[1];
     var modeType = query_info[2];
@@ -921,6 +930,6 @@ function playFreqM2M(freq, duration)
 
   var serial_info = {type: 'serial'};
   ScratchExtensions.register('EV3 Control', descriptor, ext, serial_info);
-  console.log('registered: ');
-})({});
+  console.log(timeStamp() + ' registered extension. theDevice:' + theDevice);
+ })({});
 
