@@ -15,13 +15,7 @@ var theDevice = null;
 
 (function(ext) {
   // Cleanup function when the extension is unloaded
-  ext._shutdown = function()
- {
-    console.log(timeStamp() +' SHUTDOWN' + theDevice.id);
-    if(theDevice)
-        theDevice.close();
- };
-  
+
   ext._getStatus = function()
   {
       if (!connected)
@@ -242,12 +236,14 @@ function playStartUpTones()
   
   ext._shutdown = function()
   {
-    if (device && connected)
-        device.close();
+    console.log(timeStamp() +' SHUTDOWN' + theDevice.id);
+
+    if (theDevice)
+        theDevice.close();
     if (poller)
         clearInterval(poller);
 
-    device = null;
+    theDevice = null;
   };
   
   // create hex string from bytes
