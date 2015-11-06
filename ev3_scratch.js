@@ -12,7 +12,7 @@ function timeStamp()
 
 var DEBUG_NO_EV3 = false;
 var theDevice = theDevice || null;
-
+var alreadyLoaded = alreadyLoaded || false;
 (function(ext) {
   // Cleanup function when the extension is unloaded
 
@@ -926,6 +926,8 @@ function playFreqM2M(freq, duration)
 
   var serial_info = {type: 'serial'};
   ScratchExtensions.register('EV3 Control', descriptor, ext, serial_info);
+ console.log("alreadyLoaded: " + alreadyLoaded);
+ alreadyLoaded = true;
   console.log(timeStamp() + ' registered extension. theDevice:' + theDevice);
  })({});
 
