@@ -10,18 +10,21 @@ function timeStamp()
     return (new Date).toISOString().replace(/z|t/gi,' ').trim();
 }
 
-// should have these in a namespace
+// scratchX is loading our javascript file again each time a saved SBX file is opened.
+// JavaScript is weird and this causes our object to be reloaded and re-registered.
+// Prevent this using global variable theEV3Device and EV3Connected that will only initialize to null the first time they are declared.
+// This fixes a Windows bug where it would not reconnect.
 var DEBUG_NO_EV3 = false;
-var theDevice = theDevice || null;
-var alreadyLoaded = alreadyLoaded || false;
-var connected = connected || false;
+var theEV3Device = theEV3Device || null;
+var EV3ScratchAlreadyLoaded = EV3ScratchAlreadyLoaded || false;
+var EV3Connected = EV3Connected || false;
 
 (function(ext) {
   // Cleanup function when the extension is unloaded
 
   ext._getStatus = function()
   {
-      if (!connected)
+      if (!EV3Connected)
         return { status:1, msg:'Disconnected' };
       else
         return { status:2, msg:'Connected' };
@@ -40,26 +43,27 @@ var connected = connected || false;
   var warnedAboutBattery = false;
   var potentialDevices = [];
   var deviceTimeout = 0;
-  ext._deviceConnected = function(dev) {
-  
-  console.log(timeStamp() + '_deviceConnected: ' + dev.id);
-  if (connected)
+ 
+  ext._deviceConnected = function(dev)
   {
-    console.log("Already connected. Ignoring");
-  }
-  // brick's serial port must be named like tty.serialBrick7-SerialPort
-  // this is how 10.10 is naming it automatically, the brick name being serialBrick7
-  // the Scratch plugin is only letting us know about serial ports with names that
-  // "begin with tty.usbmodem, tty.serial, or tty.usbserial" - according to khanning
-  
-  if ((dev.id.indexOf('/dev/tty.serialBrick') === 0 && dev.id.indexOf('-SerialPort') != -1) || dev.id.indexOf('COM') === 0)
-  {
+      console.log(timeStamp() + '_deviceConnected: ' + dev.id);
+      if (EV3Connected)
+      {
+        console.log("Already EV3Connected. Ignoring");
+      }
+      // brick's serial port must be named like tty.serialBrick7-SerialPort
+      // this is how 10.10 is naming it automatically, the brick name being serialBrick7
+      // the Scratch plugin is only letting us know about serial ports with names that
+      // "begin with tty.usbmodem, tty.serial, or tty.usbserial" - according to khanning
+      
+      if ((dev.id.indexOf('/dev/tty.serialBrick') === 0 && dev.id.indexOf('-SerialPort') != -1) || dev.id.indexOf('COM') === 0)
+      {
 
-    if (potentialDevices.filter(function(e) { return e.id == dev.id; }).length == 0) {
-          potentialDevices.push(dev); }
-      if (!deviceTimeout)
-        deviceTimeout = setTimeout(tryNextDevice, 1000);
-  }
+        if (potentialDevices.filter(function(e) { return e.id == dev.id; }).length == 0) {
+              potentialDevices.push(dev); }
+          if (!deviceTimeout)
+            deviceTimeout = setTimeout(tryNextDevice, 1000);
+      }
   };
   
   var poller = null;
@@ -69,7 +73,6 @@ var connected = connected || false;
   var waitingForPing = false;
   var waitingForInitialConnection = false;
 
- 
  function clearSensorStatuses()
  {
      var numSensorBlocks = 9;
@@ -85,13 +88,13 @@ var connected = connected || false;
 var counter = 0;
 
 function reconnect()
- {
+{
     clearSensorStatuses();
     counter = 0; 
     
-    theDevice.open({ stopBits: 0, bitRate: 57600 /*115200*/, ctsFlowControl: 0}); //, parity:2, bufferSize:255 });
-    console.log(timeStamp() + ': Attempting connection with ' + theDevice.id);
-    theDevice.set_receive_handler(receive_handler);
+    theEV3Device.open({ stopBits: 0, bitRate: 57600 /*115200*/, ctsFlowControl: 0}); //, parity:2, bufferSize:255 });
+    console.log(timeStamp() + ': Attempting connection with ' + theEV3Device.id);
+    theEV3Device.set_receive_handler(receive_handler);
  
     connecting = true;
     testTheConnection(startupBatteryCheckCallback);
@@ -105,10 +108,16 @@ function startupBatteryCheckCallback(result)
  
    waitingForInitialConnection = false;
 
-   connected = true;
+   EV3Connected = true;
    connecting = false;
    
    playStartUpTones();
+ 
+     if (result < 11 && !warnedAboutBattery)
+     {
+       alert("Your battery is getting low.");
+       warnedAboutBattery = true;
+     }
  
    // no watchdog right now.  reconnection is too flakey so there is no point
    //  setupWatchdog();
@@ -138,7 +147,7 @@ function pingTimeOutCallback()
       if (poller)
         clearInterval(poller);
       
-      connected = false;
+      EV3Connected = false;
       
         alert("The connection to the brick was lost. Check your brick and refresh the page to reconnect. (Don't forget to save your project first!)");
       /* if (r == true) {
@@ -221,34 +230,24 @@ function playStartUpTones()
     if (!device)
         return;
  
-   theDevice = device;
+    theEV3Device = device;
  
-  if (!DEBUG_NO_EV3)
-  {
-    reconnect();
-  }
-      /*
-      watchdog = setTimeout(function() {
-                            clearInterval(poller);
-                            poller = null;
-                            device.set_receive_handler(null);
-                            device.close();
-                            device = null;
-                            tryNextDevice();
-                            }, 5000);
-       */
+    if (!DEBUG_NO_EV3)
+    {
+        reconnect();
+    }
   }
   
   ext._shutdown = function()
   {
-    console.log(timeStamp() +' SHUTDOWN: ' + theDevice.id);
+    console.log(timeStamp() +' SHUTDOWN: ' + theEV3Device.id);
 /*
-    if (theDevice)
-        theDevice.close();
+    if (theEV3Device)
+        theEV3Device.close();
     if (poller)
         clearInterval(poller);
-    connected = false;
-    theDevice = null;
+    EV3Connected = false;
+    theEV3Device = null;
  */
  
   };
@@ -280,7 +279,7 @@ function playStartUpTones()
     var inputData = new Uint8Array(data);
     console.log(timeStamp() + " received: " + createHexString(inputData));
 
-    if (!(connected || connecting))
+    if (!(EV3Connected || connecting))
       return;
   
     var query_info = waitingQueries.shift();
@@ -522,15 +521,15 @@ function playStartUpTones()
   
   function sendCommand(commandArray)
   {
-    if ((connected || connecting) && theDevice)
-        theDevice.send(commandArray.buffer);
+    if ((EV3Connected || connecting) && theEV3Device)
+        theEV3Device.send(commandArray.buffer);
   }
   
   ext.allMotorsOn = function(which, power)
   {
     clearDriveTimer();
 
-   console.log("motor " + which + " power: " + power);
+    console.log("motor " + which + " power: " + power);
   
     motor(which, power);
   }
@@ -702,7 +701,7 @@ function playFreqM2M(freq, duration)
  
   ext.whenButtonPressed = function(port)
   {
-    if (!device || !connected)
+    if (!theEV3Device || !EV3Connected)
         return false;
     var portInt = parseInt(port) - 1;
     readTouchSensor(portInt);
@@ -711,7 +710,7 @@ function playFreqM2M(freq, duration)
 
  ext.whenRemoteButtonPressed = function(IRbutton, port)
  {
-     if (!device || !connected)
+     if (!theEV3Device || !EV3Connected)
         return false;
  
      var portInt = parseInt(port) - 1;
@@ -933,8 +932,8 @@ function playFreqM2M(freq, duration)
 
   var serial_info = {type: 'serial'};
   ScratchExtensions.register('EV3 Control', descriptor, ext, serial_info);
- console.log("alreadyLoaded: " + alreadyLoaded);
- alreadyLoaded = true;
-  console.log(timeStamp() + ' registered extension. theDevice:' + theDevice);
+ console.log("EV3ScratchAlreadyLoaded: " + EV3ScratchAlreadyLoaded);
+ EV3ScratchAlreadyLoaded = true;
+  console.log(timeStamp() + ' registered extension. theEV3Device:' + theEV3Device);
  })({});
 
