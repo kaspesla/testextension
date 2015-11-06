@@ -11,7 +11,7 @@ function timeStamp()
 }
 
 var DEBUG_NO_EV3 = false;
-var theDevice = null;
+var theDevice = theDevice || null;
 
 (function(ext) {
   // Cleanup function when the extension is unloaded
