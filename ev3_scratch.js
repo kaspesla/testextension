@@ -10,9 +10,12 @@ function timeStamp()
     return (new Date).toISOString().replace(/z|t/gi,' ').trim();
 }
 
+// should have these in a namespace
 var DEBUG_NO_EV3 = false;
 var theDevice = theDevice || null;
 var alreadyLoaded = alreadyLoaded || false;
+var connected = connected || false;
+
 (function(ext) {
   // Cleanup function when the extension is unloaded
 
@@ -31,17 +34,19 @@ var alreadyLoaded = alreadyLoaded || false;
   };
 
   
-  var connected = false;
   var connecting = false;
   var notifyConnection = false;
-  var device = null;
+
   var warnedAboutBattery = false;
   var potentialDevices = [];
   var deviceTimeout = 0;
   ext._deviceConnected = function(dev) {
   
-   console.log(timeStamp() + '_deviceConnected: ' + dev.id);
-
+  console.log(timeStamp() + '_deviceConnected: ' + dev.id);
+  if (connected)
+  {
+    console.log("Already connected. Ignoring");
+  }
   // brick's serial port must be named like tty.serialBrick7-SerialPort
   // this is how 10.10 is naming it automatically, the brick name being serialBrick7
   // the Scratch plugin is only letting us know about serial ports with names that
@@ -212,7 +217,7 @@ function playStartUpTones()
     potentialDevices.sort((function(a, b){return b.id.localeCompare(a.id)}));
 
     console.log("devices: " + potentialDevices);
-    device = potentialDevices.shift();
+    var device = potentialDevices.shift();
     if (!device)
         return;
  
@@ -236,13 +241,13 @@ function playStartUpTones()
   
   ext._shutdown = function()
   {
-    console.log(timeStamp() +' SHUTDOWN' + theDevice.id);
+    console.log(timeStamp() +' SHUTDOWN: ' + theDevice.id);
 
     if (theDevice)
         theDevice.close();
     if (poller)
         clearInterval(poller);
-
+    connected = false;
     theDevice = null;
   };
   
