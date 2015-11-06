@@ -239,13 +239,14 @@ function playStartUpTones()
  ext._shutdown = function()
  {
      console.log(timeStamp() +' SHUTDOWN: ' + theDevice.id);
-     
+     /*
      if (theDevice)
-     theDevice.close();
+        theDevice.close();
      if (poller)
-     clearInterval(poller);
+        clearInterval(poller);
      connected = false;
      theDevice = null;
+      */
  };
  
   var waitingCallbacks = [[],[],[],[],[],[],[],[], []];
