@@ -242,13 +242,15 @@ function playStartUpTones()
   ext._shutdown = function()
   {
     console.log(timeStamp() +' SHUTDOWN: ' + theDevice.id);
-
+/*
     if (theDevice)
         theDevice.close();
     if (poller)
         clearInterval(poller);
     connected = false;
     theDevice = null;
+ */
+ 
   };
   
   // create hex string from bytes
@@ -520,8 +522,8 @@ function playStartUpTones()
   
   function sendCommand(commandArray)
   {
-    if ((connected || connecting) && device)
-        device.send(commandArray.buffer);
+    if ((connected || connecting) && theDevice)
+        theDevice.send(commandArray.buffer);
   }
   
   ext.allMotorsOn = function(which, power)
