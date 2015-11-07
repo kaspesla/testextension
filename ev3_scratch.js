@@ -579,8 +579,8 @@ function playStartUpTones()
  
  function capSpeed(speed)
  {
-    if (speed > 100) { speed = 100);
-    if (speed < -100) { speed = -100);
+    if (speed > 100) { speed = 100; }
+    if (speed < -100) { speed = -100; }
     return speed;
   }
  
