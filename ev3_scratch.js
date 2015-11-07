@@ -18,6 +18,7 @@ var DEBUG_NO_EV3 = false;
 var theEV3Device = theEV3Device || null;
 var EV3ScratchAlreadyLoaded = EV3ScratchAlreadyLoaded || false;
 var EV3Connected = EV3Connected || false;
+var potentialEV3Devices = potentialEV3Devices || [];
 
 (function(ext) {
   // Cleanup function when the extension is unloaded
@@ -39,9 +40,8 @@ var EV3Connected = EV3Connected || false;
   
   var connecting = false;
   var notifyConnection = false;
-
+  var potentialDevices = []; // copy of the list
   var warnedAboutBattery = false;
-  var potentialDevices = [];
   var deviceTimeout = 0;
  
   ext._deviceConnected = function(dev)
@@ -59,12 +59,20 @@ var EV3Connected = EV3Connected || false;
       if ((dev.id.indexOf('/dev/tty.serialBrick') === 0 && dev.id.indexOf('-SerialPort') != -1) || dev.id.indexOf('COM') === 0)
       {
 
-        if (potentialDevices.filter(function(e) { return e.id == dev.id; }).length == 0) {
-              potentialDevices.push(dev); }
+        if (potentialEV3Devices.filter(function(e) { return e.id == dev.id; }).length == 0) {
+              potentialEV3Devices.push(dev); }
+ 
           if (!deviceTimeout)
-            deviceTimeout = setTimeout(tryNextDevice, 1000);
+            deviceTimeout = setTimeout(tryAllDevices, 1000);
       }
   };
+ 
+ function tryAllDevices()
+ {
+    potentialDevices = potentialEV3Devices.slice(0);
+    // start recursive loop
+    tryNextDevice();
+ }
   
   var poller = null;
   var pingTimeout = null;
@@ -87,7 +95,7 @@ var EV3Connected = EV3Connected || false;
  
 var counter = 0;
 
-function reconnect()
+function tryToConnect()
 {
     clearSensorStatuses();
     counter = 0; 
@@ -119,8 +127,16 @@ function startupBatteryCheckCallback(result)
        warnedAboutBattery = true;
      }
  
-   // no watchdog right now.  reconnection is too flakey so there is no point
-   //  setupWatchdog();
+     setupWatchdog();
+ 
+     if (deferredCommandArray)
+     {
+        var tempCommand = deferredCommandArray;
+        deferredCommandArray = null;
+        window.setTimeout(function() {
+                  sendCommand(tempCommand);
+                   }, 2500);
+     }
 }
 
 function setupWatchdog()
@@ -149,7 +165,7 @@ function pingTimeOutCallback()
       
       EV3Connected = false;
       
-        alert("The connection to the brick was lost. Check your brick and refresh the page to reconnect. (Don't forget to save your project first!)");
+    //    alert("The connection to the brick was lost. Check your brick and refresh the page to reconnect. (Don't forget to save your project first!)");
       /* if (r == true) {
          reconnect();
         } else {
@@ -168,13 +184,16 @@ function connectionTimeOutCallback()
  
      if (potentialDevices.length == 0)
      {
-       alert("Failed to connect to a brick.\n\nMake sure your brick is:\n 1) powered on with Bluetooth On\n 2) named starting with serial (if on a Mac)\n 3) paired with this computer\n 4) the iPhone/iPad/iPod check box is NOT checked\n 5) Do not start a connection to or from the brick in any other way. Let the Scratch plug-in handle it!\n\nand then try reloading the webpage.");
+        console.log(timeStamp() + ": Tried all devices with no luck.");
+ 
+     //  alert("Failed to connect to a brick.\n\nMake sure your brick is:\n 1) powered on with Bluetooth On\n 2) named starting with serial (if on a Mac)\n 3) paired with this computer\n 4) the iPhone/iPad/iPod check box is NOT checked\n 5) Do not start a connection to or from the brick in any other way. Let the Scratch plug-in handle it!\n\nand then try reloading the webpage.");
        /*  if (r == true) {
          reconnect();
          } else {
          // do nothing
         }
         */
+        theEV3Device = null;
     }
     else
     {
@@ -234,7 +253,7 @@ function playStartUpTones()
  
     if (!DEBUG_NO_EV3)
     {
-        reconnect();
+        tryToConnect();
     }
   }
   
@@ -525,11 +544,28 @@ function playStartUpTones()
   var COLOR_RAW_RGB = "04";
   var READ_FROM_MOTOR = "FOOBAR";
  
-  
+ 
+  var deferredCommandArray = null;
+ 
   function sendCommand(commandArray)
   {
     if ((EV3Connected || connecting) && theEV3Device)
+    {
         theEV3Device.send(commandArray.buffer);
+    }
+    else
+    {
+       deferredCommandArray = commandArray;
+       if (theEV3Device && !connecting)
+       {
+         tryToConnect(); // try to connect
+       }
+       else if (!connecting)
+       {
+         tryAllDevices(); // try device list again
+       }
+ 
+    }
   }
   
   ext.startMotors = function(which, speed)
@@ -541,8 +577,16 @@ function playStartUpTones()
     motor(which, speed);
   }
  
+ function capSpeed(speed)
+ {
+    if (speed > 100) { speed = 100);
+    if (speed < -100) { speed = -100);
+    return speed;
+  }
+ 
  ext.motorDegrees = function(which, speed, degrees, howStop)
  {
+     speed = capSpeed(speed);
 
    var motorBitField = getMotorBitsHexString(which);
    var speedBits = getPackedOutputHexString(speed, 1);
@@ -560,6 +604,7 @@ function playStartUpTones()
  
   function motor(which, speed)
   {
+      speed = capSpeed(speed);
      var motorBitField = getMotorBitsHexString(which);
      
      var speedBits = getPackedOutputHexString(speed, 1);
@@ -571,7 +616,8 @@ function playStartUpTones()
 
   function motor2(which, speed)
   {
-    var p =  which.split("+");
+      speed = capSpeed(speed);
+      var p =  which.split("+");
  
      var motorBitField1 = getMotorBitsHexString(p[0]);
      var motorBitField2 = getMotorBitsHexString(p[1]);
@@ -925,7 +971,7 @@ function howStopHex(how)
  
  ext.reconnectToDevice = function()
  {
-    reconnect();
+    tryAllDevices();
  }
  
  function UIRead(port, subtype)
@@ -958,7 +1004,7 @@ function howStopHex(how)
            ['R', 'motor %m.motorInputMode %m.whichMotorIndividual',     'readFromMotor',   'position', 'B'],
 
        //    ['R', 'battery level',   'readBatteryLevel'],
-       //  [' ', 'reconnect', 'reconnectToDevice'],
+         [' ', 'reconnect', 'reconnectToDevice'],
            ],
   menus: {
   whichMotorPort:   ['A', 'B', 'C', 'D', 'A+D', 'B+C'],
