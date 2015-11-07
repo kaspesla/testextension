@@ -569,7 +569,27 @@ function playStartUpTones()
      sendCommand(motorsOnCommand);
   }
 
+  function motor2(which, speed)
+  {
+    var p =  which.split("+");
  
+     var motorBitField1 = getMotorBitsHexString(p[0]);
+     var motorBitField2 = getMotorBitsHexString(p[1]);
+     var motorBitField = getMotorBitsHexString(which);
+ 
+     var speedBits1 = getPackedOutputHexString(speed, 1);
+     var speedBits2 = getPackedOutputHexString(speed * -1, 1);
+ 
+     var motorsOnCommand = createMessage(DIRECT_COMMAND_PREFIX
+                                         + SET_MOTOR_SPEED + motorBitField1 + speedBits1
+                                         + SET_MOTOR_SPEED + motorBitField2 + speedBits2
+                                         
+                                         + SET_MOTOR_START + motorBitField);
+     
+     sendCommand(motorsOnCommand);
+  }
+
+
   var frequencies = { "C4" : 262, "D4" : 294, "E4" : 330, "F4" : 349, "G4" : 392, "A4" : 440, "B4" : 494, "C5" : 523, "D5" : 587, "E5" : 659, "F5" : 698, "G5" : 784, "A5" : 880, "B5" : 988, "C6" : 1047, "D6" : 1175, "E6" : 1319, "F6" : 1397, "G6" : 1568, "A6" : 1760, "B6" : 1976, "C#4" : 277, "D#4" : 311, "F#4" : 370, "G#4" : 415, "A#4" : 466, "C#5" : 554, "D#5" : 622, "F#5" : 740, "G#5" : 831, "A#5" : 932, "C#6" : 1109, "D#6" : 1245, "F#6" : 1480, "G#6" : 1661, "A#6" : 1865 };
   
  var colors = [ "none", "black", "blue", "green", "yellow", "red", "white"];
@@ -686,20 +706,14 @@ function howStopHex(how)
     {
         motor(ports, -1 * defaultSpeed);
     }
-    else
-    {
-        var p =  ports.split("+");
-        if (what == 'left')
-        {
-            motor(p[0], -1 * defaultSpeed);
-            motor(p[1],  defaultSpeed);
-        }
-        else if (what == 'right')
-        {
-           motor(p[1], -1 * defaultSpeed);
-           motor(p[0],  defaultSpeed);
-        }
-    }
+     else if (what == 'right')
+     {
+       motor2(ports, defaultSpeed);
+     }
+     else if (what == 'left')
+     {
+       motor2(ports, -1 * defaultSpeed);
+     }
     driveCallback = callback;
     driveTimer = window.setTimeout(function()
     {
