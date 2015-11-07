@@ -1004,7 +1004,7 @@ function howStopHex(how)
            ['R', 'motor %m.motorInputMode %m.whichMotorIndividual',     'readFromMotor',   'position', 'B'],
 
        //    ['R', 'battery level',   'readBatteryLevel'],
-         [' ', 'reconnect', 'reconnectToDevice'],
+       //  [' ', 'reconnect', 'reconnectToDevice'],
            ],
   menus: {
   whichMotorPort:   ['A', 'B', 'C', 'D', 'A+D', 'B+C'],
