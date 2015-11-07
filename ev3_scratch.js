@@ -447,19 +447,21 @@ function playStartUpTones()
   // int bytes using weird serialization method
   function getPackedOutputHexString(num, lc)
   {
-    // f-ed up nonsensical unsigned bit packing. see cOutputPackParam in c_output-c in EV3 firmware
-    var a = new ArrayBuffer(2);
+    // nonsensical unsigned byte packing. see cOutputPackParam in c_output-c in EV3 firmware
+    var a = new ArrayBuffer(4);
     var sarr = new Int8Array(a);
     var uarr = new Uint8Array(a);
   
     sarr[0] = num & 0x000000FF;
     sarr[1] = (num >> 8) & 0x000000FF;
+    sarr[2] = (num >> 16) & 0x000000FF;
+    sarr[3] = (num >> 24) & 0x000000FF;
 
     if (lc == 0)
     {
-        var powerbits = uarr[0];
-        powerbits &= 0x0000003F;
-        return hexcouplet(powerbits);
+        var bits = uarr[0];
+        bits &= 0x0000003F;
+        return hexcouplet(bits);
     }
     else if (lc == 1)
     {
@@ -469,7 +471,11 @@ function playStartUpTones()
     {
         return "82" + hexcouplet(uarr[0]) + hexcouplet(uarr[1]);
     }
-
+    else if (lc == 3)
+    {
+        return "83" + hexcouplet(uarr[0]) + hexcouplet(uarr[1]) + hexcouplet(uarr[2]) + hexcouplet(uarr[3]);
+    }
+     
     return "00";
   }
   
@@ -481,6 +487,7 @@ function playStartUpTones()
   var SET_MOTOR_SPEED = "A400";
   var SET_MOTOR_STOP = "A300";
   var SET_MOTOR_START = "A600";
+  var SET_MOTOR_STEP_SPEED = "AC00";
   var NOOP = "0201";
   var PLAYTONE = "9401";
   var INPUT_DEVICE_READY_SI = "991D";
@@ -525,27 +532,44 @@ function playStartUpTones()
         theEV3Device.send(commandArray.buffer);
   }
   
-  ext.allMotorsOn = function(which, power)
+  ext.startMotors = function(which, speed)
   {
     clearDriveTimer();
 
-    console.log("motor " + which + " power: " + power);
+    console.log("motor " + which + " speed: " + speed);
   
-    motor(which, power);
+    motor(which, speed);
   }
-  
-  function motor(which, power)
+ 
+ ext.motorDegrees = function(which, speed, degrees, howStop)
+ {
+
+   var motorBitField = getMotorBitsHexString(which);
+   var speedBits = getPackedOutputHexString(speed, 1);
+   var stepRampUpBits = getPackedOutputHexString(0, 3);
+   var stepConstantBits = getPackedOutputHexString(degrees, 3);
+   var stepRampDownBits = getPackedOutputHexString(0, 3);
+   var howHex = howStopHex(howStop);
+   
+   var motorsCommand = createMessage(DIRECT_COMMAND_PREFIX + SET_MOTOR_STEP_SPEED + motorBitField + speedBits
+                                     + stepRampUpBits + stepConstantBits + stepRampDownBits + howHex
+                                     + SET_MOTOR_START + motorBitField);
+ 
+   sendCommand(motorsCommand);
+ }
+ 
+  function motor(which, speed)
   {
-    var motorBitField = getMotorBitsHexString(which);
-
-    var powerBits = getPackedOutputHexString(power, 1);
-
-    var motorsOnCommand = createMessage(DIRECT_COMMAND_PREFIX + SET_MOTOR_SPEED + motorBitField + powerBits + SET_MOTOR_START + motorBitField);
-  
-    sendCommand(motorsOnCommand);
+     var motorBitField = getMotorBitsHexString(which);
+     
+     var speedBits = getPackedOutputHexString(speed, 1);
+     
+     var motorsOnCommand = createMessage(DIRECT_COMMAND_PREFIX + SET_MOTOR_SPEED + motorBitField + speedBits + SET_MOTOR_START + motorBitField);
+     
+     sendCommand(motorsOnCommand);
   }
 
-  
+ 
   var frequencies = { "C4" : 262, "D4" : 294, "E4" : 330, "F4" : 349, "G4" : 392, "A4" : 440, "B4" : 494, "C5" : 523, "D5" : 587, "E5" : 659, "F5" : 698, "G5" : 784, "A5" : 880, "B5" : 988, "C6" : 1047, "D6" : 1175, "E6" : 1319, "F6" : 1397, "G6" : 1568, "A6" : 1760, "B6" : 1976, "C#4" : 277, "D#4" : 311, "F#4" : 370, "G#4" : 415, "A#4" : 466, "C#5" : 554, "D#5" : 622, "F#5" : 740, "G#5" : 831, "A#5" : 932, "C#6" : 1109, "D#6" : 1245, "F#6" : 1480, "G#6" : 1661, "A#6" : 1865 };
   
  var colors = [ "none", "black", "blue", "green", "yellow", "red", "white"];
@@ -624,15 +648,21 @@ function playFreqM2M(freq, duration)
  var driveTimer = 0;
  driveCallback = 0;
  
+function howStopHex(how)
+{
+    if (how == 'break')
+        return '01';
+    else
+        return '00';
+}
+                                                                            
   function motorsStop(how)
   {
       console.log("motorsStop");
 
       var motorBitField = getMotorBitsHexString("all");
 
-      var howHex = '00';
-      if (how == 'break')
-         howHex = '01';
+      var howHex = howStopHex(how);
       
       var motorsOffCommand = createMessage(DIRECT_COMMAND_PREFIX + SET_MOTOR_STOP + motorBitField + howHex);
       
@@ -647,28 +677,28 @@ function playFreqM2M(freq, duration)
   ext.steeringControl = function(ports, what, duration, callback)
   {
     clearDriveTimer();
-    var defaultPower = 50;
+    var defaultSpeed = 50;
     if (what == 'forward')
     {
-        motor(ports, defaultPower);
+        motor(ports, defaultSpeed);
     }
     else if (what == 'reverse')
     {
-        motor(ports, -1 * defaultPower);
+        motor(ports, -1 * defaultSpeed);
     }
     else
     {
         var p =  ports.split("+");
         if (what == 'left')
         {
-            motor(p[0], -1 * defaultPower);
-            motor(p[1],  defaultPower);
+            motor(p[0], -1 * defaultSpeed);
+            motor(p[1],  defaultSpeed);
         }
         else if (what == 'right')
-         {
-         motor(p[1], -1 * defaultPower);
-         motor(p[0],  defaultPower);
-         }
+        {
+           motor(p[1], -1 * defaultSpeed);
+           motor(p[0],  defaultSpeed);
+        }
     }
     driveCallback = callback;
     driveTimer = window.setTimeout(function()
@@ -898,7 +928,8 @@ function playFreqM2M(freq, duration)
   var descriptor = {
   blocks: [
            ['w', 'drive %m.dualMotors %m.turnStyle %n seconds',         'steeringControl',  'B+C', 'forward', 3],
-           [' ', 'start motor %m.whichMotorPort speed %n',              'allMotorsOn',      'B+C', 100],
+           [' ', 'start motor %m.whichMotorPort speed %n',              'startMotors',      'B+C', 100],
+           [' ', 'rotate motor %m.whichMotorPort speed %n by %n degrees then %m.breakCoast',              'motorDegrees',      'A', 100, 360, 'break'],
            [' ', 'stop all motors %m.breakCoast',                       'allMotorsOff',     'break'],
            ['h', 'when button pressed on port %m.whichInputPort',       'whenButtonPressed','1'],
            ['h', 'when IR remote %m.buttons pressed port %m.whichInputPort', 'whenRemoteButtonPressed','Top Left', '1'],
@@ -906,7 +937,7 @@ function playFreqM2M(freq, duration)
            ['w', 'play note %m.note duration %n ms',                    'playTone',         'C5', 500],
            ['w', 'play frequency %n duration %n ms',                    'playFreq',         '262', 500],
            ['R', 'light sensor %m.whichInputPort %m.lightSensorMode',   'readColorSensorPort',   '1', 'color'],
-           ['w', 'wait until light sensor %m.whichInputPort detects black line',   'waitUntilDarkLinePort',   '1'],
+       //    ['w', 'wait until light sensor %m.whichInputPort detects black line',   'waitUntilDarkLinePort',   '1'],
            ['R', 'measure distance %m.whichInputPort',                  'readDistanceSensorPort',   '1'],
            ['R', 'remote button %m.whichInputPort',                     'readRemoteButtonPort',   '1'],
           // ['R', 'gyro  %m.gyroMode %m.whichInputPort',                 'readGyroPort',  'angle', '1'],
@@ -931,6 +962,9 @@ function playFreqM2M(freq, duration)
   };
 
   var serial_info = {type: 'serial'};
+
+ // should we even call register again if already loaded? seems to work.
+
   ScratchExtensions.register('EV3 Control', descriptor, ext, serial_info);
  console.log("EV3ScratchAlreadyLoaded: " + EV3ScratchAlreadyLoaded);
  EV3ScratchAlreadyLoaded = true;
