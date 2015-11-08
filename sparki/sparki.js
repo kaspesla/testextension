@@ -4,17 +4,27 @@
 // sudo ln -s tty.ArcBotics-DevB tty.serialSparki1
 // Sparki must be programmed with SJ-BT Control sketch
 
-var theDevice = theDevice || null;
-var alreadyLoaded = alreadyLoaded || false;
-var connected = connected || false;
+function timeStamp()
+{
+    return (new Date).toISOString().replace(/z|t/gi,' ').trim();
+}
 
+// scratchX is loading our javascript file again each time a saved SBX file is opened.
+// JavaScript is weird and this causes our object to be reloaded and re-registered.
+// Prevent this using global variable theSparkiDevice and SparkiConnected that will only initialize to null the first time they are declared.
+// This fixes a Windows bug where it would not reconnect.
+var DEBUG_NO_Sparki = false;
+var theSparkiDevice = theSparkiDevice || null;
+var SparkiScratchAlreadyLoaded = SparkiScratchAlreadyLoaded || false;
+var SparkiConnected = SparkiConnected || false;
+var potentialSparkiDevices = potentialSparkiDevices || [];
 
 (function(ext) {
   // Cleanup function when the extension is unloaded
- 
+
   ext._getStatus = function()
   {
-      if (!connected)
+      if (!SparkiConnected)
         return { status:1, msg:'Disconnected' };
       else
         return { status:2, msg:'Connected' };
@@ -22,34 +32,46 @@ var connected = connected || false;
   
   ext._deviceRemoved = function(dev)
   {
-    console.log('Device removed');
+    console.log(timeStamp() +' Device removed');
     // Not currently implemented with serial devices
   };
 
+  
   var connecting = false;
   var notifyConnection = false;
-
+  var potentialDevices = []; // copy of the list
   var warnedAboutBattery = false;
-  var potentialDevices = [];
   var deviceTimeout = 0;
-  ext._deviceConnected = function(dev) {
-  
-   console.log(timeStamp() + '_deviceConnected: ' + dev.id);
-
-  // brick's serial port must be named like tty.serialBrick7-SerialPort
-  // this is how 10.10 is naming it automatically, the brick name being serialBrick7
-  // the Scratch plugin is only letting us know about serial ports with names that
-  // "begin with tty.usbmodem, tty.serial, or tty.usbserial" - according to khanning
-  
-  if ((dev.id.indexOf('/dev/tty.serialSparki') === 0) || dev.id.indexOf('COM') === 0)
+ 
+  ext._deviceConnected = function(dev)
   {
+      console.log(timeStamp() + ' _deviceConnected: ' + dev.id);
+      if (SparkiConnected)
+      {
+        console.log("Already SparkiConnected. Ignoring");
+      }
+      // brick's serial port must be named like tty.serialBrick7-SerialPort
+      // this is how 10.10 is naming it automatically, the brick name being serialBrick7
+      // the Scratch plugin is only letting us know about serial ports with names that
+      // "begin with tty.usbmodem, tty.serial, or tty.usbserial" - according to khanning
+      
+      if ((dev.id.indexOf('/dev/tty.serialSparki') === 0) || dev.id.indexOf('COM') === 0)
+      {
 
-    if (potentialDevices.filter(function(e) { return e.id == dev.id; }).length == 0) {
-          potentialDevices.push(dev); }
-      if (!deviceTimeout)
-        deviceTimeout = setTimeout(tryNextDevice, 1000);
-  }
+        if (potentialSparkiDevices.filter(function(e) { return e.id == dev.id; }).length == 0) {
+              potentialSparkiDevices.push(dev); }
+ 
+          if (!deviceTimeout)
+            deviceTimeout = setTimeout(tryAllDevices, 1000);
+      }
   };
+ 
+ function tryAllDevices()
+ {
+    potentialDevices = potentialSparkiDevices.slice(0);
+    // start recursive loop
+    tryNextDevice();
+ }
   
   var poller = null;
   var pingTimeout = null;
@@ -58,8 +80,6 @@ var connected = connected || false;
   var waitingForPing = false;
   var waitingForInitialConnection = false;
 
-  var DEBUG_NO_Sparki = false;
- 
  function clearSensorStatuses()
  {
      var numSensorBlocks = 9;
@@ -74,36 +94,49 @@ var connected = connected || false;
  
 var counter = 0;
 
-function reconnect()
- {
+function tryToConnect()
+{
     clearSensorStatuses();
     counter = 0; 
     
-    theDevice.open({ stopBits: 0 });
-    console.log(timeStamp() + ': Attempting connection with ' + theDevice.id);
-    theDevice.set_receive_handler(receive_handler);
+    theSparkiDevice.open({ stopBits: 0 });
+    console.log(timeStamp() + ': Attempting connection with ' + theSparkiDevice.id);
+    theSparkiDevice.set_receive_handler(receive_handler);
  
     connecting = true;
-    connected = true;
- 
- //   testTheConnection(startupBatteryCheckCallback);
- //   waitingForInitialConnection = true;
- //   connectionTimeout = setTimeout(connectionTimeOutCallback, 3000);
+    testTheConnection(startupPingCallback);
+    waitingForInitialConnection = true;
+    connectionTimeout = setTimeout(connectionTimeOutCallback, 3000);
 }
 
-function startupBatteryCheckCallback(result)
+function startupPingCallback(result)
 {
-   console.log(timeStamp() + ": got battery level at connect: " + result);
+   console.log(timeStamp() + ": got ping at connect: " + result);
  
-   waitingForInitialConnection = false;
+   if (result != "hello")
+   {
+     console.log("got wrong answer");
+     connecting = false;
+     return;
+   }
+    waitingForInitialConnection = false;
 
-   connected = true;
-   connecting = false;
-   
-   playStartUpTones();
+    SparkiConnected = true;
+    connecting = false;
  
-   // no watchdog right now.  reconnection is too flakey so there is no point
-   //  setupWatchdog();
+   // playStartUpTones();
+ 
+   // setupWatchdog();
+ 
+     if (deferredCommand)
+     {
+        var tempCommand = deferredCommand;
+        deferredCommand = null;
+        window.setTimeout(function() {
+                  sendCommand(tempCommand);
+                   }, 2500);
+     }
+ 
 }
 
 function setupWatchdog()
@@ -111,18 +144,13 @@ function setupWatchdog()
     if (poller)
         clearInterval(poller);
 
-   poller = setInterval(pingBatteryWatchdog, 10000);
-}
- 
-function timeStamp()
-{
-  return (new Date).toISOString().replace(/z|t/gi,' ').trim();
+   poller = setInterval(pingWatchdog, 10000);
 }
 
-function pingBatteryWatchdog()
+function pingWatchdog()
 {
-    console.log(timeStamp() + ": pingBatteryWatchdog");
-    testTheConnection(pingBatteryCheckCallback);
+    console.log(timeStamp() + ": pingWatchdog");
+    testTheConnection(pingCallback);
     waitingForPing = true;
     pingTimeout = setTimeout(pingTimeOutCallback, 3000);
 }
@@ -135,15 +163,7 @@ function pingTimeOutCallback()
       if (poller)
         clearInterval(poller);
       
-      connected = false;
-      
-        alert("The connection to the brick was lost. Check your brick and refresh the page to reconnect. (Don't forget to save your project first!)");
-      /* if (r == true) {
-         reconnect();
-        } else {
-         // do nothing
-        }
-        */
+      SparkiConnected = false;
    }
  }
 
@@ -156,13 +176,16 @@ function connectionTimeOutCallback()
  
      if (potentialDevices.length == 0)
      {
-       alert("Failed to connect to a brick.\n\nMake sure your brick is:\n 1) powered on with Bluetooth On\n 2) named starting with serial (if on a Mac)\n 3) paired with this computer\n 4) the iPhone/iPad/iPod check box is NOT checked\n 5) Do not start a connection to or from the brick in any other way. Let the Scratch plug-in handle it!\n\nand then try reloading the webpage.");
+        console.log(timeStamp() + ": Tried all devices with no luck.");
+ 
+     //  alert("Failed to connect to a brick.\n\nMake sure your brick is:\n 1) powered on with Bluetooth On\n 2) named starting with serial (if on a Mac)\n 3) paired with this computer\n 4) the iPhone/iPad/iPod check box is NOT checked\n 5) Do not start a connection to or from the brick in any other way. Let the Scratch plug-in handle it!\n\nand then try reloading the webpage.");
        /*  if (r == true) {
          reconnect();
          } else {
          // do nothing
         }
         */
+        theSparkiDevice = null;
     }
     else
     {
@@ -171,25 +194,19 @@ function connectionTimeOutCallback()
    }
  }
 
-function pingBatteryCheckCallback(result)
+function pingCallback(result)
 {
-   console.log(timeStamp() + ": pinged battery level: " + result);
+   console.log(timeStamp() + ": pinged device: " + result);
    if (pingTimeout)
     clearTimeout(pingTimeout);
    waitingForPing = false;
- 
-   if (result < 11 && !warnedAboutBattery)
-   {
-     alert("Your battery is getting low.");
-     warnedAboutBattery = true;
-   }
 }
 
 
 function testTheConnection(theCallback)
 {
    window.setTimeout(function() {
-                          readThatBatteryLevel(theCallback);
+                          pingDevice(theCallback);
                        }, 500);
  }
 
@@ -218,108 +235,86 @@ function playStartUpTones()
     if (!device)
         return;
  
-   theDevice = device;
+    theSparkiDevice = device;
  
-  if (!DEBUG_NO_Sparki)
-  {
-    reconnect();
-  }
-      /*
-      watchdog = setTimeout(function() {
-                            clearInterval(poller);
-                            poller = null;
-                            device.set_receive_handler(null);
-                            device.close();
-                            device = null;
-                            tryNextDevice();
-                            }, 5000);
-       */
+    if (!DEBUG_NO_Sparki)
+    {
+        tryToConnect();
+    }
   }
   
- ext._shutdown = function()
- {
-     console.log(timeStamp() +' SHUTDOWN: ' + theDevice.id);
-     /*
-     if (theDevice)
-        theDevice.close();
-     if (poller)
+  ext._shutdown = function()
+  {
+    console.log(timeStamp() +' SHUTDOWN: ' + theSparkiDevice.id);
+/*
+    if (theSparkiDevice)
+        theSparkiDevice.close();
+    if (poller)
         clearInterval(poller);
-     connected = false;
-     theDevice = null;
-      */
- };
+    SparkiConnected = false;
+    theSparkiDevice = null;
+ */
+ 
+  };
+ 
+ function ab2str(buf)
+ {
+    return String.fromCharCode.apply(null, new Uint8Array(buf));
+ }
+ 
+ function str2ab(str)
+ {
+     var buf = new ArrayBuffer(str.length); // 2 bytes for each char
+     var bufView = new Uint8Array(buf);
+     for (var i=0, strLen=str.length; i<strLen; i++)
+     {
+        bufView[i] = str.charCodeAt(i);
+     }
+     return buf;
+ }
+ 
+  var STRING_RESULT = "STRING_RESULT";
+ 
  
   var waitingCallbacks = [[],[],[],[],[],[],[],[], []];
   var waitingQueries = [];
   var global_sensor_result =  [0, 0, 0, 0, 0, 0, 0, 0, 0];
   var global_sensor_queried = [0, 0, 0, 0, 0, 0, 0, 0, 0];
 
+  var recv_buffer = "";
+ 
   function receive_handler(data)
   {
-    var inputData = new Uint8Array(data);
-    console.log("received: " + createHexString(inputData));
-
-    return;
+    var inputData = ab2str(data);
+    console.log(timeStamp() + " received: " + inputData);
+    recv_buffer += inputData;
+    var arr = recv_buffer.split(/[\n\r]+/);
+    if (arr.length > 1) {
+        recieved_line(arr[0]);
+        recv_buffer = "";
+    }
+ }
  
-    if (!(connected || connecting))
+ function recieved_line(inputData)
+ {
+   console.log(timeStamp() + " recieved_line: " + inputData);
+   if (!(SparkiConnected || connecting))
       return;
   
     var query_info = waitingQueries.shift();
+    if (!query_info)
+        return;
+ 
     var this_is_from_port = query_info[0];
     var mode = query_info[1];
     var modeType = query_info[2];
      
     var theResult = "";
 
-    if (mode == TOUCH_SENSOR)
+    if (mode == STRING_RESULT)
     {
-        var result = inputData[5];
-        theResult = (result == 100);
+        theResult = inputData;
     }
-    else if (mode == COLOR_SENSOR)
-    {
-        var num = Math.floor(getFloatResult(inputData));
-        if (modeType == AMBIENT_INTENSITY || modeType == REFLECTED_INTENSITY)
-        {
-            theResult = num;
-        }
-        else if (modeType == COLOR_VALUE)
-        {
-            if (num >= 0 && num < 7)
-                theResult = colors[num];
-            else
-                theResult = "none";
-        }
- /*
-        else if (modeType == COLOR_RAW_RGB)  // is color_raw encoded as a string, hex, or number?
-        {
-            theResult = num; //maybe? probably not, but here's hoping it's this simple.
-        }
-  */
-    }
-    
-    else if (mode == IR_SENSOR)
-    {
-        if (modeType == IR_PROX)
-            theResult = getFloatResult(inputData);
-        else if (modeType == IR_REMOTE)
-            theResult = getIRButtonNameForCode(getFloatResult(inputData));
-    }
-    else if (mode == GYRO_SENSOR)
-    {
-       theResult = getFloatResult(inputData);
-    }
-    else if (mode == READ_FROM_MOTOR)
-    {
-        theResult = getFloatResult(inputData);
-    }
-    else if (mode == UIREAD)
-    {
-        if (modeType == UIREAD_BATTERY)
-        {
-            theResult = inputData[5];
-        }
-     }
  
     global_sensor_result[this_is_from_port] = theResult;
     global_sensor_queried[this_is_from_port]--;
@@ -329,61 +324,47 @@ function playStartUpTones()
         callback(theResult);
     }
   }
- 
- function ab2str(buf) {
-    return String.fromCharCode.apply(null, new Uint16Array(buf));
- }
- 
- function str2ab(str) {
-     var buf = new ArrayBuffer(str.length*2); // 2 bytes for each char
-     var bufView = new Uint16Array(buf);
-     for (var i=0, strLen=str.length; i<strLen; i++) {
-     bufView[i] = str.charCodeAt(i);
+
+ function getIRButtonNameForCode(inButtonCode)
+ {
+     for (var i = 0; i < IRbuttonCodes.length; i++)
+     {
+         if (inButtonCode == IRbuttonCodes[i])
+        {
+            return IRbuttonNames[i];
+         }
      }
-     return buf;
+    return "";
  }
  
-  function sendCommand(commandString)
+  var deferredCommand = null;
+ 
+  function sendCommand(command)
   {
-    if ((connected || connecting) && theDevice)
-        device.send(str2ab(commandString + "\n"));
+    if ((SparkiConnected || connecting) && theSparkiDevice)
+    {
+        theSparkiDevice.send(str2ab(command + "\n"));
+    }
+    else
+    {
+       deferredCommand = command;
+       if (theSparkiDevice && !connecting)
+       {
+         tryToConnect(); // try to connect
+       }
+       else if (!connecting)
+       {
+         tryAllDevices(); // try device list again
+       }
+ 
+    }
   }
  
-  ext.allMotorsOn = function(which, power)
-  {
-    clearDriveTimer();
 
-   console.log("motor " + which + " power: " + power);
-  
-    motor(which, power);
-  }
-  
-  function motor(which, power)
-  {
-    var motorBitField = getMotorBitsHexString(which);
-
-    var powerBits = getPackedOutputHexString(power, 1);
-
-    var motorsOnCommand = createMessage(DIRECT_COMMAND_PREFIX + SET_MOTOR_SPEED + motorBitField + powerBits + SET_MOTOR_START + motorBitField);
-  
-    sendCommand(motorsOnCommand);
-  }
- 
- 
   var frequencies = { "C4" : 262, "D4" : 294, "E4" : 330, "F4" : 349, "G4" : 392, "A4" : 440, "B4" : 494, "C5" : 523, "D5" : 587, "E5" : 659, "F5" : 698, "G5" : 784, "A5" : 880, "B5" : 988, "C6" : 1047, "D6" : 1175, "E6" : 1319, "F6" : 1397, "G6" : 1568, "A6" : 1760, "B6" : 1976, "C#4" : 277, "D#4" : 311, "F#4" : 370, "G#4" : 415, "A#4" : 466, "C#5" : 554, "D#5" : 622, "F#5" : 740, "G#5" : 831, "A#5" : 932, "C#6" : 1109, "D#6" : 1245, "F#6" : 1480, "G#6" : 1661, "A#6" : 1865 };
   
+ var colors = [ "none", "black", "blue", "green", "yellow", "red", "white"];
  
- // /------^-----\
- // |            |
- // | 69  70  71 |
- // | 68  64  67 |
- // |  7  21   9 |
- // | 22  25  13 |
- // | 12  24  94 |
- // |  8  28  90 |
- // | 66  82  74 |
- // \____________/
-
  var IRbuttonNames = ['Top Left', 'Bottom Left', 'Top Right', 'Bottom Right', 'Top Bar'];
  var IRbuttonCodes = [1,            2,              3,          4,              9];
  
@@ -458,15 +439,21 @@ function playFreqM2M(freq, duration)
  var driveTimer = 0;
  driveCallback = 0;
  
+function howStopHex(how)
+{
+    if (how == 'break')
+        return '01';
+    else
+        return '00';
+}
+                                                                            
   function motorsStop(how)
   {
       console.log("motorsStop");
 
       var motorBitField = getMotorBitsHexString("all");
 
-      var howHex = '00';
-      if (how == 'break')
-         howHex = '01';
+      var howHex = howStopHex(how);
       
       var motorsOffCommand = createMessage(DIRECT_COMMAND_PREFIX + SET_MOTOR_STOP + motorBitField + howHex);
       
@@ -481,29 +468,23 @@ function playFreqM2M(freq, duration)
   ext.steeringControl = function(ports, what, duration, callback)
   {
     clearDriveTimer();
-    var defaultPower = 50;
+    var defaultSpeed = 50;
     if (what == 'forward')
     {
-        motor(ports, defaultPower);
+        motor(ports, defaultSpeed);
     }
     else if (what == 'reverse')
     {
-        motor(ports, -1 * defaultPower);
+        motor(ports, -1 * defaultSpeed);
     }
-    else
-    {
-        var p =  ports.split("+");
-        if (what == 'left')
-        {
-            motor(p[0], -1 * defaultPower);
-            motor(p[1],  defaultPower);
-        }
-        else if (what == 'right')
-         {
-         motor(p[1], -1 * defaultPower);
-         motor(p[0],  defaultPower);
-         }
-    }
+     else if (what == 'right')
+     {
+       motor2(ports, defaultSpeed);
+     }
+     else if (what == 'left')
+     {
+       motor2(ports, -1 * defaultSpeed);
+     }
     driveCallback = callback;
     driveTimer = window.setTimeout(function()
     {
@@ -535,7 +516,7 @@ function playFreqM2M(freq, duration)
  
   ext.whenButtonPressed = function(port)
   {
-    if (!device || !connected)
+    if (!theSparkiDevice || !SparkiConnected)
         return false;
     var portInt = parseInt(port) - 1;
     readTouchSensor(portInt);
@@ -544,7 +525,7 @@ function playFreqM2M(freq, duration)
 
  ext.whenRemoteButtonPressed = function(IRbutton, port)
  {
-     if (!device || !connected)
+     if (!theSparkiDevice || !SparkiConnected)
         return false;
  
      var portInt = parseInt(port) - 1;
@@ -668,65 +649,41 @@ function playFreqM2M(freq, duration)
  
     sendCommand(readCommand);
  }
- 
- ext.readFromMotor = function(mmode, which, callback)
- {
-    var portInt = getMotorIndex(which);
-    var mode = "01"; // position
-    if (mmode == 'speed')
-        mode = "02";
-     waitingCallbacks[portInt].push(callback);
-     if (global_sensor_queried[portInt] == 0)
-     {
-        global_sensor_queried[portInt]++;
-        readFromAMotor(portInt, READ_FROM_MOTOR, mode);
-     }
- }
- 
- // this routine is awful similar to readFromSensor2...
- function readFromAMotor(port, type, mode)
- {
- 
-    waitingQueries.push([port, type, mode]);
- 
-    var readCommand = createMessage(DIRECT_COMMAND_REPLY_SENSOR_PREFIX +
-                                 INPUT_DEVICE_READY_SI + "00" + // layer
-                                 hexcouplet(port+12) + "00" + // type
-                                 mode +
-                                 "0160"); // result stuff
-    sendCommand(readCommand);
- }
 
- ext.readBatteryLevel = function(callback)
+ function pingDevice(callback)
  {
-   readThatBatteryLevel(callback);
- }
- 
- function readThatBatteryLevel(callback)
- {
-    var portInt = 8; // bogus port number
-     waitingCallbacks[portInt].push(callback);
+    var portInt = 8;
+    waitingQueries.push([portInt, STRING_RESULT, 0]);
+    waitingCallbacks[portInt].push(callback);
      if (global_sensor_queried[portInt] == 0)
      {
         global_sensor_queried[portInt]++;
-        UIRead(portInt, UIREAD_BATTERY);
+        sendCommand("p");
      }
  }
  
  ext.reconnectToDevice = function()
  {
-    reconnect();
+    tryAllDevices();
  }
- 
- function UIRead(port, subtype)
+
+ ext.allMotorsOn = function(driveStyle)
  {
-    waitingQueries.push([port, UIREAD, subtype]);
- 
-    var readCommand = createMessage(DIRECT_COMMAND_REPLY_PREFIX +
-                                 UIREAD + subtype +
-                                 "60"); // result stuff
-    sendCommand(readCommand);
+    if (driveStyle == "forward")
+        sendCommand("F");
+    else if (driveStyle == "reverse")
+        sendCommand("B");
+    else if (driveStyle == "right")
+        sendCommand("R");
+    else if (driveStyle == "left")
+        sendCommand("L");
  }
+ 
+ ext.allMotorsOff = function()
+ {
+    sendCommand("S");
+ }
+
  
   // Block and block menu descriptions
   var descriptor = {
@@ -735,14 +692,15 @@ function playFreqM2M(freq, duration)
            [' ', 'start driving %m.turnStyle',              'allMotorsOn',      'forward'],
            [' ', 'turn %m.turnDirection %n degrees',              'turn', 'right',     90],
            [' ', 'stop driving',                       'allMotorsOff',     'break'],
-           ['h', 'when IR remote %m.buttons pressed port', 'whenRemoteButtonPressed','Top Left'],
+          /* ['h', 'when IR remote %m.buttons pressed port', 'whenRemoteButtonPressed','Top Left'],
            ['w', 'play note %m.note duration %n ms',                    'playTone',         'C5', 500],
            ['w', 'play frequency %n duration %n ms',                    'playFreq',         '262', 500],
            ['R', 'light sensor',   'readColorSensorPort'],
            ['w', 'wait until light sensor %m.whichInputPort detects black line',   'waitUntilDarkLinePort',   '1'],
            ['R', 'measure distance',                  'readDistanceSensorPort'],
            ['R', 'remote button',                     'readRemoteButtonPort'],
-          // ['R', 'gyro  %m.gyroMode %m.whichInputPort',                 'readGyroPort',  'angle', '1'],
+        */
+           // ['R', 'gyro  %m.gyroMode %m.whichInputPort',                 'readGyroPort',  'angle', '1'],
 
        //    ['R', 'battery level',   'readBatteryLevel'],
        //  [' ', 'reconnect', 'reconnectToDevice'],
