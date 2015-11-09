@@ -274,7 +274,8 @@ function playStartUpTones()
  }
  
   var STRING_RESULT = "STRING_RESULT";
- 
+  var DONE_RESULT = "DONE_RESULT";
+
  
   var waitingCallbacks = [[],[],[],[],[],[],[],[], []];
   var waitingQueries = [];
@@ -286,7 +287,7 @@ function playStartUpTones()
   function receive_handler(data)
   {
     var inputData = ab2str(data);
-    console.log(timeStamp() + " received: " + inputData);
+   // console.log(timeStamp() + " received: " + inputData);
     recv_buffer += inputData;
     var arr = recv_buffer.split(/[\n\r]+/);
     if (arr.length > 1) {
@@ -315,13 +316,19 @@ function playStartUpTones()
     {
         theResult = inputData;
     }
- 
+    if (mode == DONE_RESULT)
+    {
+        theResult = "";
+    }
     global_sensor_result[this_is_from_port] = theResult;
     global_sensor_queried[this_is_from_port]--;
     while(callback = waitingCallbacks[this_is_from_port].shift())
     {
         console.log("result: " + theResult);
-        callback(theResult);
+        if (theResult != "")
+            callback(theResult);
+        else
+            callback();
     }
   }
 
@@ -343,6 +350,7 @@ function playStartUpTones()
   {
     if ((SparkiConnected || connecting) && theSparkiDevice)
     {
+        console.log(timeStamp() + " sending: " + command);
         theSparkiDevice.send(str2ab(command + "\n"));
     }
     else
@@ -465,37 +473,49 @@ function howStopHex(how)
      var nopCommand = createMessage(DIRECT_COMMAND_PREFIX + NOOP);
   }
 
-  ext.steeringControl = function(ports, what, duration, callback)
+  ext.steeringControl = function(driveStyle, cms, callback)
   {
     clearDriveTimer();
-    var defaultSpeed = 50;
-    if (what == 'forward')
+    if (driveStyle == "forward" || driveStyle == "reverse")
     {
-        motor(ports, defaultSpeed);
-    }
-    else if (what == 'reverse')
-    {
-        motor(ports, -1 * defaultSpeed);
-    }
-     else if (what == 'right')
-     {
-       motor2(ports, defaultSpeed);
-     }
-     else if (what == 'left')
-     {
-       motor2(ports, -1 * defaultSpeed);
-     }
-    driveCallback = callback;
-    driveTimer = window.setTimeout(function()
-    {
-        if (duration > 0) // allow zero duration to run motors asynchronously
+        cms = parseFloat(cms);
+        if (cms  <= 0)
         {
-          motorsStop('coast');
+            callback();
+            return;
         }
-        callback();
-    } , duration*1000);
-  }
+    }
+
+    var portInt = 8;
+    waitingQueries.push([portInt, DONE_RESULT, 0]);
+    waitingCallbacks[portInt].push(callback);
+    if (global_sensor_queried[portInt] == 0)
+    {
+        global_sensor_queried[portInt]++;
+    }
+    if (driveStyle == "forward")
+        sendCommand("f " + cms + "\n");
+    else if (driveStyle == "reverse")
+        sendCommand("b " + cms + "\n");
  
+}
+ ext.turnControl = function(driveStyle, degrees, callback)
+  {
+    clearDriveTimer();
+ 
+    var portInt = 8;
+    waitingQueries.push([portInt, DONE_RESULT, 0]);
+    waitingCallbacks[portInt].push(callback);
+    if (global_sensor_queried[portInt] == 0)
+    {
+        global_sensor_queried[portInt]++;
+    }
+    if (driveStyle == "right")
+        sendCommand("r " + degrees + "\n");
+    else if (driveStyle == "left")
+        sendCommand("l " + degrees + "\n");
+}
+
   function readTouchSensor(portInt)
   {
      if (global_sensor_queried[portInt] == 0)
@@ -688,11 +708,13 @@ function howStopHex(how)
   // Block and block menu descriptions
   var descriptor = {
   blocks: [
-           ['w', 'drive %m.turnStyle %n seconds',         'steeringControl', 'forward', 3],
-           [' ', 'start driving %m.turnStyle',              'allMotorsOn',      'forward'],
-           [' ', 'turn %m.turnDirection %n degrees',              'turn', 'right',     90],
+           ['w', 'drive %m.driveDir %n cm',         'steeringControl', 'forward', 3],
+           ['w', 'turn %m.turnDirection %n degrees',              'turnControl', 'right',     90],
+           [' ', 'start driving %m.driveType',              'allMotorsOn',      'forward'],
            [' ', 'stop driving',                       'allMotorsOff',     'break'],
-          /* ['h', 'when IR remote %m.buttons pressed port', 'whenRemoteButtonPressed','Top Left'],
+
+           [' ', "set LED color %c", 'ledColor', 0xff00ff],
+            /* ['h', 'when IR remote %m.buttons pressed port', 'whenRemoteButtonPressed','Top Left'],
            ['w', 'play note %m.note duration %n ms',                    'playTone',         'C5', 500],
            ['w', 'play frequency %n duration %n ms',                    'playFreq',         '262', 500],
            ['R', 'light sensor',   'readColorSensorPort'],
@@ -706,7 +728,8 @@ function howStopHex(how)
        //  [' ', 'reconnect', 'reconnectToDevice'],
            ],
   menus: {
-  turnStyle:        ['forward', 'reverse', 'right', 'left'],
+  driveType:        ['forward', 'reverse', 'right', 'left'],
+ driveDir:        ['forward', 'reverse'],
  turnDirection:        ['right', 'left'],
   gyroMode: ['angle', 'rate'],
   note:["C4","D4","E4","F4","G4","A4","B4","C5","D5","E5","F5","G5","A5","B5","C6","D6","E6","F6","G6","A6","B6","C#4","D#4","F#4","G#4","A#4","C#5","D#5","F#5","G#5","A#5","C#6","D#6","F#6","G#6","A#6"],
