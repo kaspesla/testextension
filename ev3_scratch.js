@@ -107,7 +107,7 @@ function tryToConnect()
     connecting = true;
     testTheConnection(startupBatteryCheckCallback);
     waitingForInitialConnection = true;
-    connectionTimeout = setTimeout(connectionTimeOutCallback, 3000);
+    connectionTimeout = setTimeout(connectionTimeOutCallback, 5000);
 }
 
 function startupBatteryCheckCallback(result)
@@ -1021,15 +1021,9 @@ function howStopHex(how)
     },
   };
 
-
- // should we even call register again if already loaded? seems to work.
-
- if (!EV3ScratchAlreadyLoaded)
- {
    var serial_info = {type: 'serial'};
    ScratchExtensions.register('EV3 Control', descriptor, ext, serial_info);
    console.log(timeStamp() + ' registered extension. theEV3Device:' + theEV3Device);
- }
  
  console.log("EV3ScratchAlreadyLoaded: " + EV3ScratchAlreadyLoaded);
  EV3ScratchAlreadyLoaded = true;
