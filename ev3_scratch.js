@@ -20,6 +20,11 @@ var EV3ScratchAlreadyLoaded = EV3ScratchAlreadyLoaded || false;
 var EV3Connected = EV3Connected || false;
 var potentialEV3Devices = potentialEV3Devices || [];
 
+var waitingCallbacks = waitingCallbacks || [[],[],[],[],[],[],[],[], []];
+var waitingQueries = waitingQueries || [];
+var global_sensor_result = global_sensor_result || [0, 0, 0, 0, 0, 0, 0, 0, 0];
+var global_sensor_queried = global_sensor_queried || [0, 0, 0, 0, 0, 0, 0, 0, 0];
+
 (function(ext) {
   // Cleanup function when the extension is unloaded
 
@@ -288,10 +293,7 @@ function playStartUpTones()
         return result;
   }
   
-  var waitingCallbacks = [[],[],[],[],[],[],[],[], []];
-  var waitingQueries = [];
-  var global_sensor_result =  [0, 0, 0, 0, 0, 0, 0, 0, 0];
-  var global_sensor_queried = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+
 
   function receive_handler(data)
   {
