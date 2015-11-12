@@ -267,8 +267,8 @@ function playStartUpTones()
   {
     console.log(timeStamp() +' SHUTDOWN: ' + ((theEV3Device) ? theEV3Device.id : "null"));
 
-    if (poller)
-        clearInterval(poller);
+//    if (poller)
+  //      clearInterval(poller);
 
 /*
     if (theEV3Device)
@@ -420,7 +420,7 @@ function playStartUpTones()
         mess[(i / 2) + 4] = window.parseInt(str.substr(i, 2), 16);
       }
   
-     console.log(timeStamp() + "sending: " + createHexString(mess));
+     console.log(timeStamp() + " sending: " + createHexString(mess));
 
       return mess;
   }
