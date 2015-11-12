@@ -13,7 +13,7 @@ function timeStamp()
 // JavaScript is weird and this causes our object to be reloaded and re-registered.
 // Prevent this using global variable theSparkiDevice and SparkiConnected that will only initialize to null the first time they are declared.
 // This fixes a Windows bug where it would not reconnect.
-var DEBUG_NO_Sparki = true;
+var DEBUG_NO_Sparki = false;
 var theSparkiDevice = theSparkiDevice || null;
 var SparkiScratchAlreadyLoaded = SparkiScratchAlreadyLoaded || false;
 var SparkiConnected = SparkiConnected || false;
@@ -317,10 +317,10 @@ function playStartUpTones()
         var arr = inputData.split(",");
 
         theResult = arr[1];
- 
-        sendCommand("a");
     }
- 
+
+    sendCommand("a");
+
      if (this_is_from_port == 0)
      {
         callback = waitingCallbacks[0].shift();
@@ -373,7 +373,7 @@ function playStartUpTones()
     if ((SparkiConnected || connecting) && theSparkiDevice)
     {
         console.log(timeStamp() + " sending: " + command);
-        theSparkiDevice.send(str2ab(command + "\n"));
+        theSparkiDevice.send(str2ab(command + ";\n"));
     }
     else
     {
@@ -402,7 +402,7 @@ function playStartUpTones()
   {
       var freq = frequencies[tone];
       console.log("playTone " + tone + " duration: " + duration + " freq: " + freq);
-      sendCommand("Q " + freq + " " + duration);
+      sendCommand("Q " + freq + ";" + duration);
      
      window.setTimeout(function() {
                        driveTimer = 0;
@@ -414,7 +414,7 @@ function playStartUpTones()
  ext.playFreq = function(freq, duration, callback)
  {
      console.log("playFreq duration: " + duration + " freq: " + freq);
-     sendCommand("Q " + freq + " " + duration);
+     sendCommand("Q " + freq + ";" + duration);
      
      window.setTimeout(function() {
                        driveTimer = 0;
@@ -438,6 +438,7 @@ function playStartUpTones()
 
   ext.steeringControl = function(driveStyle, cms, callback)
   {
+    //cms *= 2.5;
     clearDriveTimer();
     if (driveStyle == "forward" || driveStyle == "reverse")
     {
@@ -455,7 +456,7 @@ function playStartUpTones()
      else if (driveStyle == "reverse")
         command = "b " + cms;
 
-    sendSynchronousCommand(command);
+    sendSynchronousCommand(command, callback);
 }
  
  ext.turnControl = function(driveStyle, degrees, callback)
@@ -470,9 +471,20 @@ function playStartUpTones()
     else if (driveStyle == "left")
         command = "l " + degrees;
  
-    sendSynchronousCommand(command);
+    sendSynchronousCommand(command, callback);
 }
 
+ext.readDistanceSensorPort = function(callback)
+ {
+     var portInt = 8;
+     waitingCallbacks[portInt].push(callback);
+     if (global_sensor_queried[portInt] == 0)
+     {
+        global_sensor_queried[portInt]++;
+        waitingQueries.push([portInt, DISTANCE_RESULT, 0]);
+        sendCommand("3");
+     }
+  }
  
   ext.openGrippers = function(callback)
   {
@@ -488,10 +500,10 @@ function playStartUpTones()
  function grippers(command, callback)
  {
     clearDriveTimer();
-    sendSynchronousCommand(command);
+    sendSynchronousCommand(command, callback);
  }
  
- function sendSynchronousCommand(command)
+ function sendSynchronousCommand(command, callback)
  {
     if (synchronous_command_queue.length == 0)
     {
@@ -566,8 +578,8 @@ function playStartUpTones()
  
     // these rgb range mappings are needed to create a similar color correctly on sparki's LED. turns down the R value
  
-    sendCommand("Z " + parseInt(convertToRange(parseInt(bufView[2]), [0,255], [0,25])) + " "
-                    + parseInt(convertToRange(parseInt(bufView[1]), [0,255], [0,50])) + " "
+    sendCommand("Z " + parseInt(convertToRange(parseInt(bufView[2]), [0,255], [0,25])) + ";"
+                    + parseInt(convertToRange(parseInt(bufView[1]), [0,255], [0,50])) + ";"
                     +  parseInt(convertToRange(parseInt(bufView[0]), [0,255], [0,50])));
  }
 
