@@ -272,6 +272,8 @@ function playStartUpTones()
   var global_sensor_result =  [0, 0, 0, 0, 0, 0, 0, 0, 0];
   var global_sensor_queried = [0, 0, 0, 0, 0, 0, 0, 0, 0];
 
+  var synchronous_command_queue = [];
+ 
   var recv_buffer = "";
  
   function receive_handler(data)
@@ -281,14 +283,14 @@ function playStartUpTones()
     recv_buffer += inputData;
     var arr = recv_buffer.split(/[\n\r]+/);
     if (arr.length > 1) {
-        recieved_line(arr[0]);
+        received_line(arr[0]);
         recv_buffer = "";
     }
  }
  
- function recieved_line(inputData)
+ function received_line(inputData)
  {
-   console.log(timeStamp() + " recieved_line: " + inputData);
+   console.log(timeStamp() + " received_line: " + inputData);
    if (!(SparkiConnected || connecting))
       return;
   
@@ -299,7 +301,7 @@ function playStartUpTones()
     var this_is_from_port = query_info[0];
     var mode = query_info[1];
     var modeType = query_info[2];
-     
+ 
     var theResult = "";
 
     if (mode == STRING_RESULT)
@@ -318,16 +320,33 @@ function playStartUpTones()
  
         sendCommand("a");
     }
-    global_sensor_result[this_is_from_port] = theResult;
-    global_sensor_queried[this_is_from_port]--;
-    while(callback = waitingCallbacks[this_is_from_port].shift())
-    {
-        console.log("result: " + theResult);
-        if (theResult != "")
-            callback(theResult);
-        else
-            callback();
-    }
+ 
+     if (this_is_from_port == 0)
+     {
+        callback = waitingCallbacks[0].shift();
+        callback();
+ 
+        var nextCommand = synchronous_command_queue.shift();
+        if (nextCommand)
+        {
+            waitingQueries.push([0, nextCommand[2], 0]);
+            waitingCallbacks[0].push(nextCommand[1]);
+            sendCommand(nextCommand[0]);
+        }
+     }
+     else
+     {
+        global_sensor_result[this_is_from_port] = theResult;
+        global_sensor_queried[this_is_from_port]--;
+        while(callback = waitingCallbacks[this_is_from_port].shift())
+        {
+            console.log("result: " + theResult);
+            if (theResult != "")
+                callback(theResult);
+            else
+                callback();
+        }
+     }
   }
 
  function getIRButtonNameForCode(inButtonCode)
@@ -413,12 +432,6 @@ function playStartUpTones()
     driveCallback = 0;
 }
  
-  ext.allMotorsOff = function(how)
-  {
-      clearDriveTimer();
-      motorsStop(how);
-  }
- 
  var driveTimer = 0;
  driveCallback = 0;
  
@@ -435,39 +448,29 @@ function playStartUpTones()
             return;
         }
     }
+    var command = "";
 
-    var portInt = 8;
-    waitingQueries.push([portInt, DONE_RESULT, 0]);
-    waitingCallbacks[portInt].push(callback);
-    if (global_sensor_queried[portInt] == 0)
-    {
-        global_sensor_queried[portInt]++;
- 
-         if (driveStyle == "forward")
-            sendCommand("f " + cms);
-         else if (driveStyle == "reverse")
-            sendCommand("b " + cms);
-    }
+     if (driveStyle == "forward")
+        command = "f " + cms;
+     else if (driveStyle == "reverse")
+        command = "b " + cms;
+
+    sendSynchronousCommand(command);
 }
  
  ext.turnControl = function(driveStyle, degrees, callback)
   {
     clearDriveTimer();
+    var command = "";
  
-    var portInt = 8;
-    waitingQueries.push([portInt, DONE_RESULT, 0]);
-    waitingCallbacks[portInt].push(callback);
-    if (global_sensor_queried[portInt] == 0)
-    {
-        global_sensor_queried[portInt]++;
+    degrees *= 0.94; // tweak accuracy
+    degrees = parseInt(degrees);
+    if (driveStyle == "right")
+        command  = "r " + degrees;
+    else if (driveStyle == "left")
+        command = "l " + degrees;
  
-        degrees *= 0.94; // tweak accuracy
-        degrees = parseInt(degrees);
-        if (driveStyle == "right")
-            sendCommand("r " + degrees);
-        else if (driveStyle == "left")
-            sendCommand("l " + degrees);
-    }
+    sendSynchronousCommand(command);
 }
 
  
@@ -485,15 +488,21 @@ function playStartUpTones()
  function grippers(command, callback)
  {
     clearDriveTimer();
+    sendSynchronousCommand(command);
+ }
  
-    var portInt = 8;
-    waitingQueries.push([portInt, DONE_RESULT, 0]);
-    waitingCallbacks[portInt].push(callback);
-    if (global_sensor_queried[portInt] == 0)
+ function sendSynchronousCommand(command)
+ {
+    if (synchronous_command_queue.length == 0)
     {
-        global_sensor_queried[portInt]++;
+        waitingQueries.push([0, DONE_RESULT, 0]);
+        waitingCallbacks[0].push(callback);
         sendCommand(command);
     }
+    else
+     {
+        synchronous_command_queue.push([command, callback, DONE_RESULT]);
+     }
 }
 
 
@@ -578,10 +587,11 @@ function playStartUpTones()
 
            ['R', 'measure distance',                  'readDistanceSensorPort'],
 
-            /* ['h', 'when IR remote %m.buttons pressed port', 'whenRemoteButtonPressed','Top Left'],
            ['w', 'play note %m.note duration %n ms',                    'playTone',         'C5', 500],
            ['w', 'play frequency %n duration %n ms',                    'playFreq',         '262', 500],
-           ['R', 'light sensor',   'readColorSensorPort'],
+           
+/* ['h', 'when IR remote %m.buttons pressed port', 'whenRemoteButtonPressed','Top Left'],
+    ['R', 'light sensor',   'readColorSensorPort'],
            ['w', 'wait until light sensor %m.whichInputPort detects black line',   'waitUntilDarkLinePort',   '1'],
            ['R', 'remote button',                     'readRemoteButtonPort'],
         */
