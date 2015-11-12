@@ -259,7 +259,7 @@ function playStartUpTones()
   
   ext._shutdown = function()
   {
-    console.log(timeStamp() +' SHUTDOWN: ' + theEV3Device.id);
+    console.log(timeStamp() +' SHUTDOWN: ' + ((theEV3Device) ? theEV3Device.id : "null"));
 /*
     if (theEV3Device)
         theEV3Device.close();
@@ -1021,13 +1021,17 @@ function howStopHex(how)
     },
   };
 
-  var serial_info = {type: 'serial'};
 
  // should we even call register again if already loaded? seems to work.
 
-  ScratchExtensions.register('EV3 Control', descriptor, ext, serial_info);
+ if (!EV3ScratchAlreadyLoaded)
+ {
+   var serial_info = {type: 'serial'};
+   ScratchExtensions.register('EV3 Control', descriptor, ext, serial_info);
+   console.log(timeStamp() + ' registered extension. theEV3Device:' + theEV3Device);
+ }
+ 
  console.log("EV3ScratchAlreadyLoaded: " + EV3ScratchAlreadyLoaded);
  EV3ScratchAlreadyLoaded = true;
-  console.log(timeStamp() + ' registered extension. theEV3Device:' + theEV3Device);
  })({});
 
