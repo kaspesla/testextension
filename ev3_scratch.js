@@ -366,7 +366,7 @@ function playStartUpTones()
     global_sensor_queried[this_is_from_port]--;
     while(callback = waitingCallbacks[this_is_from_port].shift())
     {
-        console.log("result: " + theResult);
+        console.log(timeStamp() + " result: " + theResult);
         callback(theResult);
     }
   }
@@ -420,7 +420,7 @@ function playStartUpTones()
         mess[(i / 2) + 4] = window.parseInt(str.substr(i, 2), 16);
       }
   
-     console.log("sending: " + createHexString(mess));
+     console.log(timeStamp() + "sending: " + createHexString(mess));
 
       return mess;
   }
