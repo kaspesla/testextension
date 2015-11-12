@@ -25,6 +25,20 @@ var waitingQueries = waitingQueries || [];
 var global_sensor_result = global_sensor_result || [0, 0, 0, 0, 0, 0, 0, 0, 0];
 var global_sensor_queried = global_sensor_queried || [0, 0, 0, 0, 0, 0, 0, 0, 0];
 
+var connecting = connecting || false;
+var notifyConnection = notifyConnection|| false;
+var potentialDevices = potentialDevices || []; // copy of the list
+var warnedAboutBattery = warnedAboutBattery || false;
+var deviceTimeout = deviceTimeout || 0;
+var counter = counter || 0;
+var poller = poller || null;
+var pingTimeout = pingTimeout || null;
+var connectionTimeout = connectionTimeout || null;
+
+var waitingForPing = waitingForPing || false;
+var waitingForInitialConnection = waitingForInitialConnection || false;
+
+
 (function(ext) {
   // Cleanup function when the extension is unloaded
 
@@ -43,11 +57,6 @@ var global_sensor_queried = global_sensor_queried || [0, 0, 0, 0, 0, 0, 0, 0, 0]
   };
 
   
-  var connecting = false;
-  var notifyConnection = false;
-  var potentialDevices = []; // copy of the list
-  var warnedAboutBattery = false;
-  var deviceTimeout = 0;
  
   ext._deviceConnected = function(dev)
   {
@@ -78,13 +87,6 @@ var global_sensor_queried = global_sensor_queried || [0, 0, 0, 0, 0, 0, 0, 0, 0]
     // start recursive loop
     tryNextDevice();
  }
-  
-  var poller = null;
-  var pingTimeout = null;
-  var connectionTimeout = null;
-  
-  var waitingForPing = false;
-  var waitingForInitialConnection = false;
 
  function clearSensorStatuses()
  {
@@ -98,7 +100,6 @@ var global_sensor_queried = global_sensor_queried || [0, 0, 0, 0, 0, 0, 0, 0, 0]
      }
  }
  
-var counter = 0;
 
 function tryToConnect()
 {
@@ -265,6 +266,10 @@ function playStartUpTones()
   ext._shutdown = function()
   {
     console.log(timeStamp() +' SHUTDOWN: ' + ((theEV3Device) ? theEV3Device.id : "null"));
+
+    if (poller)
+        clearInterval(poller);
+
 /*
     if (theEV3Device)
         theEV3Device.close();
