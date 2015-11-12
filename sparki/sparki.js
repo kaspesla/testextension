@@ -13,7 +13,7 @@ function timeStamp()
 // JavaScript is weird and this causes our object to be reloaded and re-registered.
 // Prevent this using global variable theSparkiDevice and SparkiConnected that will only initialize to null the first time they are declared.
 // This fixes a Windows bug where it would not reconnect.
-var DEBUG_NO_Sparki = false;
+var DEBUG_NO_Sparki = true;
 var theSparkiDevice = theSparkiDevice || null;
 var SparkiScratchAlreadyLoaded = SparkiScratchAlreadyLoaded || false;
 var SparkiConnected = SparkiConnected || false;
@@ -24,7 +24,7 @@ var potentialSparkiDevices = potentialSparkiDevices || [];
 
   ext._getStatus = function()
   {
-      if (!SparkiConnected)
+      if (!SparkiConnected && !DEBUG_NO_Sparki)
         return { status:1, msg:'Disconnected' };
       else
         return { status:2, msg:'Connected' };
@@ -124,7 +124,7 @@ function startupPingCallback(result)
     SparkiConnected = true;
     connecting = false;
  
-   // playStartUpTones();
+    playStartUpTones();
  
    // setupWatchdog();
  
@@ -212,18 +212,7 @@ function testTheConnection(theCallback)
 
 function playStartUpTones()
 {
-    var tonedelay = 1000;
-    window.setTimeout(function() {
-                          playFreqM2M(262, 100);
-                       }, tonedelay);
-
-     window.setTimeout(function() {
-                          playFreqM2M(392, 100);
-                       }, tonedelay+150);
-     
-     window.setTimeout(function() {
-                          playFreqM2M(523, 100);
-                       }, tonedelay+300);
+    sendCommand("q");
  }
  
   function tryNextDevice()
@@ -275,7 +264,8 @@ function playStartUpTones()
  
   var STRING_RESULT = "STRING_RESULT";
   var DONE_RESULT = "DONE_RESULT";
-
+  var DISTANCE_RESULT = "DISTANCE_RESULT";
+ 
  
   var waitingCallbacks = [[],[],[],[],[],[],[],[], []];
   var waitingQueries = [];
@@ -320,6 +310,14 @@ function playStartUpTones()
     {
         theResult = "";
     }
+    if (mode == DISTANCE_RESULT)
+    {
+        var arr = inputData.split(",");
+
+        theResult = arr[1];
+ 
+        sendCommand("a");
+    }
     global_sensor_result[this_is_from_port] = theResult;
     global_sensor_queried[this_is_from_port]--;
     while(callback = waitingCallbacks[this_is_from_port].shift())
@@ -348,6 +346,11 @@ function playStartUpTones()
  
   function sendCommand(command)
   {
+    if (DEBUG_NO_Sparki)
+    {
+        console.log(timeStamp() + " sending: " + command);
+        return;
+    }
     if ((SparkiConnected || connecting) && theSparkiDevice)
     {
         console.log(timeStamp() + " sending: " + command);
@@ -380,33 +383,7 @@ function playStartUpTones()
   {
       var freq = frequencies[tone];
       console.log("playTone " + tone + " duration: " + duration + " freq: " + freq);
-      var volume = 100;
-      var volString = getPackedOutputHexString(volume, 1);
-      var freqString = getPackedOutputHexString(freq, 2);
-      var durString = getPackedOutputHexString(duration, 2);
-      
-      var toneCommand = createMessage(DIRECT_COMMAND_PREFIX + PLAYTONE + volString + freqString + durString);
-
-      sendCommand(toneCommand);
-  
-       window.setTimeout(function() {
-                    driveTimer = 0;
-                    callback();
-                    }, duration);
-  }
- 
- 
- ext.playFreq = function(freq, duration, callback)
- {
-     console.log("playFreq duration: " + duration + " freq: " + freq);
-     var volume = 100;
-     var volString = getPackedOutputHexString(volume, 1);
-     var freqString = getPackedOutputHexString(freq, 2);
-     var durString = getPackedOutputHexString(duration, 2);
-     
-     var toneCommand = createMessage(DIRECT_COMMAND_PREFIX + PLAYTONE + volString + freqString + durString);
-     
-     sendCommand(toneCommand);
+      sendCommand("Q " + freq + " " + duration);
      
      window.setTimeout(function() {
                        driveTimer = 0;
@@ -414,18 +391,16 @@ function playStartUpTones()
                        }, duration);
  }
  
-function playFreqM2M(freq, duration)
+ 
+ ext.playFreq = function(freq, duration, callback)
  {
-     console.log("playFreqM2M duration: " + duration + " freq: " + freq);
-     var volume = 100;
-     var volString = getPackedOutputHexString(volume, 1);
-     var freqString = getPackedOutputHexString(freq, 2);
-     var durString = getPackedOutputHexString(duration, 2);
+     console.log("playFreq duration: " + duration + " freq: " + freq);
+     sendCommand("Q " + freq + " " + duration);
      
-     var toneCommand = createMessage(DIRECT_COMMAND_PREFIX + PLAYTONE + volString + freqString + durString);
-     
-     sendCommand(toneCommand);
-  
+     window.setTimeout(function() {
+                       driveTimer = 0;
+                       callback();
+                       }, duration);
  }
  
  function clearDriveTimer()
@@ -447,31 +422,6 @@ function playFreqM2M(freq, duration)
  var driveTimer = 0;
  driveCallback = 0;
  
-function howStopHex(how)
-{
-    if (how == 'break')
-        return '01';
-    else
-        return '00';
-}
-                                                                            
-  function motorsStop(how)
-  {
-      console.log("motorsStop");
-
-      var motorBitField = getMotorBitsHexString("all");
-
-      var howHex = howStopHex(how);
-      
-      var motorsOffCommand = createMessage(DIRECT_COMMAND_PREFIX + SET_MOTOR_STOP + motorBitField + howHex);
-      
-      sendCommand(motorsOffCommand);
-  }
-  
-  function sendNOP()
-  {
-     var nopCommand = createMessage(DIRECT_COMMAND_PREFIX + NOOP);
-  }
 
   ext.steeringControl = function(driveStyle, cms, callback)
   {
@@ -492,13 +442,14 @@ function howStopHex(how)
     if (global_sensor_queried[portInt] == 0)
     {
         global_sensor_queried[portInt]++;
-    }
-    if (driveStyle == "forward")
-        sendCommand("f " + cms + "\n");
-    else if (driveStyle == "reverse")
-        sendCommand("b " + cms + "\n");
  
+         if (driveStyle == "forward")
+            sendCommand("f " + cms);
+         else if (driveStyle == "reverse")
+            sendCommand("b " + cms);
+    }
 }
+ 
  ext.turnControl = function(driveStyle, degrees, callback)
   {
     clearDriveTimer();
@@ -509,166 +460,42 @@ function howStopHex(how)
     if (global_sensor_queried[portInt] == 0)
     {
         global_sensor_queried[portInt]++;
+ 
+        degrees *= 0.94; // tweak accuracy
+        degrees = parseInt(degrees);
+        if (driveStyle == "right")
+            sendCommand("r " + degrees);
+        else if (driveStyle == "left")
+            sendCommand("l " + degrees);
     }
-    if (driveStyle == "right")
-        sendCommand("r " + degrees + "\n");
-    else if (driveStyle == "left")
-        sendCommand("l " + degrees + "\n");
 }
 
-  function readTouchSensor(portInt)
+ 
+  ext.openGrippers = function(callback)
   {
-     if (global_sensor_queried[portInt] == 0)
-     {
-       global_sensor_queried[portInt]++;
-       readFromSensor(portInt, TOUCH_SENSOR, mode0);
-     }
+    grippers("o", callback);
   }
  
- function readIRRemoteSensor(portInt)
+ ext.closeGrippers = function(callback)
+{
+    grippers("c", callback);
+ }
+ 
+ 
+ function grippers(command, callback)
  {
+    clearDriveTimer();
+ 
+    var portInt = 8;
+    waitingQueries.push([portInt, DONE_RESULT, 0]);
+    waitingCallbacks[portInt].push(callback);
     if (global_sensor_queried[portInt] == 0)
     {
         global_sensor_queried[portInt]++;
-        readFromSensor2(portInt, IR_SENSOR, IR_REMOTE);
+        sendCommand(command);
     }
- }
- 
-  ext.whenButtonPressed = function(port)
-  {
-    if (!theSparkiDevice || !SparkiConnected)
-        return false;
-    var portInt = parseInt(port) - 1;
-    readTouchSensor(portInt);
-    return global_sensor_result[portInt];
-  }
+}
 
- ext.whenRemoteButtonPressed = function(IRbutton, port)
- {
-     if (!theSparkiDevice || !SparkiConnected)
-        return false;
- 
-     var portInt = parseInt(port) - 1;
-     readIRRemoteSensor(portInt);
- 
-     return (global_sensor_result[portInt] == IRbutton);
- }
- 
-  ext.readTouchSensorPort = function(port, callback)
-  {
-    var portInt = parseInt(port) - 1;
-
-    waitingCallbacks[portInt].push(callback);
-    readTouchSensor(portInt);
-  }
- 
-  ext.readColorSensorPort = function(port, mode, callback)
-  {
-    var modeCode = AMBIENT_INTENSITY;
-    if (mode == 'reflected') { modeCode = REFLECTED_INTENSITY; }
-    if (mode == 'color') { modeCode = COLOR_VALUE; }
-    if (mode == 'RGBcolor') { modeCode = COLOR_RAW_RGB; }
- 
-    var portInt = parseInt(port) - 1;
-    waitingCallbacks[portInt].push(callback);
-
-    readFromColorSensor(portInt, modeCode);
-  }
- 
- function readFromColorSensor(portInt, modeCode)
- {
-     if (global_sensor_queried[portInt] == 0)
-     {
-        global_sensor_queried[portInt]++;
-        readFromSensor2(portInt, COLOR_SENSOR, modeCode);
-     }
- }
- 
- var lineCheckingInterval = 0;
-
- ext.waitUntilDarkLinePort = function(port, callback)
- {
-    if (lineCheckingInterval)
-        clearInterval(lineCheckingInterval);
-    lineCheckingInterval = 0;
-    var modeCode = REFLECTED_INTENSITY;
-    var portInt = parseInt(port) - 1;
-    global_sensor_result[portInt] = -1;
- 
-    lineCheckingInterval = window.setInterval(function()
-    {
-        readFromColorSensor(portInt, modeCode);
-         if (global_sensor_result[portInt] < 25 && global_sensor_result[portInt] >= 0)    // darkness or just not reflection (air)
-         {
-                clearInterval(lineCheckingInterval);
-                lineCheckingInterval = 0;
-                callback();
-         }
-    }, 5);
- }
- 
-  ext.readGyroPort = function(mode, port, callback)
-  {
-    var modeCode = GYRO_ANGLE;
-    if (mode == 'rate') { modeCode = GYRO_RATE; }
- 
-    var portInt = parseInt(port) - 1;
- 
-    waitingCallbacks[portInt].push(callback);
-    if (global_sensor_queried[portInt] == 0)
-    {
-      global_sensor_queried[portInt]++;
-      readFromSensor2(portInt, GYRO_SENSOR, modeCode);
-    }
-  }
- 
-  ext.readDistanceSensorPort = function(port, callback)
-  {
-    var portInt = parseInt(port) - 1;
-
-    waitingCallbacks[portInt].push(callback);
-    if (global_sensor_queried[portInt] == 0)
-    {
-      global_sensor_queried[portInt]++;
-      readFromSensor2(portInt, IR_SENSOR, IR_PROX);
-    }
-  }
-  
-  ext.readRemoteButtonPort = function(port, callback)
-  {
-    var portInt = parseInt(port) - 1;
-
-    waitingCallbacks[portInt].push(callback);
- 
-    readIRRemoteSensor(portInt);
-  }
- 
-  function readFromSensor(port, type, mode)
-  {
-
-      waitingQueries.push([port, type, mode]);
-
-      var readCommand = createMessage(DIRECT_COMMAND_REPLY_PREFIX +
-                                           READ_SENSOR +
-                                           hexcouplet(port) +
-                                           type +
-                                            mode + "60");
-
-      sendCommand(readCommand);
-  }
-
- function readFromSensor2(port, type, mode)
- {
-    waitingQueries.push([port, type, mode]);
- 
-    var readCommand = createMessage(DIRECT_COMMAND_REPLY_SENSOR_PREFIX +
-                                 INPUT_DEVICE_READY_SI + "00" + // layer
-                                 hexcouplet(port) + "00" + // type
-                                 mode +
-                                 "0160"); // result stuff
- 
-    sendCommand(readCommand);
- }
 
  function pingDevice(callback)
  {
@@ -703,6 +530,37 @@ function howStopHex(how)
  {
     sendCommand("S");
  }
+ 
+ function convertToRange(value, srcRange, dstRange)
+ {
+     // value is outside source range return
+     if (value < srcRange[0] || value > srcRange[1])
+     {
+        return NaN;
+     }
+     
+     var srcMax = srcRange[1] - srcRange[0],
+     dstMax = dstRange[1] - dstRange[0],
+     adjValue = value - srcRange[0];
+
+     return (adjValue * (dstMax / srcMax)) + dstRange[0];
+ };
+
+ 
+ ext.ledColor = function(color)
+ {
+   var buf = new ArrayBuffer(4);
+   var bufView = new Uint8Array(buf);
+   var longView = new Uint32Array(buf);
+ 
+    longView[0] = color;
+ 
+    // these rgb range mappings are needed to create a similar color correctly on sparki's LED. turns down the R value
+ 
+    sendCommand("Z " + parseInt(convertToRange(parseInt(bufView[2]), [0,255], [0,25])) + " "
+                    + parseInt(convertToRange(parseInt(bufView[1]), [0,255], [0,50])) + " "
+                    +  parseInt(convertToRange(parseInt(bufView[0]), [0,255], [0,50])));
+ }
 
  
   // Block and block menu descriptions
@@ -714,12 +572,17 @@ function howStopHex(how)
            [' ', 'stop driving',                       'allMotorsOff',     'break'],
 
            [' ', "set LED color %c", 'ledColor', 0xff00ff],
+
+           ['w', 'open grippers',              'openGrippers'],
+           ['w', 'close grippers',              'closeGrippers'],
+
+           ['R', 'measure distance',                  'readDistanceSensorPort'],
+
             /* ['h', 'when IR remote %m.buttons pressed port', 'whenRemoteButtonPressed','Top Left'],
            ['w', 'play note %m.note duration %n ms',                    'playTone',         'C5', 500],
            ['w', 'play frequency %n duration %n ms',                    'playFreq',         '262', 500],
            ['R', 'light sensor',   'readColorSensorPort'],
            ['w', 'wait until light sensor %m.whichInputPort detects black line',   'waitUntilDarkLinePort',   '1'],
-           ['R', 'measure distance',                  'readDistanceSensorPort'],
            ['R', 'remote button',                     'readRemoteButtonPort'],
         */
            // ['R', 'gyro  %m.gyroMode %m.whichInputPort',                 'readGyroPort',  'angle', '1'],
