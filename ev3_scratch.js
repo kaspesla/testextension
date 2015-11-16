@@ -674,7 +674,7 @@ function playStartUpTones()
             {
                 if (callback)
                    callback();
-            } , duration*1000);
+            } , duration); // duration already in ms
         }
         waitingQueries.shift(); // remove it from the queue
 
