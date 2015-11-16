@@ -677,6 +677,23 @@ function playStartUpTones()
                     
  function addToQueryQueue(query_info)
  {
+    for (var i = 0; i < waitingQueries.length; i++)
+    {
+        var next_query = waitingQueries[i];
+        if (next_query.length == 5) // a query with a response
+        {
+            var [port, type, mode, callback, theCommand] = next_query;
+            var this_port = query_info[0];
+            if (port == this_port)
+            {
+                var this_callback = query_info[3]
+                if (this_callback)
+                    waitingCallbacks[this_port].push(this_callback);
+                console_log("coalescing query because there's already one in the queue.");
+                return;
+            }
+        }
+     }
      waitingQueries.push(query_info);
      executeQueryQueue();
  }
