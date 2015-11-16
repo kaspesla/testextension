@@ -388,7 +388,7 @@ function playStartUpTones()
     thePendingQuery = null;
     
     // go look for the next query
-    executeQueryQueue();
+    executeQueryQueueAgain();
   }
 
  function getFloatResult(inputData)
@@ -604,6 +604,14 @@ function playStartUpTones()
     }
   }
  
+ function executeQueryQueueAgain()
+ {
+    window.setTimeout(function()
+                   {
+                      executeQueryQueue();
+                   } , 1);
+ }
+ 
  function executeQueryQueue()
  {
     if (waitingQueries.length == 0)
@@ -633,7 +641,9 @@ function playStartUpTones()
       }
       waitingQueries.shift(); // remove it from the queue
       thePendingQuery = query_info;
-      thisCommand = theCommand;
+      // actually go ahead and make the query
+      var packedCommand = packMessageForSending(theCommand);
+      sendCommand(packedCommand);
     }
     else if (query_info.length == 4) // a query with no response
     {
@@ -667,13 +677,14 @@ function playStartUpTones()
             } , duration*1000);
         }
         waitingQueries.shift(); // remove it from the queue
-       // thePendingQuery = query_info;
-        thisCommand = theCommand;
+
+         // actually go ahead and make the query
+         var packedCommand = packMessageForSending(theCommand);
+         sendCommand(packedCommand);
+ 
+        executeQueryQueueAgain();   // maybe do the next one
     }
-    // actually go ahead and make the query
-    var packedCommand = packMessageForSending(thisCommand);
-    sendCommand(packedCommand);
- }
+}
                     
  function addToQueryQueue(query_info)
  {
@@ -707,7 +718,8 @@ function playStartUpTones()
     motorCommand = motor(which, speed);
  
     addToQueryQueue([DRIVE_QUERY, 0, null, motorCommand]);
-  }
+    console_log("added start motor. queue length now:" + waitingQueries.length);
+}
  
  function capSpeed(speed)
  {
