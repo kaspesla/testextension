@@ -330,7 +330,11 @@ function playStartUpTones()
  
     var theResult = null;
                     
-    var [port, type, mode, callback, theCommand] = thePendingQuery; // info about the pending query
+    var port = thePendingQuery[0];
+    var type = thePendingQuery[1];
+    var mode = thePendingQuery[2];
+    var callback = thePendingQuery[3];
+    var theCommand = thePendingQuery[4];
 
     if (type == TOUCH_SENSOR)
     {
@@ -624,7 +628,11 @@ function playStartUpTones()
  
     if (query_info.length == 5) // a query with a response
     {
-      var [port, type, mode, callback, theCommand] = query_info;
+      var port = query_info[0];
+      var type = query_info[1];
+      var mode = query_info[2];
+      var callback = query_info[3];
+      var theCommand = query_info[4];
  
       if (thePendingQuery)
       {
@@ -652,7 +660,11 @@ function playStartUpTones()
         if (thePendingQuery)    // bail if we're waiting for a response
             return;
                     
-        var [type, duration, callback, theCommand] = query_info;
+        var type = query_info[0];
+        var duration = query_info[1];
+        var callback = query_info[2];
+        var theCommand = query_info[3];
+
         if (type == DRIVE_QUERY || type == DRIVE_QUERY_DURATION)
         {
             clearDriveTimer();
@@ -695,7 +707,11 @@ function playStartUpTones()
         var next_query = waitingQueries[i];
         if (next_query.length == 5) // a query with a response
         {
-            var [port, type, mode, callback, theCommand] = next_query;
+             var port = next_query[0];
+             var type = next_query[1];
+             var mode = next_query[2];
+             var callback = next_query[3];
+             var theCommand = next_query[4];
             var this_port = query_info[0];
             if (port == this_port)
             {
