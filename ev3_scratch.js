@@ -211,6 +211,8 @@ function connectionTimeOutCallback()
         }
         */
         theEV3Device = null;
+ 
+        // xxx at this point, we might have an outstanding query with a callback we need to call...
     }
     else
     {
