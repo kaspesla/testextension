@@ -88,6 +88,7 @@ var waitingForInitialConnection = waitingForInitialConnection || false;
  
  function tryAllDevices()
  {
+    console_log("tryAllDevices()");
     potentialDevices = potentialEV3Devices.slice(0);
     // start recursive loop
     tryNextDevice();
@@ -96,7 +97,6 @@ var waitingForInitialConnection = waitingForInitialConnection || false;
  function clearSensorStatuses()
  {
      var numSensorBlocks = 9;
-     waitingQueries = [];
      for (x = 0; x < numSensorBlocks; x++)
      {
         waitingCallbacks[x] = [];
@@ -104,11 +104,21 @@ var waitingForInitialConnection = waitingForInitialConnection || false;
      }
  }
  
-
+var lastCommandWeWereTrying = null;
+ 
 function tryToConnect()
 {
+    console_log("tryToConnect()");
     clearSensorStatuses();
-    counter = 0; 
+
+    lastCommandWeWereTrying = waitingQueries.pop();
+ 
+    waitingQueries = [];
+
+    // clear a query we might have been waiting for
+    thePendingQuery = null;
+ 
+    counter = 0;
     
     theEV3Device.open({ stopBits: 0, bitRate: 57600 /*115200*/, ctsFlowControl: 0}); //, parity:2, bufferSize:255 });
     console_log(': Attempting connection with ' + theEV3Device.id);
@@ -139,17 +149,12 @@ function startupBatteryCheckCallback(result)
  
      setupWatchdog();
  
- /*
-     if (deferredCommandArray)
-     {
-        var tempCommand = deferredCommandArray;
-        deferredCommandArray = null;
-        window.setTimeout(function() {
-                  sendCommand(tempCommand);
-                   }, 2500);
-     }
-  */
-}
+    if (lastCommandWeWereTrying)
+    {
+        waitingQueries.push(lastCommandWeWereTrying);
+        executeQueryQueue();
+    }
+ }
 
 function setupWatchdog()
 {
@@ -256,7 +261,7 @@ function playStartUpTones()
   {
     potentialDevices.sort((function(a, b){return b.id.localeCompare(a.id)}));
 
-    console_log("devices: " + potentialDevices);
+    console_log("tryNextDevice: " + potentialDevices);
     var device = potentialDevices.shift();
     if (!device)
         return;
@@ -442,9 +447,7 @@ function playStartUpTones()
       {
         mess[(i / 2) + 4] = window.parseInt(str.substr(i, 2), 16);
       }
-  
-     console_log("sending: " + createHexString(mess));
-
+ 
       return mess;
   }
   
@@ -578,29 +581,17 @@ function playStartUpTones()
   var DRIVE_QUERY_DURATION = "DRIVE_QUERY_DURATION";
   var TONE_QUERY = "TONE_QUERY";
  
- 
-  var deferredCommandArray = null;
- 
   function sendCommand(commandArray)
   {
-    // xxx we should not send a command if there is a response pending
-
     if ((EV3Connected || connecting) && theEV3Device)
     {
+        console_log("sending: " + createHexString(commandArray));
+
         theEV3Device.send(commandArray.buffer);
     }
     else
     {
-       deferredCommandArray = commandArray;
-       if (theEV3Device && !connecting)
-       {
-         tryToConnect(); // try to connect
-       }
-       else if (!connecting)
-       {
-         tryAllDevices(); // try device list again
-       }
- 
+        console_log("sendCommand called when not connected");
     }
   }
  
@@ -616,6 +607,20 @@ function playStartUpTones()
  {
     if (waitingQueries.length == 0)
         return; // nothing to do
+ 
+    if (!EV3Connected && !connecting)
+    {
+        console_log("executeQueryQueue called with no connection");
+         if (theEV3Device && !connecting)
+         {
+            tryToConnect(); // try to connect
+         }
+         else if (!connecting)
+         {
+            tryAllDevices(); // try device list again
+         }
+        return;
+    }
  
     var query_info = waitingQueries[0]; // peek at first in line
     var thisCommand = null;
