@@ -236,10 +236,8 @@ function pingBatteryCheckCallback(result)
 
 function testTheConnection(theCallback)
 {
-   window.setTimeout(function() {
-                          readThatBatteryLevel(theCallback);
-                       }, 500);
- }
+    readThatBatteryLevel(theCallback);
+}
 
 function playStartUpTones()
 {
@@ -501,13 +499,10 @@ function playStartUpTones()
   {
     // nonsensical unsigned byte packing. see cOutputPackParam in c_output-c in EV3 firmware
     var a = new ArrayBuffer(4);
-    var sarr = new Int8Array(a);
+    var sarr = new Int32Array(a);
     var uarr = new Uint8Array(a);
   
-    sarr[0] = num & 0x000000FF;
-    sarr[1] = (num >> 8) & 0x000000FF;
-    sarr[2] = (num >> 16) & 0x000000FF;
-    sarr[3] = (num >> 24) & 0x000000FF;
+    sarr[0] = num;
 
     if (lc == 0)
     {
@@ -736,6 +731,12 @@ function playStartUpTones()
  ext.motorDegrees = function(which, speed, degrees, howStop)
  {
    speed = capSpeed(speed);
+ 
+    if (degrees < 0)
+    {
+        degrees *= -1;
+        speed *= -1;
+    }
 
    var motorBitField = getMotorBitsHexString(which);
    var speedBits = getPackedOutputHexString(speed, 1);
