@@ -742,7 +742,7 @@ function playStartUpTones()
    var stepRampUpBits = getPackedOutputHexString(0, 3);
    var stepConstantBits = getPackedOutputHexString(degrees, 3);
    var stepRampDownBits = getPackedOutputHexString(0, 3);
-   var howHex = howStopHex(howStop);
+   var howHex = getPackedOutputHexString(howStopCode(howStop), 1);
    
    var motorsCommand = createMessage(DIRECT_COMMAND_PREFIX + SET_MOTOR_STEP_SPEED + motorBitField + speedBits
                                      + stepRampUpBits + stepConstantBits + stepRampDownBits + howHex
@@ -852,12 +852,12 @@ function playFreqM2M(freq, duration)
  var driveTimer = 0;
  driveCallback = 0;
  
-function howStopHex(how)
+function howStopCode(how)
 {
     if (how == 'break')
-        return '01';
+        return 1;
     else
-        return '00';
+        return 0;
 }
                                                                             
   function motorsStop(how)
@@ -866,7 +866,7 @@ function howStopHex(how)
 
       var motorBitField = getMotorBitsHexString("all");
 
-      var howHex = howStopHex(how);
+      var howHex = getPackedOutputHexString(howStopCode(how), 1);
       
       var motorsOffCommand = createMessage(DIRECT_COMMAND_PREFIX + SET_MOTOR_STOP + motorBitField + howHex);
       
