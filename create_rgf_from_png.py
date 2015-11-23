@@ -10,19 +10,20 @@ s = BitArray(bytearray([w,h]));
 
 bits = [ ]
 for j in range(h):
-#  print " "
   for i in range(w):
     if len(bits) == 8:
        s += bits 
        bits = [ ]
     if pix[i,j] == 1:
       bits.insert(0,0)
-#      sys.stdout.write('  ')
     else:
       bits.insert(0,1)
-#      sys.stdout.write('* ')
+# pad row to 8 bits
+  dif = 8 - len(bits) 
+  for x in range(0, dif-1):
+    bits.insert(0,0)
 
-f = open('cat.rgf', 'wb')
+f = open('output.rgf', 'wb')
 s.tofile(f)
 
 print s.hex
