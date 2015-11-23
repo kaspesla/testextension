@@ -43,6 +43,76 @@ var connectionTimeout = connectionTimeout || null;
 var waitingForPing = waitingForPing || false;
 var waitingForInitialConnection = waitingForInitialConnection || false;
 
+var DIRECT_COMMAND_PREFIX = "800000";
+var DIRECT_COMMAND_REPLY_PREFIX = "000100";
+var DIRECT_COMMAND_REPLY_SENSOR_PREFIX = "000400";
+
+// direct command opcode/prefixes
+var SET_MOTOR_SPEED = "A400";
+var SET_MOTOR_STOP = "A300";
+var SET_MOTOR_START = "A600";
+var SET_MOTOR_STEP_SPEED = "AC00";
+var NOOP = "0201";
+var PLAYTONE = "9401";
+var INPUT_DEVICE_READY_SI = "991D";
+var READ_SENSOR = "9A00";
+var UIREAD  = "81"; // opUI_READ
+var UIREAD_BATTERY = "12"; // GET_LBATT
+
+var UIDRAW = "84";
+var UIWRITE = "82";
+var UIDRAW_FILLWINDOW = "13";
+var UIDRAW_PICTURE = "07";
+var UIDRAW_BMPFILE = "1C";
+var UIDRAW_UPDATE = "00";
+var UIWRITE_INIT_RUN = "19";
+var BEGIN_DOWNLOAD = "0192";
+var CONTINUE_DOWNLOAD = "8193"
+
+var SYSTEM_REPLY_ERROR = 5;
+
+var mode0 = "00";
+var TOUCH_SENSOR = "10";
+var COLOR_SENSOR = "1D";
+var ULTRASONIC_SENSOR = "1E";
+var ULTRSONIC_CM = "00";
+var ULTRSONIC_INCH = "01";
+var ULTRSONIC_LISTEN = "02";
+var ULTRSONIC_SI_CM = "03";
+var ULTRSONIC_SI_INCH = "04";
+var ULTRSONIC_DC_CM = "05"; 
+var ULTRSONIC_DC_INCH = "06";
+
+var GYRO_SENSOR = "20";
+var GYRO_ANGLE = "00";
+var GYRO_RATE = "01";
+var GYRO_FAST = "02";
+var GYRO_RATE_AND_ANGLE = "03";
+var GYRO_CALIBRATION = "04";
+var IR_SENSOR = "21";
+var IR_PROX = "00";
+var IR_SEEKER = "01";
+var IR_REMOTE = "02"
+var IR_REMOTE_ADVANCE = "03";
+var IR_CALIBRATION = "05";
+var REFLECTED_INTENSITY = "00";
+var AMBIENT_INTENSITY = "01";
+var COLOR_VALUE = "02";
+var COLOR_RAW_RGB = "04";
+var READ_FROM_MOTOR = "FOOBAR";
+
+var DRIVE_QUERY = "DRIVE_QUERY";
+var DRIVE_QUERY_DURATION = "DRIVE_QUERY_DURATION";
+var TONE_QUERY = "TONE_QUERY";
+var UIDRAW_QUERY = "UIDRAW_QUERY";
+var SYSTEM_COMMAND = "SYSTEM_COMMAND";
+ 
+var frequencies = { "C4" : 262, "D4" : 294, "E4" : 330, "F4" : 349, "G4" : 392, "A4" : 440, "B4" : 494, "C5" : 523, "D5" : 587, "E5" : 659, "F5" : 698, "G5" : 784, "A5" : 880, "B5" : 988, "C6" : 1047, "D6" : 1175, "E6" : 1319, "F6" : 1397, "G6" : 1568, "A6" : 1760, "B6" : 1976, "C#4" : 277, "D#4" : 311, "F#4" : 370, "G#4" : 415, "A#4" : 466, "C#5" : 554, "D#5" : 622, "F#5" : 740, "G#5" : 831, "A#5" : 932, "C#6" : 1109, "D#6" : 1245, "F#6" : 1480, "G#6" : 1661, "A#6" : 1865 };
+
+var colors = [ "none", "black", "blue", "green", "yellow", "red", "white"];
+
+var IRbuttonNames = ['Top Left', 'Bottom Left', 'Top Right', 'Bottom Right', 'Top Bar'];
+var IRbuttonCodes = [1,            2,              3,          4,              9];
 
 (function(ext) {
   // Cleanup function when the extension is unloaded
@@ -120,7 +190,7 @@ function tryToConnect()
  
     counter = 0;
     
-    theEV3Device.open({ stopBits: 0, bitRate: 57600 /*115200*/, ctsFlowControl: 0}); //, parity:2, bufferSize:255 });
+    theEV3Device.open({ stopBits: 0, bitRate: 57600, ctsFlowControl: 0});
     console_log(': Attempting connection with ' + theEV3Device.id);
     theEV3Device.set_receive_handler(receive_handler);
  
@@ -147,7 +217,11 @@ function startupBatteryCheckCallback(result)
        warnedAboutBattery = true;
      }
  
-     setupWatchdog();
+    clearScreen();
+ 
+    uploadAndDrawCatFile();
+ 
+    setupWatchdog();
  
     if (lastCommandWeWereTrying)
     {
@@ -277,10 +351,6 @@ function playStartUpTones()
   ext._shutdown = function()
   {
     console_log('SHUTDOWN: ' + ((theEV3Device) ? theEV3Device.id : "null"));
-
-//    if (poller)
-  //      clearInterval(poller);
-
 /*
     if (theEV3Device)
         theEV3Device.close();
@@ -289,9 +359,10 @@ function playStartUpTones()
     EV3Connected = false;
     theEV3Device = null;
  */
- 
   };
-  
+ 
+  //// conversion helper routines
+ 
   // create hex string from bytes
   function createHexString(arr)
   {
@@ -308,97 +379,31 @@ function playStartUpTones()
         }
         return result;
   }
-  
-
-
-  function receive_handler(data)
-  {
-    var inputData = new Uint8Array(data);
-    console_log("received: " + createHexString(inputData));
-
-    if (!(EV3Connected || connecting))
-    {
-        console_log("Received Data but not connected or connecting");
-        return;
-    }
  
-    if (!thePendingQuery)
-    {
-        console_log("Received Data and didn't expect it...");
-        return;
-    }
+ function stringToHexString(instring)
+ {
+    var outString = "";
+    instring.split('').map(function (c) { var hex = c.charCodeAt(0).toString(16); if (hex.length == 2) { outString += hex; } else { outString += '0' + hex;} });
+    outString += "00";
+    return outString;
+ }
  
-    var theResult = null;
-                    
-    var port = thePendingQuery[0];
-    var type = thePendingQuery[1];
-    var mode = thePendingQuery[2];
-    var callback = thePendingQuery[3];
-    var theCommand = thePendingQuery[4];
+ function decimalToHex(d, padding)
+ {
+   var hex = Number(d).toString(16);
+   padding = typeof (padding) === "undefined" || padding === null ? padding = 2 : padding;
 
-    if (type == TOUCH_SENSOR)
-    {
-        var result = inputData[5];
-        theResult = (result == 100);
-    }
-    else if (type == COLOR_SENSOR)
-    {
-        var num = Math.floor(getFloatResult(inputData));
-        if (mode == AMBIENT_INTENSITY || mode == REFLECTED_INTENSITY)
-        {
-            theResult = num;
-        }
-        else if (mode == COLOR_VALUE)
-        {
-            if (num >= 0 && num < 7)
-                theResult = colors[num];
-            else
-                theResult = "none";
-        }
-    }
-    
-    else if (type == IR_SENSOR)
-    {
-        if (mode == IR_PROX)
-            theResult = getFloatResult(inputData);
-        else if (mode == IR_REMOTE)
-            theResult = getIRButtonNameForCode(getFloatResult(inputData));
-    }
-    else if (type == GYRO_SENSOR)
-    {
-       theResult = getFloatResult(inputData);
-    }
-    else if (type == READ_FROM_MOTOR)
-    {
-        theResult = getFloatResult(inputData);
-    }
-    else if (type == UIREAD)
-    {
-        if (mode == UIREAD_BATTERY)
-        {
-            theResult = inputData[5];
-        }
-     }
+   while (hex.length < padding)
+   {
+     hex = "0" + hex;
+   }
  
-    global_sensor_result[port] = theResult;
+  var a = hex.match(/../g);             // split number in groups of two
+  a.reverse();                        // reverse the groups
+  hex = a.join("");                // join the groups back together
 
-    // do the callback
-    console_log("result: " + theResult);
-    if (callback)
-        callback(theResult);
-
-    while(callback = waitingCallbacks[port].shift())
-    {
-        console_log("result (coalesced): " + theResult);
-        callback(theResult);
-    }
-                    
-    // done with this query
-    thePendingQuery = null;
-    
-    // go look for the next query
-    executeQueryQueueAgain();
-  }
+  return hex;
+ }
 
  function getFloatResult(inputData)
  {
@@ -531,56 +536,8 @@ function playStartUpTones()
      
     return "00";
   }
-  
-  var DIRECT_COMMAND_PREFIX = "800000";
-  var DIRECT_COMMAND_REPLY_PREFIX = "000100";
-  var DIRECT_COMMAND_REPLY_SENSOR_PREFIX = "000400";
-  var DIRECT_COMMAND_REPLY_MOTOR_PREFIX = "000500";
-  // direct command opcode/prefixes
-  var SET_MOTOR_SPEED = "A400";
-  var SET_MOTOR_STOP = "A300";
-  var SET_MOTOR_START = "A600";
-  var SET_MOTOR_STEP_SPEED = "AC00";
-  var NOOP = "0201";
-  var PLAYTONE = "9401";
-  var INPUT_DEVICE_READY_SI = "991D";
-  var READ_SENSOR = "9A00";
-  var UIREAD  = "81"; // opUI_READ
-  var UIREAD_BATTERY = "12"; // GET_LBATT
  
-  var mode0 = "00";
-  var TOUCH_SENSOR = "10";
-  var COLOR_SENSOR = "1D";
-  var ULTRASONIC_SENSOR = "1E";
-  var ULTRSONIC_CM = "00";
-  var ULTRSONIC_INCH = "01";
-  var ULTRSONIC_LISTEN = "02";
-  var ULTRSONIC_SI_CM = "03";
-  var ULTRSONIC_SI_INCH = "04";
-  var ULTRSONIC_DC_CM = "05"; 
-  var ULTRSONIC_DC_INCH = "06";
-
-  var GYRO_SENSOR = "20";
-  var GYRO_ANGLE = "00";
-  var GYRO_RATE = "01";
-  var GYRO_FAST = "02";
-  var GYRO_RATE_AND_ANGLE = "03";
-  var GYRO_CALIBRATION = "04";
-  var IR_SENSOR = "21";
-  var IR_PROX = "00";
-  var IR_SEEKER = "01";
-  var IR_REMOTE = "02"
-  var IR_REMOTE_ADVANCE = "03";
-  var IR_CALIBRATION = "05";
-  var REFLECTED_INTENSITY = "00";
-  var AMBIENT_INTENSITY = "01";
-  var COLOR_VALUE = "02";
-  var COLOR_RAW_RGB = "04";
-  var READ_FROM_MOTOR = "FOOBAR";
- 
-  var DRIVE_QUERY = "DRIVE_QUERY";
-  var DRIVE_QUERY_DURATION = "DRIVE_QUERY_DURATION";
-  var TONE_QUERY = "TONE_QUERY";
+ //// command/query queue
  
   function sendCommand(commandArray)
   {
@@ -726,6 +683,114 @@ function playStartUpTones()
      waitingQueries.push(query_info);
      executeQueryQueue();
  }
+ 
+ function receive_handler(data)
+ {
+    var inputData = new Uint8Array(data);
+    console_log("received: " + createHexString(inputData));
+
+    if (!(EV3Connected || connecting))
+    {
+        console_log("Received Data but not connected or connecting");
+        return;
+    }
+ 
+    if (!thePendingQuery)
+    {
+        console_log("Received Data and didn't expect it...");
+        return;
+    }
+ 
+    var theResult = null;
+                    
+    var port = thePendingQuery[0];
+    var type = thePendingQuery[1];
+    var mode = thePendingQuery[2];
+    var callback = thePendingQuery[3];
+    var theCommand = thePendingQuery[4];
+
+    if (type == TOUCH_SENSOR)
+    {
+        var result = inputData[5];
+        theResult = (result == 100);
+    }
+    else if (type == COLOR_SENSOR)
+    {
+        var num = Math.floor(getFloatResult(inputData));
+        if (mode == AMBIENT_INTENSITY || mode == REFLECTED_INTENSITY)
+        {
+            theResult = num;
+        }
+        else if (mode == COLOR_VALUE)
+        {
+            if (num >= 0 && num < 7)
+                theResult = colors[num];
+            else
+                theResult = "none";
+        }
+    }
+    else if (type == IR_SENSOR)
+    {
+        if (mode == IR_PROX)
+            theResult = getFloatResult(inputData);
+        else if (mode == IR_REMOTE)
+            theResult = getIRButtonNameForCode(getFloatResult(inputData));
+    }
+    else if (type == GYRO_SENSOR)
+    {
+       theResult = getFloatResult(inputData);
+    }
+    else if (type == READ_FROM_MOTOR)
+    {
+        theResult = getFloatResult(inputData);
+    }
+    else if (type == UIREAD)
+    {
+        if (mode == UIREAD_BATTERY)
+        {
+            theResult = inputData[5];
+        }
+    }
+    else if (type == BEGIN_DOWNLOAD)
+    {
+        theResult = inputData[6];
+        var handle = inputData[7];
+ 
+        if (theResult == 0)
+        {
+            console_log("BEGIN_DOWNLOAD status: " + theResult + " handle: " + handle);
+ 
+            var fileData = mode;
+
+            continueDownload( decimalToHex(handle, 2), fileData);
+        }
+        else
+        {
+            console_log("BEGIN_DOWNLOAD non-success status: " + theResult + " handle: " + handle);
+        }
+    }
+ 
+    global_sensor_result[port] = theResult;
+
+    // do the callback
+    console_log("result: " + theResult);
+    if (callback)
+        callback(theResult);
+
+    while(callback = waitingCallbacks[port].shift())
+    {
+        console_log("result (coalesced): " + theResult);
+        callback(theResult);
+    }
+                    
+    // done with this query
+    thePendingQuery = null;
+    
+    // go look for the next query
+    executeQueryQueueAgain();
+  }
+ 
+ //// extension callbacks
 
   ext.startMotors = function(which, speed)
   {
@@ -804,13 +869,6 @@ function playStartUpTones()
   }
 
 
-  var frequencies = { "C4" : 262, "D4" : 294, "E4" : 330, "F4" : 349, "G4" : 392, "A4" : 440, "B4" : 494, "C5" : 523, "D5" : 587, "E5" : 659, "F5" : 698, "G5" : 784, "A5" : 880, "B5" : 988, "C6" : 1047, "D6" : 1175, "E6" : 1319, "F6" : 1397, "G6" : 1568, "A6" : 1760, "B6" : 1976, "C#4" : 277, "D#4" : 311, "F#4" : 370, "G#4" : 415, "A#4" : 466, "C#5" : 554, "D#5" : 622, "F#5" : 740, "G#5" : 831, "A#5" : 932, "C#6" : 1109, "D#6" : 1245, "F#6" : 1480, "G#6" : 1661, "A#6" : 1865 };
-  
- var colors = [ "none", "black", "blue", "green", "yellow", "red", "white"];
- 
- var IRbuttonNames = ['Top Left', 'Bottom Left', 'Top Right', 'Bottom Right', 'Top Bar'];
- var IRbuttonCodes = [1,            2,              3,          4,              9];
- 
   ext.playTone = function(tone, duration, callback)
   {
       var freq = frequencies[tone];
@@ -1095,8 +1153,68 @@ function UIRead(port, subtype, callback)
 
     addToQueryQueue([port, UIREAD, subtype, callback, theCommand]);
 }
+
+  
+function clearScreen()
+{
+    var theCommand = createMessage(DIRECT_COMMAND_PREFIX +
+                                 UIDRAW + UIDRAW_FILLWINDOW +
+                                 "000000" + UIDRAW + UIDRAW_UPDATE);
+
+    addToQueryQueue([UIDRAW_QUERY, 0, null, theCommand]);
+}
  
+// image file code
  
+ function uploadAndDrawCatFile()
+ {
+    var fileName = "../prjs/tst/cat.rgf";
+    var catRGFFile = "5d640000000000000000000000000000060000000004000000000000180000000070000000000000f00000000f80000000000005c0000000ec000000000000338000000c600000000000018e000000e90000000000000d1c00000e1c00000000000064700001c56000000000000319e0fffc930000000000001a23ff6f5248000000000000ea46800124c0000000000002048155524b0000000000001a92d1114918000000000000ca4825212560000000000004848a5252438000000000003292a42445e60000000000018a489495319800000000000a891112430360000000000068a7f524b00d80000000000310c0c491002e00000000001a5403124c00b00000000001c5400e494002c0000000000d42001491001b0000000000c1600092580058000000000ea58006494002c0000000006088001923000b00000000062aa0005248085800000000348300024940c6c00000000112a80411210612000000201d486070e4ac0098000001c0d0a903844a1009c000000184289400290ae0c38000000334a220032520d80600000007084ac010bfc1001c0400001e94a30101ab000020c00000d250ae500ff00001f800000648520d001b000036000000312940000030000010000001929000000000000080000fef22400100000000060000046488001f000000003000000189200087000000018000000c92000407000000480000003248002007000003f00000018900010007a00006f00000072500080002f00030000000325000400000600300000000c8400200000400180000000329000800004001800000000ca4002000060018000000003040018000c0018000000000e94003001800180000000003a4000607000380000000000e14000fc0003800000000007e480000000700000400000eb890000000f00000f80000e0720000003e00000c60001ca8d740001f800000c18001ca2c45505fe000000604001c8a4885ffe00000002030039226aa83800000000300c03a2470894c006000001806038aa62a94300fc00000c0181920e48114c1c3000002006194ac9002531d4c000010010612d240044fc1200000c00c352c24001558558000060231926a40010015180000104aee498900055444c00000c523e927200065148c0000020247924aa007c548c0000019490e44c20066909c000000612519534a021953c0000001e49264488830603800000006892589aa9301df800000000f124eb8897007e0000000003e411eb221800000000000003ff60844a6000000000000001f4a9548980000000000007fe089092960000000000006b8aaa574a18000000000006010808fd0a6000000000003552aa9e72898000000000019120a3c1892600000000000c54a8f807249c000000000069121f001c927000000000019127c0007128c0000000000d24f80001a42fff000000002493000006941dff000000018a5800001a4a001e000000068460000064a2aa380000003293000001c8a208c0000000ca4800000728aaa30000000304c000001c9208580000000d52000000712a94c00000003070000000e2010e00000000ff00000003ffd56000000003f000000003ffff000000000000000000000fc000000";
+
+    uploadAndDrawRGFData(catRGFFile, fileName);
+ }
+ 
+ function drawFile(fileNameHex)
+ {
+     var theCommand = createMessage(DIRECT_COMMAND_PREFIX +
+                                UIDRAW + UIDRAW_BMPFILE +
+                                "01" + // forground color
+                                "820000" + "820000" + // location
+                                   "84" + fileNameHex + // LCS string encoding
+                                    UIDRAW + UIDRAW_UPDATE);
+ 
+    addToQueryQueue([UIDRAW_QUERY, 0, null, theCommand]);
+ }
+ 
+function uploadAndDrawRGFData(fileDataHexString, name)
+{
+   var fileLength = fileDataHexString.length / 2;
+   var lengthString = decimalToHex(fileLength, 8);
+ 
+    var fileNameHex = stringToHexString(name);
+ 
+   var theCommand = createMessage(
+                                BEGIN_DOWNLOAD + lengthString + fileNameHex //"6361742e726766000" // the filename...
+                                );
+ 
+   addToQueryQueue([8, BEGIN_DOWNLOAD, fileNameHex + "|" + fileDataHexString, null, theCommand]);
+ }
+ 
+ function continueDownload(handle, fileData)
+ {
+    var p =  fileData.split("|");
+
+    var data = p[1];
+    var nameHex = p[0];
+ 
+    var theCommand = createMessage(
+                                CONTINUE_DOWNLOAD + handle + data
+                                );
+ 
+    addToQueryQueue([SYSTEM_COMMAND, 0, null, theCommand]);
+ 
+    drawFile(nameHex);
+ }
  
   // Block and block menu descriptions
   var descriptor = {
