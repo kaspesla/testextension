@@ -19,29 +19,20 @@ function console_log(str)
 // JavaScript is weird and this causes our object to be reloaded and re-registered.
 // Prevent this using global variable theEV3Device and EV3Connected that will only initialize to null the first time they are declared.
 // This fixes a Windows bug where it would not reconnect.
-var DEBUG_NO_EV3 = false;
-var theEV3Device = theEV3Device || null;
-var EV3ScratchAlreadyLoaded = EV3ScratchAlreadyLoaded || false;
-var EV3Connected = EV3Connected || false;
-var potentialEV3Devices = potentialEV3Devices || [];
 
 var waitingCallbacks = waitingCallbacks || [[],[],[],[],[],[],[],[], []];
 var waitingQueries = waitingQueries || [];
 var global_sensor_result = global_sensor_result || [0, 0, 0, 0, 0, 0, 0, 0, 0];
 var thePendingQuery = thePendingQuery || null;
 
-var connecting = connecting || false;
-var notifyConnection = notifyConnection|| false;
-var potentialDevices = potentialDevices || []; // copy of the list
+
 var warnedAboutBattery = warnedAboutBattery || false;
 var deviceTimeout = deviceTimeout || 0;
 var counter = counter || 0;
 var poller = poller || null;
 var pingTimeout = pingTimeout || null;
-var connectionTimeout = connectionTimeout || null;
 
 var waitingForPing = waitingForPing || false;
-var waitingForInitialConnection = waitingForInitialConnection || false;
 
 var DIRECT_COMMAND_PREFIX = "800000";
 var DIRECT_COMMAND_REPLY_PREFIX = "000100";
@@ -114,13 +105,7 @@ var colors = [ "none", "black", "blue", "green", "yellow", "red", "white"];
 var IRbuttonNames = ['Top Left', 'Bottom Left', 'Top Right', 'Bottom Right', 'Top Bar'];
 var IRbuttonCodes = [1,            2,              3,          4,              9];
 
-function tryAllDevices()
-{
-    console_log("tryAllDevices()");
-    potentialDevices = potentialEV3Devices.slice(0);
-    // start recursive loop
-    tryNextDevice();
-}
+
 
 function clearSensorStatuses()
 {
@@ -134,38 +119,11 @@ function clearSensorStatuses()
 
 var lastCommandWeWereTrying = null;
 
-function tryToConnect()
-{
-    console_log("tryToConnect()");
-    clearSensorStatuses();
-    
-    lastCommandWeWereTrying = waitingQueries.pop();
-    
-    waitingQueries = [];
-    
-    // clear a query we might have been waiting for
-    thePendingQuery = null;
-    
-    counter = 0;
-    
-    theEV3Device.open({ stopBits: 0, bitRate: 57600, ctsFlowControl: 0});
-    console_log(': Attempting connection with ' + theEV3Device.id);
-    theEV3Device.set_receive_handler(receive_handler);
-    
-    connecting = true;
-    testTheConnection(startupBatteryCheckCallback);
-    waitingForInitialConnection = true;
-    connectionTimeout = setTimeout(connectionTimeOutCallback, 5000);
-}
-
 function startupBatteryCheckCallback(result)
 {
     (timeStamp() + ": got battery level at connect: " + result);
     
-    waitingForInitialConnection = false;
-    
-    EV3Connected = true;
-    connecting = false;
+    weConnected();
     
     playStartUpTones();
     
@@ -212,44 +170,7 @@ function pingTimeOutCallback()
         if (poller)
             clearInterval(poller);
         
-        EV3Connected = false;
-        
-        //    alert("The connection to the brick was lost. Check your brick and refresh the page to reconnect. (Don't forget to save your project first!)");
-        /* if (r == true) {
-         reconnect();
-         } else {
-         // do nothing
-         }
-         */
-    }
-}
-
-function connectionTimeOutCallback()
-{
-    if (waitingForInitialConnection == true)
-    {
-        console_log("Initial connection timed out");
-        connecting = false;
-        
-        if (potentialDevices.length == 0)
-        {
-            console_log("Tried all devices with no luck.");
-            
-            //  alert("Failed to connect to a brick.\n\nMake sure your brick is:\n 1) powered on with Bluetooth On\n 2) named starting with serial (if on a Mac)\n 3) paired with this computer\n 4) the iPhone/iPad/iPod check box is NOT checked\n 5) Do not start a connection to or from the brick in any other way. Let the Scratch plug-in handle it!\n\nand then try reloading the webpage.");
-            /*  if (r == true) {
-             reconnect();
-             } else {
-             // do nothing
-             }
-             */
-            theEV3Device = null;
-            
-            // xxx at this point, we might have an outstanding query with a callback we need to call...
-        }
-        else
-        {
-            tryNextDevice();
-        }
+        disconnected();
     }
 }
 
@@ -266,7 +187,6 @@ function pingBatteryCheckCallback(result)
         warnedAboutBattery = true;
     }
 }
-
 
 function testTheConnection(theCallback)
 {
@@ -292,22 +212,6 @@ function playStartUpTones()
                       }, tonedelay+300);
 }
 
-function tryNextDevice()
-{
-    potentialDevices.sort((function(a, b){return b.id.localeCompare(a.id)}));
-    
-    console_log("tryNextDevice: " + potentialDevices);
-    var device = potentialDevices.shift();
-    if (!device)
-        return;
-    
-    theEV3Device = device;
-    
-    if (!DEBUG_NO_EV3)
-    {
-        tryToConnect();
-    }
-}
 
 //// conversion helper routines
 
@@ -487,20 +391,6 @@ function getPackedOutputHexString(num, lc)
 
 //// command/query queue
 
-function sendCommand(commandArray)
-{
-    if ((EV3Connected || connecting) && theEV3Device)
-    {
-        console_log("sending: " + createHexString(commandArray));
-        
-        theEV3Device.send(commandArray.buffer);
-    }
-    else
-    {
-        console_log("sendCommand called when not connected");
-    }
-}
-
 function executeQueryQueueAgain()
 {
     window.setTimeout(
@@ -515,20 +405,9 @@ function executeQueryQueue()
     if (waitingQueries.length == 0)
         return; // nothing to do
     
-    if (!EV3Connected && !connecting)
-    {
-        console_log("executeQueryQueue called with no connection");
-        if (theEV3Device && !connecting)
-        {
-            tryToConnect(); // try to connect
-        }
-        else if (!connecting)
-        {
-            tryAllDevices(); // try device list again
-        }
+    if (!checkConnected())
         return;
-    }
-    
+        
     var query_info = waitingQueries[0]; // peek at first in line
     var thisCommand = null;
     
@@ -640,7 +519,7 @@ function receive_handler(data)
     var inputData = new Uint8Array(data);
     console_log("received: " + createHexString(inputData));
     
-    if (!(EV3Connected || connecting))
+    if (!(connectingOrConnected()))
     {
         console_log("Received Data but not connected or connecting");
         return;
@@ -818,7 +697,7 @@ driveCallback = 0;
 
 function howStopCode(how)
 {
-    if (how == 'break')
+    if (how == 'brake')
         return 1;
     else
         return 0;
@@ -1075,7 +954,7 @@ function steeringControl(port, what, duration, callback)
 
 function whenButtonPressed(port)
 {
-    if (!theEV3Device || !EV3Connected)
+    if (notConnected())
         return false;
     var portInt = parseInt(port) - 1;
     readTouchSensor(portInt, null);
@@ -1084,7 +963,7 @@ function whenButtonPressed(port)
 
 function whenRemoteButtonPressed(IRbutton, port)
 {
-    if (!theEV3Device || !EV3Connected)
+    if (notConnected())
         return false;
     
     var portInt = parseInt(port) - 1;
@@ -1173,6 +1052,168 @@ function readBatteryLevel(callback)
     readThatBatteryLevel(callback);
 }
 
+
+// ScratchX specific stuff
+
+var DEBUG_NO_EV3 = false;
+var theEV3Device = theEV3Device || null;
+var EV3ScratchAlreadyLoaded = EV3ScratchAlreadyLoaded || false;
+var EV3Connected = EV3Connected || false;
+var potentialEV3Devices = potentialEV3Devices || [];
+var waitingForInitialConnection = waitingForInitialConnection || false;
+var potentialDevices = potentialDevices || []; // copy of the list
+var connecting = connecting || false;
+var connectionTimeout = connectionTimeout || null;
+
+
+function connectingOrConnected()
+{
+    return (EV3Connected || connecting);
+}
+
+function weConnected()
+{
+    waitingForInitialConnection = false;
+    
+    EV3Connected = true;
+    connecting = false;
+}
+
+function notConnected()
+{
+    return (!theEV3Device || !EV3Connected);
+}
+
+function disconnected()
+{
+    EV3Connected = false;
+    
+    //    alert("The connection to the brick was lost. Check your brick and refresh the page to reconnect. (Don't forget to save your project first!)");
+    /* if (r == true) {
+     reconnect();
+     } else {
+     // do nothing
+     }
+     */
+}
+
+
+function sendCommand(commandArray)
+{
+    if ((EV3Connected || connecting) && theEV3Device)
+    {
+        console_log("sending: " + createHexString(commandArray));
+        
+        theEV3Device.send(commandArray.buffer);
+    }
+    else
+    {
+        console_log("sendCommand called when not connected");
+    }
+}
+
+function resetConnection()
+{
+    clearSensorStatuses();
+    
+    waitingQueries = [];
+    
+    // clear a query we might have been waiting for
+    thePendingQuery = null;
+    
+    counter = 0;
+}
+
+function tryToConnect()
+{
+    console_log("tryToConnect()");
+    
+    lastCommandWeWereTrying = waitingQueries.pop();
+
+    resetConnection();
+    
+    theEV3Device.open({ stopBits: 0, bitRate: 57600, ctsFlowControl: 0});
+    console_log(': Attempting connection with ' + theEV3Device.id);
+    theEV3Device.set_receive_handler(receive_handler);
+    
+    connecting = true;
+    testTheConnection(startupBatteryCheckCallback);
+    waitingForInitialConnection = true;
+    connectionTimeout = setTimeout(connectionTimeOutCallback, 5000);
+}
+
+function connectionTimeOutCallback()
+{
+    if (waitingForInitialConnection == true)
+    {
+        console_log("Initial connection timed out");
+        connecting = false;
+        
+        if (potentialDevices.length == 0)
+        {
+            console_log("Tried all devices with no luck.");
+            
+            //  alert("Failed to connect to a brick.\n\nMake sure your brick is:\n 1) powered on with Bluetooth On\n 2) named starting with serial (if on a Mac)\n 3) paired with this computer\n 4) the iPhone/iPad/iPod check box is NOT checked\n 5) Do not start a connection to or from the brick in any other way. Let the Scratch plug-in handle it!\n\nand then try reloading the webpage.");
+            /*  if (r == true) {
+             reconnect();
+             } else {
+             // do nothing
+             }
+             */
+            theEV3Device = null;
+            
+            // xxx at this point, we might have an outstanding query with a callback we need to call...
+        }
+        else
+        {
+            tryNextDevice();
+        }
+    }
+}
+
+function tryNextDevice()
+{
+    potentialDevices.sort((function(a, b){return b.id.localeCompare(a.id)}));
+    
+    console_log("tryNextDevice: " + potentialDevices);
+    var device = potentialDevices.shift();
+    if (!device)
+        return;
+    
+    theEV3Device = device;
+    
+    if (!DEBUG_NO_EV3)
+    {
+        tryToConnect();
+    }
+}
+
+function tryAllDevices()
+{
+    console_log("tryAllDevices()");
+    potentialDevices = potentialEV3Devices.slice(0);
+    // start recursive loop
+    tryNextDevice();
+}
+
+function checkConnected()
+{
+    if (!EV3Connected && !connecting)
+    {
+        console_log("executeQueryQueue called with no connection");
+        if (theEV3Device && !connecting)
+        {
+            tryToConnect(); // try to connect
+        }
+        else if (!connecting)
+        {
+            tryAllDevices(); // try device list again
+        }
+        return false;
+    }
+    return true;
+}
+        
 (
 function(ext)
 {
@@ -1320,8 +1361,8 @@ function(ext)
      blocks: [
               ['w', 'drive %m.dualMotors %m.turnStyle %n seconds',         'steeringControl',  'B+C', 'forward', 3],
               [' ', 'start motor %m.whichMotorPort speed %n',              'startMotors',      'B+C', 100],
-              [' ', 'rotate motor %m.whichMotorPort speed %n by %n degrees then %m.breakCoast',              'motorDegrees',      'A', 100, 360, 'break'],
-              [' ', 'stop all motors %m.breakCoast',                       'allMotorsOff',     'break'],
+              [' ', 'rotate motor %m.whichMotorPort speed %n by %n degrees then %m.brakeCoast',              'motorDegrees',      'A', 100, 360, 'brake'],
+              [' ', 'stop all motors %m.brakeCoast',                       'allMotorsOff',     'brake'],
               ['h', 'when button pressed on port %m.whichInputPort',       'whenButtonPressed','1'],
               ['h', 'when IR remote %m.buttons pressed port %m.whichInputPort', 'whenRemoteButtonPressed','Top Left', '1'],
               ['R', 'button pressed %m.whichInputPort',                    'readTouchSensorPort',   '1'],
@@ -1342,7 +1383,7 @@ function(ext)
      whichMotorIndividual:   ['A', 'B', 'C', 'D'],
      dualMotors:       ['A+D', 'B+C'],
      turnStyle:        ['forward', 'reverse', 'right', 'left'],
-     breakCoast:       ['break', 'coast'],
+     brakeCoast:       ['brake', 'coast'],
      lightSensorMode:  ['reflected', 'ambient', 'color'],
      motorInputMode: ['position', 'speed'],
      gyroMode: ['angle', 'rate'],
