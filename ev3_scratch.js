@@ -572,7 +572,7 @@ function receive_handler(data)
     }
     else if (type == READ_FROM_MOTOR)
     {
-        theResult = getFloatResult(inputData);
+        theResult = Math.round(getFloatResult(inputData) * 360); // round to nearest degree
     }
     else if (type == UIREAD)
     {
