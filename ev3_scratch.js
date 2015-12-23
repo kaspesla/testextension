@@ -74,6 +74,9 @@ var ULTRSONIC_SI_INCH = "04";
 var ULTRSONIC_DC_CM = "05";
 var ULTRSONIC_DC_INCH = "06";
 
+var READ_MOTOR_POSITION = "01";
+var READ_MOTOR_SPEED = "02";
+
 var GYRO_SENSOR = "20";
 var GYRO_ANGLE = "00";
 var GYRO_RATE = "01";
@@ -572,7 +575,10 @@ function receive_handler(data)
     }
     else if (type == READ_FROM_MOTOR)
     {
-        theResult = Math.round(getFloatResult(inputData) * 360); // round to nearest degree
+        if (mode == READ_MOTOR_POSITION)
+            theResult = Math.round(getFloatResult(inputData) * 360); // round to nearest degree
+        else
+            theResult = getFloatResult(inputData);
     }
     else if (type == UIREAD)
     {
@@ -1040,9 +1046,9 @@ function readRemoteButtonPort(port, callback)
 function readFromMotor(mmode, which, callback)
 {
     var portInt = getMotorIndex(which);
-    var mode = "01"; // position
+    var mode = READ_MOTOR_POSITION; // position
     if (mmode == 'speed')
-        mode = "02";
+        mode = READ_MOTOR_SPEED;
     
     readFromAMotor(portInt, READ_FROM_MOTOR, mode, callback);
 }
@@ -1373,7 +1379,7 @@ function(ext)
               ['R', 'measure distance %m.whichInputPort',                  'readDistanceSensorPort',   '1'],
               ['R', 'remote button %m.whichInputPort',                     'readRemoteButtonPort',   '1'],
               // ['R', 'gyro  %m.gyroMode %m.whichInputPort',                 'readGyroPort',  'angle', '1'],
-              ['R', 'motor %m.motorInputMode %m.whichMotorIndividual',     'readFromMotor',   'position', 'B'],
+              ['R', 'motor %m.motorInputMode %m.whichMotorIndividual',     'readFromMotor',   'position', 'A'],
               
               //    ['R', 'battery level',   'readBatteryLevel'],
               //  [' ', 'reconnect', 'reconnectToDevice'],
