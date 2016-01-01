@@ -20,9 +20,9 @@ function console_log(str)
 // Prevent this using global variable theEV3Device and EV3Connected that will only initialize to null the first time they are declared.
 // This fixes a Windows bug where it would not reconnect.
 
-var waitingCallbacks = waitingCallbacks || [[],[],[],[],[],[],[],[], []];
+var waitingCallbacks = waitingCallbacks || [[],[],[],[],[],[],[],[], [], []];
 var waitingQueries = waitingQueries || [];
-var global_sensor_result = global_sensor_result || [0, 0, 0, 0, 0, 0, 0, 0, 0];
+var global_sensor_result = global_sensor_result || [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 var thePendingQuery = thePendingQuery || null;
 
 
@@ -37,6 +37,7 @@ var waitingForPing = waitingForPing || false;
 var DIRECT_COMMAND_PREFIX = "800000";
 var DIRECT_COMMAND_REPLY_PREFIX = "000100";
 var DIRECT_COMMAND_REPLY_SENSOR_PREFIX = "000400";
+var DIRECT_COMMAND_REPLY_ALL_TYPES_PREFIX = "001000";
 
 // direct command opcode/prefixes
 var SET_MOTOR_SPEED = "A400";
@@ -46,6 +47,7 @@ var SET_MOTOR_STEP_SPEED = "AC00";
 var NOOP = "0201";
 var PLAYTONE = "9401";
 var INPUT_DEVICE_READY_SI = "991D";
+var INPUT_DEVICE_GET_TYPE_MODE = "9905";
 var READ_SENSOR = "9A00";
 var UIREAD  = "81"; // opUI_READ
 var UIREAD_BATTERY = "12"; // GET_LBATT
@@ -108,6 +110,11 @@ var colors = [ "none", "black", "blue", "green", "yellow", "red", "white"];
 var IRbuttonNames = ['Top Left', 'Bottom Left', 'Top Right', 'Bottom Right', 'Top Bar'];
 var IRbuttonCodes = [1,            2,              3,          4,              9];
 
+var sensorPortsNames = [ "1", "2", "3", "4", "A", "B", "C", "D"];
+
+var sensorNames = { "7E" : "None", "7F" : "Port Error", "FF" : "Unknown", "7D" : "Initializing", "07" : "Large Motor", "08" : "Medium Motor", "10" : "Button Sensor", "1D" : "Light Sensor", "1E" : "Ultrasonic Sensor", "20" : "Gyro Sensor", "21" : "Infrared Sensor", "01" : "Button Sensor (NXT)", "02" : "Light Sensor (NXT)", "03" : "Sound Sensor", "04" : "Light/Color Sensor (NXT)", "05" : "Ultrasonic Sensor (NXT)", "06" : "Temperature Sensor (NXT)" };
+
+var port_Assignments = port_Assignments || [0, 0, 0, 0, 0, 0, 0, 0, 0];
 
 
 function clearSensorStatuses()
@@ -117,6 +124,7 @@ function clearSensorStatuses()
     {
         waitingCallbacks[x] = [];
         global_sensor_result[x] = 0;
+        port_Assignments[x] = 0;
     }
 }
 
@@ -137,8 +145,10 @@ function startupBatteryCheckCallback(result)
     }
     
     clearScreen();
-    
+
     uploadAndDrawCatFile();
+    
+    scanPorts();
     
     setupWatchdog();
     
@@ -189,6 +199,8 @@ function pingBatteryCheckCallback(result)
         alert("Your battery is getting low.");
         warnedAboutBattery = true;
     }
+    
+    //scanPorts();
 }
 
 function testTheConnection(theCallback)
@@ -199,21 +211,22 @@ function testTheConnection(theCallback)
 function playStartUpTones()
 {
     var tonedelay = 1000;
-    window.setTimeout(function()
+    setTimeout(function()
                       {
-                        playFreqM2M(262, 100);
+                      playFreqM2M(262, 100);
                       }, tonedelay);
     
-    window.setTimeout(function()
+    setTimeout(function()
                       {
-                        playFreqM2M(392, 100);
+                      playFreqM2M(392, 100);
                       }, tonedelay+150);
     
-    window.setTimeout(function()
+    setTimeout(function()
                       {
-                        playFreqM2M(523, 100);
+                      playFreqM2M(523, 100);
                       }, tonedelay+300);
 }
+
 
 
 //// conversion helper routines
@@ -309,7 +322,7 @@ function packMessageForSending(str)
     
     for (var i = 0; i < str.length; i += 2)
     {
-        mess[(i / 2) + 4] = window.parseInt(str.substr(i, 2), 16);
+        mess[(i / 2) + 4] = parseInt(str.substr(i, 2), 16);
     }
     
     return mess;
@@ -333,6 +346,28 @@ function getMotorBitsHexString(which)
     else if (which == "all")
         return "0F";
     
+    return "00";
+}
+
+// motor port bit field from menu choice string
+function getSensorBitsHexStringFromIndex(which)
+{
+    if (which == 1)
+        return "00";
+    else if (which == 2)
+        return "01";
+    else if (which == 3)
+        return "02";
+    else if (which == 4)
+        return "03";
+    else if (which == 5)
+        return "10";
+    else if (which == 6)
+        return "11";
+    else if (which == 7)
+        return "12";
+    else if (which == 8)
+        return "13";
     return "00";
 }
 
@@ -394,13 +429,13 @@ function getPackedOutputHexString(num, lc)
 
 //// command/query queue
 
-function executeQueryQueueAgain()
+function executeQueryQueueAgain(waitABit)
 {
-    window.setTimeout(
-          function()
-          {
-            executeQueryQueue();
-          } , 1);
+    setTimeout(
+                      function()
+                      {
+                      executeQueryQueue();
+                      } , waitABit);
 }
 
 function executeQueryQueue()
@@ -410,7 +445,7 @@ function executeQueryQueue()
     
     if (!checkConnected())
         return;
-        
+    
     var query_info = waitingQueries[0]; // peek at first in line
     var thisCommand = null;
     
@@ -453,32 +488,40 @@ function executeQueryQueue()
         var callback = query_info[2];
         var theCommand = query_info[3];
         
+        var waitABit = 1;
         if (type == DRIVE_QUERY || type == DRIVE_QUERY_DURATION)
         {
             clearDriveTimer();
             if (type == DRIVE_QUERY_DURATION)
             {
                 driveCallback = callback;   // save this callback in case timer is cancelled we can call it directly
-                driveTimer = window.setTimeout(
-                       function()
-                       {
-                           if (duration > 0) // allow zero duration to run motors asynchronously
-                           {
-                               motorsStop('coast'); // xxx
-                           }
-                           if (callback)
-                               callback();
-                       } , duration*1000);
+                driveTimer = setTimeout(
+                                               function()
+                                               {
+                                               if (duration > 0) // allow zero duration to run motors asynchronously
+                                               {
+                                               motorsStop('coast'); // xxx
+                                               }
+                                               if (callback)
+                                               callback();
+                                               } , duration*1000);
             }
         }
         else if (type == TONE_QUERY)
         {
-            window.setTimeout(
-                function()
-                {
-                  if (callback)
-                    callback();
-                } , duration); // duration already in ms
+            setTimeout(
+                              function()
+                              {
+                              if (callback)
+                              callback();
+                              } , duration); // duration already in ms
+        }
+        else if (type == SYSTEM_COMMAND)
+        {
+            if (shouldChunkTranfers())
+            {
+                waitABit = 100;
+            }
         }
         waitingQueries.shift(); // remove it from the queue
         
@@ -486,7 +529,7 @@ function executeQueryQueue()
         var packedCommand = packMessageForSending(theCommand);
         sendCommand(packedCommand);
         
-        executeQueryQueueAgain();   // maybe do the next one
+        executeQueryQueueAgain(waitABit);   // maybe do the next one
     }
 }
 
@@ -605,6 +648,18 @@ function receive_handler(data)
             console_log("BEGIN_DOWNLOAD non-success status: " + theResult + " handle: " + handle);
         }
     }
+    else if (type == INPUT_DEVICE_GET_TYPE_MODE)
+    {
+        console_log("INPUT_DEVICE_GET_TYPE_MODE");
+        
+        for (x = 0; x <= 7; x++)
+        {
+            var val = inputData[5+(x*2)];
+            console_log(sensorPortsNames[x] + ": " + sensorNames[hexcouplet(val)])
+            
+            port_Assignments = val;
+        }
+    }
     
     global_sensor_result[port] = theResult;
     
@@ -623,7 +678,7 @@ function receive_handler(data)
     thePendingQuery = null;
     
     // go look for the next query
-    executeQueryQueueAgain();
+    executeQueryQueueAgain(1);
 }
 
 //// extension callbacks
@@ -847,6 +902,7 @@ function uploadAndDrawRGFData(fileDataHexString, name)
     addToQueryQueue([8, BEGIN_DOWNLOAD, fileNameHex + "|" + fileDataHexString, null, theCommand]);
 }
 
+
 function continueDownload(handle, fileData)
 {
     console_log("CONTINUE_DOWNLOAD");
@@ -855,11 +911,20 @@ function continueDownload(handle, fileData)
     var data = p[1];
     var nameHex = p[0];
     
-    var theCommand = createMessage(
-                                   CONTINUE_DOWNLOAD + handle + data
-                                   );
+    var chunkSize = (shouldChunkTranfers()) ? 256 : 65535;
     
-    addToQueryQueue([SYSTEM_COMMAND, 0, null, theCommand]);
+    var totLen = data.length;
+    var x;
+    for (x = 0; x < totLen; x += chunkSize)
+    {
+        var thisdata = data.substring(x, x + chunkSize);
+        
+        var theCommand = createMessage(
+                                       CONTINUE_DOWNLOAD + handle + thisdata
+                                       );
+        
+        addToQueryQueue([SYSTEM_COMMAND, 0, null, theCommand]);
+    }
     
     drawFile(nameHex);
 }
@@ -933,7 +998,7 @@ function allMotorsOff(how)
     motorsStop(how);
 }
 
-function steeringControl(port, what, duration, callback)
+function steeringControl(ports, what, duration, callback)
 {
     clearDriveTimer();
     var defaultSpeed = 50;
@@ -1006,17 +1071,17 @@ function waitUntilDarkLinePort(port, callback)
     var portInt = parseInt(port) - 1;
     global_sensor_result[portInt] = -1;
     
-    lineCheckingInterval = window.setInterval(
-      function()
-      {
-          readFromColorSensor(portInt, modeCode, null);
-          if (global_sensor_result[portInt] < 25 && global_sensor_result[portInt] >= 0)    // darkness or just not reflection (air)
-          {
-              clearInterval(lineCheckingInterval);
-              lineCheckingInterval = 0;
-              callback();
-          }
-      }, 5);
+    lineCheckingInterval = setInterval(
+                                              function()
+                                              {
+                                              readFromColorSensor(portInt, modeCode, null);
+                                              if (global_sensor_result[portInt] < 25 && global_sensor_result[portInt] >= 0)    // darkness or just not reflection (air)
+                                              {
+                                              clearInterval(lineCheckingInterval);
+                                              lineCheckingInterval = 0;
+                                              callback();
+                                              }
+                                              }, 5);
 }
 
 function readGyroPort(mode, port, callback)
@@ -1058,6 +1123,33 @@ function readBatteryLevel(callback)
     readThatBatteryLevel(callback);
 }
 
+function scanPorts()
+{
+    var mess = DIRECT_COMMAND_REPLY_ALL_TYPES_PREFIX;
+    
+    var globaloffset = 0;
+    for (x = 1; x <= 8; x++)
+    {
+        var h = getSensorBitsHexStringFromIndex(x);
+        mess += INPUT_DEVICE_GET_TYPE_MODE + "00" +  // layer
+            h;
+        mess += "e1";
+        mess += hexcouplet(globaloffset++);
+        mess += "e1";
+        mess += hexcouplet(globaloffset++);
+    }
+
+    var theCommand = createMessage(mess);
+    
+    addToQueryQueue([9, INPUT_DEVICE_GET_TYPE_MODE, 0, null, theCommand]);
+}
+
+// delegate stuff
+
+function shouldChunkTranfers()
+{
+    return false;
+}
 
 // ScratchX specific stuff
 
@@ -1308,7 +1400,7 @@ function(ext)
      
      ext.steeringControl = function(ports, what, duration, callback)
      {
-        steeringControl(port, what, duration, callback)
+        steeringControl(ports, what, duration, callback)
      }
      
      ext.whenButtonPressed = function(port)
@@ -1365,40 +1457,40 @@ function(ext)
      // Block and block menu descriptions
      var descriptor = {
      blocks: [
-              ['w', 'drive %m.dualMotors %m.turnStyle %n seconds',         'steeringControl',  'B+C', 'forward', 3],
-              [' ', 'start motor %m.whichMotorPort speed %n',              'startMotors',      'B+C', 100],
-              [' ', 'rotate motor %m.whichMotorPort speed %n by %n degrees then %m.brakeCoast',              'motorDegrees',      'A', 100, 360, 'brake'],
-              [' ', 'stop all motors %m.brakeCoast',                       'allMotorsOff',     'brake'],
-              ['h', 'when button pressed on port %m.whichInputPort',       'whenButtonPressed','1'],
-              ['h', 'when IR remote %m.buttons pressed port %m.whichInputPort', 'whenRemoteButtonPressed','Top Left', '1'],
-              ['R', 'button pressed %m.whichInputPort',                    'readTouchSensorPort',   '1'],
-              ['w', 'play note %m.note duration %n ms',                    'playTone',         'C5', 500],
-              ['w', 'play frequency %n duration %n ms',                    'playFreq',         '262', 500],
-              ['R', 'light sensor %m.whichInputPort %m.lightSensorMode',   'readColorSensorPort',   '1', 'color'],
-              //    ['w', 'wait until light sensor %m.whichInputPort detects black line',   'waitUntilDarkLinePort',   '1'],
-              ['R', 'measure distance %m.whichInputPort',                  'readDistanceSensorPort',   '1'],
-              ['R', 'remote button %m.whichInputPort',                     'readRemoteButtonPort',   '1'],
-              // ['R', 'gyro  %m.gyroMode %m.whichInputPort',                 'readGyroPort',  'angle', '1'],
-              ['R', 'motor %m.motorInputMode %m.whichMotorIndividual',     'readFromMotor',   'position', 'A'],
-              
-              //    ['R', 'battery level',   'readBatteryLevel'],
-              //  [' ', 'reconnect', 'reconnectToDevice'],
-              ],
-     menus: {
-     whichMotorPort:   ['A', 'B', 'C', 'D', 'A+D', 'B+C'],
-     whichMotorIndividual:   ['A', 'B', 'C', 'D'],
-     dualMotors:       ['A+D', 'B+C'],
-     turnStyle:        ['forward', 'reverse', 'right', 'left'],
-     brakeCoast:       ['brake', 'coast'],
-     lightSensorMode:  ['reflected', 'ambient', 'color'],
-     motorInputMode: ['position', 'speed'],
-     gyroMode: ['angle', 'rate'],
-     note:["C4","D4","E4","F4","G4","A4","B4","C5","D5","E5","F5","G5","A5","B5","C6","D6","E6","F6","G6","A6","B6","C#4","D#4","F#4","G#4","A#4","C#5","D#5","F#5","G#5","A#5","C#6","D#6","F#6","G#6","A#6"],
-     whichInputPort: ['1', '2', '3', '4'],
+              ["w", "drive %m.dualMotors %m.turnStyle %n seconds",         "steeringControl",  "B+C", "forward", 3],
+              [" ", "start motor %m.whichMotorPort speed %n",              "startMotors",      "B+C", 100],
+              [" ", "rotate motor %m.whichMotorPort speed %n by %n degrees then %m.brakeCoast",              "motorDegrees",      "A", 100, 360, "brake"],
+              [" ", "stop all motors %m.brakeCoast",                       "allMotorsOff",     "brake"],
+              ["h", "when button pressed on port %m.whichInputPort",       "whenButtonPressed","1"],
+              ["h", "when IR remote %m.buttons pressed port %m.whichInputPort", "whenRemoteButtonPressed","Top Left", "1"],
+              ["b", "button pressed %m.whichInputPort",                    "readTouchSensorPort",   "1"],
+              ["w", "play note %m.note duration %n ms",                    "playTone",         "C5", 500],
+              ["w", "play frequency %n duration %n ms",                    "playFreq",         "262", 500],
+              ["R", "light sensor %m.whichInputPort %m.lightSensorMode",   "readColorSensorPort",   "1", "color"],
+              ["R", "measure distance %m.whichInputPort",                  "readDistanceSensorPort",   "1"],
+              ["b", "remote button %m.whichInputPort",                     "readRemoteButtonPort",   "1"],
+              ["R", "motor %m.motorInputMode %m.whichMotorIndividual",     "readFromMotor",   "position", "A"],
+                    ],
+     "menus": {
+     "whichMotorPort":   ["A", "B", "C", "D", "A+D", "B+C"],
+     "whichMotorIndividual":   ["A", "B", "C", "D"],
+     "dualMotors":       ["A+D", "B+C"],
+     "turnStyle":        ["forward", "reverse", "right", "left"],
+     "brakeCoast":       ["brake", "coast"],
+     "lightSensorMode":  ["reflected", "ambient", "color"],
+     "motorInputMode": ["position", "speed"],
+     "gyroMode": ["angle", "rate"],
+     "note":["C4","D4","E4","F4","G4","A4","B4","C5","D5","E5","F5","G5","A5","B5","C6","D6","E6","F6","G6","A6","B6","C#4","D#4","F#4","G#4","A#4","C#5","D#5","F#5","G#5","A#5","C#6","D#6","F#6","G#6","A#6"],
+     "whichInputPort": ["1", "2", "3", "4"],
      buttons: IRbuttonNames,
      },
      };
-     
+ 
+ // ['R', 'gyro  %m.gyroMode %m.whichInputPort',                 'readGyroPort',  'angle', '1'],
+ //    ['w', 'wait until light sensor %m.whichInputPort detects black line',   'waitUntilDarkLinePort',   '1'],
+ //    ['R', 'battery level',   'readBatteryLevel'],
+ //  [' ', 'reconnect', 'reconnectToDevice'],
+
      var serial_info = {type: 'serial'};
      ScratchExtensions.register('EV3 Control', descriptor, ext, serial_info);
      console_log(' registered extension. theEV3Device:' + theEV3Device);
