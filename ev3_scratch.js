@@ -132,7 +132,7 @@ var lastCommandWeWereTrying = null;
 
 function startupBatteryCheckCallback(result)
 {
-    (timeStamp() + ": got battery level at connect: " + result);
+    console_log(timeStamp() + ": got battery level at connect: " + result);
     
     weConnected();
     
@@ -140,7 +140,7 @@ function startupBatteryCheckCallback(result)
     
     if (result < 11 && !warnedAboutBattery)
     {
-        alert("Your battery is getting low.");
+        batteryAlert();
         warnedAboutBattery = true;
     }
     
@@ -196,7 +196,7 @@ function pingBatteryCheckCallback(result)
     
     if (result < 11 && !warnedAboutBattery)
     {
-        alert("Your battery is getting low.");
+        batteryAlert();
         warnedAboutBattery = true;
     }
     
@@ -1163,6 +1163,10 @@ var potentialDevices = potentialDevices || []; // copy of the list
 var connecting = connecting || false;
 var connectionTimeout = connectionTimeout || null;
 
+function batteryAlert()
+{
+    alert("Your battery is getting low.");
+}
 
 function connectingOrConnected()
 {
@@ -1463,12 +1467,12 @@ function(ext)
               [" ", "stop all motors %m.brakeCoast",                       "allMotorsOff",     "brake"],
               ["h", "when button pressed on port %m.whichInputPort",       "whenButtonPressed","1"],
               ["h", "when IR remote %m.buttons pressed port %m.whichInputPort", "whenRemoteButtonPressed","Top Left", "1"],
-              ["b", "button pressed %m.whichInputPort",                    "readTouchSensorPort",   "1"],
+              ["R", "button pressed %m.whichInputPort",                    "readTouchSensorPort",   "1"],
               ["w", "play note %m.note duration %n ms",                    "playTone",         "C5", 500],
               ["w", "play frequency %n duration %n ms",                    "playFreq",         "262", 500],
               ["R", "light sensor %m.whichInputPort %m.lightSensorMode",   "readColorSensorPort",   "1", "color"],
               ["R", "measure distance %m.whichInputPort",                  "readDistanceSensorPort",   "1"],
-              ["b", "remote button %m.whichInputPort",                     "readRemoteButtonPort",   "1"],
+              ["R", "remote button %m.whichInputPort",                     "readRemoteButtonPort",   "1"],
               ["R", "motor %m.motorInputMode %m.whichMotorIndividual",     "readFromMotor",   "position", "A"],
                     ],
      "menus": {
