@@ -6,7 +6,7 @@ function timeStamp()
 
 
 
-(function(ext) {
+new (function(ext) {
   // Cleanup function when the extension is unloaded
 
   ext._getStatus = function()
@@ -102,8 +102,7 @@ function timeStamp()
     },
   };
 
-  var serial_info = {};
-  ScratchExtensions.register('Garage Band Control', descriptor, ext, serial_info);
+  ScratchExtensions.register('Garage Band Control', descriptor, ext);
   console.log('registered: ');
 })({});
 
