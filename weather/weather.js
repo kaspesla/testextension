@@ -20,7 +20,7 @@ var cityids =
     "Honolulu, Hawaii" : "5856195",
     "Antarctica" : "6255152",
     "Orlando, Florida" : "4167147",
-    "Beijing, China", "1816670",
+    "Beijing, China" : "1816670",
     "Fiji" : "2198148",
     "Mount Everest" : "4517586"
 };
