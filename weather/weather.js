@@ -21,6 +21,7 @@ var cityids =
     "Antarctica" : "6255152",
     "Orlando, Florida" : "4167147",
     "Beijing, China" : "1816670",
+    "Buenos Aires, Argentina" : "3435910",
     "Fiji" : "2198148",
     "Mount Everest" : "4517586"
 };
@@ -71,6 +72,10 @@ new (function(ext) {
          callback(data.weather[0].main);
      }
      
+     function weatherFDetails(data, callback)
+     {
+     callback(data.weather[0].description);
+     }
      function sendRequest(command, filterF, callback)
      {
         if (cachedWeather)
@@ -118,10 +123,14 @@ new (function(ext) {
      { 
         sendRequest("", weatherF,callback);
      };
-
+     ext.getWeatherDetails= function(callback)
+     {
+     sendRequest("", weatherFDetails,callback);
+     };
      ext.setLocation = function(location)
      {
         var loc = cityids[location];
+        console_log("Set location for " + location + " to " + loc);
         cityid = loc;
         cachedWeather = 0;  // clear cache
      }
@@ -129,8 +138,9 @@ new (function(ext) {
   var descriptor2 = {
   blocks: [
            ['R', 'current temperature',                    'getTemp' ],
-           ['R', 'current weather',                    'getWeather' ],
-           [' ' , 'set location to %m.locations', 'setLocation', "Amesbury"]
+           ['R', 'current weather type',                    'getWeather' ],
+           ['R', 'current weather details',                    'getWeatherDetails' ],
+           [' ' , 'set location to %m.locations', 'setLocation', "Amesbury, MA"]
           ],
   menus: {
      "locations" : cities
