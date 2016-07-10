@@ -49,7 +49,6 @@ new (function(ext) {
   };
      
      var cachedWeather = 0;
-     var currentWeather = 0;
      var cacheInterval = 0;
      
      function kelvinToCelsius(value)
@@ -63,12 +62,27 @@ new (function(ext) {
         return (kelvinToCelsius(value) * 1.8) + 32;
      }
      
-     function sendRequest(command, callback)
+     function tempF(data, callback)
+     {
+         var degreesF = kelvinToFahrenheit(data.main.temp);
+         degreesF = Math.round(10*degreesF)/10;
+         callback(degreesF);
+     }
+     
+     function weatherF(data, callback)
+     {
+         callback(data.weather[0].main);
+     }
+     
+     function weatherFDetails(data, callback)
+     {
+     callback(data.weather[0].description);
+     }
+     function sendRequest(command, filterF, callback)
      {
         if (cachedWeather)
         {
-            if (callback)
-                callback();
+            filterF(cachedWeather, callback);
         }
         else
         {
@@ -79,17 +93,19 @@ new (function(ext) {
                 url: "http://api.openweathermap.org/" + "data/2.5/weather?id=" + cityid + "&APPID=bd9989ac922908fed9b1ec1521595d99",
                 success: function(data) {
                    cachedWeather = data;
-                   currentWeather = JSON.parse(JSON.stringify(data));
                    console_log("Got weather:"  + JSON.stringify(data));
+                    if (data)
                     {
-                        if (callback)
-                            callback();
+                        filterF(data, callback);
+                    }
+                    else
+                    {
+                        callback("");
                     }
                 },
                 error: function(jqxhr, textStatus, error) {
                    console_log("error: " + error + " " + textStatus);
-                    if (callback)
-                        callback();
+                    callback("");
                 }
                 });
             cacheInterval = window.setTimeout(function() {
@@ -100,7 +116,7 @@ new (function(ext) {
 
      }
      
-     function changeLocation(dir, callback)
+     function changeLocation(dir)
      {
         var x = 0;
         for(x in cities)
@@ -121,58 +137,36 @@ new (function(ext) {
      
         var newcit = cities[x];
      
-        setTheLocation(newcit, callback);
+        setTheLocation(newcit);
      }
      
-     
-     function setTheLocation(location, callback)
+     function setTheLocation(location)
      {
          citystring = location;
          var loc = cityids[location];
          console_log("Set location for " + location + " to " + loc);
          cityid = loc;
          cachedWeather = 0;  // clear cache
-     
-        sendRequest("",callback);
      }
      
-     ext.updateWeather = function(callback)
-     {
-        sendRequest("",callback);
-     }
      
-      ext.getTemp= function()
+      ext.getTemp= function(callback)
      {
-     if ( !currentWeather )
-     {
-      return "";
-     }
-        var degreesF = kelvinToFahrenheit(currentWeather.main.temp);
-        degreesF = Math.round(10*degreesF)/10;
-        return degreesF;
+         sendRequest("", tempF,callback);
      };
 
-     ext.getWeather= function()
+     ext.getWeather= function(callback)
      { 
-     if ( !currentWeather )
+        sendRequest("", weatherF,callback);
+     };
+     ext.getWeatherDetails= function(callback)
      {
-     return "";
-     }
-     return currentWeather.weather[0].main;
+     sendRequest("", weatherFDetails,callback);
      };
      
-     ext.getWeatherDetails= function()
+     ext.setLocation = function(location)
      {
-     if ( !currentWeather )
-     {
-     return "";
-     }
-     return currentWeather.weather[0].description;
-     };
-     
-     ext.setLocation = function(location, callback)
-     {
-        setTheLocation(location, callback);
+        setTheLocation(location);
      }
      
      ext.currentLocation = function()
@@ -181,28 +175,26 @@ new (function(ext) {
      }
      
      
-     ext.nextLocation = function(callback)
+     ext.nextLocation = function()
      {
-        changeLocation(1, callback);
+        changeLocation(1);
      }
 
-     ext.prevLocation = function(callback)
+     ext.prevLocation = function()
      {
-        changeLocation(-1, callback);
+        changeLocation(-1);
      }
 
   // Block and block menu descriptions
   var descriptor2 = {
   blocks: [
-           ['w', 'update weather', 'updateWeather'],
-           ['r', 'current temperature',                    'getTemp' ],
-           ['r', 'current weather type',                    'getWeather' ],
-           ['r', 'current weather details',                    'getWeatherDetails' ],
-           ['-'],
-           ['w' , 'set location to %m.locations', 'setLocation', "Amesbury, MA"],
+           ['R', 'current temperature',                    'getTemp' ],
+           ['R', 'current weather type',                    'getWeather' ],
+           ['R', 'current weather details',                    'getWeatherDetails' ],
+           [' ' , 'set location to %m.locations', 'setLocation', "Amesbury, MA"],
            ['r', 'current location', 'currentLocation'],
-           ['w' , 'next location', 'nextLocation'],
-           ['w' , 'previous location', 'prevLocation'],
+           [' ' , 'next location', 'nextLocation'],
+           [' ' , 'previous location', 'prevLocation'],
            
           ],
   menus: {
@@ -210,9 +202,8 @@ new (function(ext) {
 
     },
   };
-     sendRequest("", function() {
+  
   ScratchExtensions.register('Weather', descriptor2, ext);
   console.log('registered: ');
-                 });
 })({});
 
