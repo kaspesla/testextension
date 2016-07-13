@@ -92,7 +92,10 @@ new (function(ext) {
                         callback();
                 }
                 });
+            if (cacheInterval)
+     { clearTimeout(cacheInterval); }
             cacheInterval = window.setTimeout(function() {
+                                              cacheInterval = 0;
                                               cachedWeather = 0;
                                               console_log("clearing cache");
                                        }, (60000 * 5)); // 5 minutes
