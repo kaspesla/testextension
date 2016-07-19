@@ -1500,8 +1500,8 @@ function(ext)
      "gyroMode": ["angle", "rate"],
      "note":["C4","D4","E4","F4","G4","A4","B4","C5","D5","E5","F5","G5","A5","B5","C6","D6","E6","F6","G6","A6","B6","C#4","D#4","F#4","G#4","A#4","C#5","D#5","F#5","G#5","A#5","C#6","D#6","F#6","G#6","A#6"],
      "whichInputPort": ["1", "2", "3", "4"],
-     "patterns": [00, 01, 02, 03, 04, 05, 06, 07, 08, 09]
-     buttons: IRbuttonNames,
+     "patterns": [00, 01, 02, 03, 04, 05, 06, 07, 08, 09],
+     "buttons": IRbuttonNames,
      },
      };
  
