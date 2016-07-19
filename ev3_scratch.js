@@ -61,7 +61,7 @@ var UIWRITE_INIT_RUN = "19";
 var BEGIN_DOWNLOAD = "0192";
 var CONTINUE_DOWNLOAD = "8193"
 var UIWRITE = "82";
-var LED = "1B"
+var LED = "1B";
 
 var SYSTEM_REPLY_ERROR = 5;
 
@@ -116,6 +116,8 @@ var sensorPortsNames = [ "1", "2", "3", "4", "A", "B", "C", "D"];
 var sensorNames = { "7E" : "None", "7F" : "Port Error", "FF" : "Unknown", "7D" : "Initializing", "07" : "Large Motor", "08" : "Medium Motor", "10" : "Button Sensor", "1D" : "Light Sensor", "1E" : "Ultrasonic Sensor", "20" : "Gyro Sensor", "21" : "Infrared Sensor", "01" : "Button Sensor (NXT)", "02" : "Light Sensor (NXT)", "03" : "Sound Sensor", "04" : "Light/Color Sensor (NXT)", "05" : "Ultrasonic Sensor (NXT)", "06" : "Temperature Sensor (NXT)" };
 
 var port_Assignments = port_Assignments || [0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+var ledColors = {"off" : "00", "green" : "01", "red" : "02", "orange" : "03", "green flashing" : "04", "red flashing" : "05", "orange flashing" : "06", "green pulse" : "07", "red pulse" : "08", "orange pulse" : "09"}
 
 
 function clearSensorStatuses()
@@ -858,10 +860,12 @@ function UIRead(port, subtype, callback)
 
 function setLED(pattern, callback)
 {
-    var theCommand = createMessage(DIRECT_COMMAND_PREFIX +
-                                   UIWRITE + LED + pattern);
+    console_log("setting LED to: " + pattern);
     
-    addToQueryQueue([UIWRITE, 0, null, theCommand]);
+    var theCommand = createMessage(DIRECT_COMMAND_PREFIX +
+                                   UIWRITE + LED + ledColors[pattern]);
+    
+    addToQueryQueue([UIWRITE, 0, callback, theCommand]);
 }
 
 
@@ -1478,7 +1482,7 @@ function(ext)
               [" ", "start motor %m.whichMotorPort speed %n",              "startMotors",      "B+C", 100],
               [" ", "rotate motor %m.whichMotorPort speed %n by %n degrees then %m.brakeCoast",              "motorDegrees",      "A", 100, 360, "brake"],
               [" ", "stop all motors %m.brakeCoast",                       "allMotorsOff",     "brake"],
-              [" ", "set led %m.patterns",                       "setLED",  00],
+              [" ", "set led %m.patterns",                       "setLED",                     "green"],
               ["h", "when button pressed on port %m.whichInputPort",       "whenButtonPressed","1"],
               ["h", "when IR remote %m.buttons pressed port %m.whichInputPort", "whenRemoteButtonPressed","Top Left", "1"],
               ["R", "button pressed %m.whichInputPort",                    "readTouchSensorPort",   "1"],
@@ -1500,7 +1504,7 @@ function(ext)
      "gyroMode": ["angle", "rate"],
      "note":["C4","D4","E4","F4","G4","A4","B4","C5","D5","E5","F5","G5","A5","B5","C6","D6","E6","F6","G6","A6","B6","C#4","D#4","F#4","G#4","A#4","C#5","D#5","F#5","G#5","A#5","C#6","D#6","F#6","G#6","A#6"],
      "whichInputPort": ["1", "2", "3", "4"],
-     "patterns": [00, 01, 02, 03, 04, 05, 06, 07, 08, 09],
+     "patterns": ["off", "green", "red", "orange", "green flashing", "red flashing", "orange flashing", "green pulse", "red pulse", "orange pulse"],
      "buttons": IRbuttonNames,
      },
      };
