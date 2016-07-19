@@ -53,7 +53,6 @@ var UIREAD  = "81"; // opUI_READ
 var UIREAD_BATTERY = "12"; // GET_LBATT
 
 var UIDRAW = "84";
-var UIWRITE = "82";
 var UIDRAW_FILLWINDOW = "13";
 var UIDRAW_PICTURE = "07";
 var UIDRAW_BMPFILE = "1C";
@@ -61,6 +60,8 @@ var UIDRAW_UPDATE = "00";
 var UIWRITE_INIT_RUN = "19";
 var BEGIN_DOWNLOAD = "0192";
 var CONTINUE_DOWNLOAD = "8193"
+var UIWRITE = "82";
+var LED = "1B"
 
 var SYSTEM_REPLY_ERROR = 5;
 
@@ -855,6 +856,14 @@ function UIRead(port, subtype, callback)
     addToQueryQueue([port, UIREAD, subtype, callback, theCommand]);
 }
 
+function setLED(pattern, callback)
+{
+    var theCommand = createMessage(DIRECT_COMMAND_PREFIX +
+                                   UIWRITE + LED + pattern);
+    
+    addToQueryQueue([UIWRITE, 0, null, theCommand]);
+}
+
 
 function clearScreen()
 {
@@ -1457,6 +1466,10 @@ function(ext)
      {
         readBatteryLevel(callback);
      }
+     ext.setLED = function(pattern, callback)
+     {
+        setLED(pattern, callback);
+     }
      
      // Block and block menu descriptions
      var descriptor = {
@@ -1465,6 +1478,7 @@ function(ext)
               [" ", "start motor %m.whichMotorPort speed %n",              "startMotors",      "B+C", 100],
               [" ", "rotate motor %m.whichMotorPort speed %n by %n degrees then %m.brakeCoast",              "motorDegrees",      "A", 100, 360, "brake"],
               [" ", "stop all motors %m.brakeCoast",                       "allMotorsOff",     "brake"],
+              [" ", "set led %m.patterns",                       "setLED",  00],
               ["h", "when button pressed on port %m.whichInputPort",       "whenButtonPressed","1"],
               ["h", "when IR remote %m.buttons pressed port %m.whichInputPort", "whenRemoteButtonPressed","Top Left", "1"],
               ["R", "button pressed %m.whichInputPort",                    "readTouchSensorPort",   "1"],
@@ -1486,6 +1500,7 @@ function(ext)
      "gyroMode": ["angle", "rate"],
      "note":["C4","D4","E4","F4","G4","A4","B4","C5","D5","E5","F5","G5","A5","B5","C6","D6","E6","F6","G6","A6","B6","C#4","D#4","F#4","G#4","A#4","C#5","D#5","F#5","G#5","A#5","C#6","D#6","F#6","G#6","A#6"],
      "whichInputPort": ["1", "2", "3", "4"],
+     "patterns": [00, 01, 02, 03, 04, 05, 06, 07, 08, 09]
      buttons: IRbuttonNames,
      },
      };
