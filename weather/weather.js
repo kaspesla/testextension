@@ -155,16 +155,16 @@ new (function(ext) {
         return degreesF;
      };
      
-     ext.getTempC= function()
-     {
-     if ( !currentWeather )
-     {
-      return "";
-     }
-        var degreesC = kelvinToCelsius(currentWeather.main.temp);
-        degreesC = Math.round(10*degreesF)/10;
-        return degreesC;
-     };
+     //ext.getTempC= function()
+     //{
+     //if ( !currentWeather )
+     //{
+     // return "";
+     //}
+     //   var degreesC = kelvinToCelsius(currentWeather.main.temp);
+     //   degreesC = Math.round(10*degreesF)/10;
+     //   return degreesC;
+     //};
 
      ext.getWeather= function()
      { 
@@ -210,7 +210,7 @@ new (function(ext) {
   blocks: [
            ['w', 'update weather', 'updateWeather'],
            ['r', 'current temperature',                    'getTemp' ],
-           ['r', 'current temperature in Celsius',                    'getTempC' ],
+           //['r', 'current temperature in Celsius',                    'getTempC' ],
            ['r', 'current weather type',                    'getWeather' ],
            ['r', 'current weather details',                    'getWeatherDetails' ],
            ['-'],
