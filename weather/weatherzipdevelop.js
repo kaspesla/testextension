@@ -193,7 +193,7 @@ new (function(ext) {
      {
      return "";
      }
-     return currentWeather.wind.deg;
+     return currentWeather.weather[0].description;
      };
 
      ext.getWindDirection= function()
@@ -202,7 +202,7 @@ new (function(ext) {
      {
      return "";
      }
-     return currentWeather.weather[0].description;
+     return currentWeather.wind.deg;
      };
 
      ext.setLocation = function(location, callback)
