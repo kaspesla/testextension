@@ -1,0 +1,1000 @@
+  998  sudo dumpcap
+  999  cd
+ 1000  chown maclean /tmp/wireshark_pcapng_wlan0_20150820211830_XdrQfo 
+ 1001  sudo chown maclean /tmp/wireshark_pcapng_wlan0_20150820211830_XdrQfo 
+ 1002  wireshark
+ 1003  ls
+ 1004  cd RF_Links/
+ 1005  ls
+ 1006  cd
+ 1007  cd xkcd
+ 1008  ls
+ 1009  cd
+ 1010  cd Templates
+ 1011  ls
+ 1012  cd
+ 1013  ls
+ 1014  ls -a
+ 1015  ls
+ 1016  cd blinky\ thing/
+ 1017  ls
+ 1018  cd
+ 1019  apt-cache search virtualbox
+ 1020  ls
+ 1021  sudo lshw
+ 1022  sudo apt-get install virtualbox-5.0
+ 1023  version
+ 1024  cat /etc/*-release
+ 1025  ls
+ 1026  sudo fing
+ 1027  ssh pi@192.168.1.10
+ 1028  ls
+ 1029  cd tmp
+ 1030  ls
+ 1031  cd
+ 1032  npm
+ 1033  ls
+ 1034  learnyounode
+ 1035  learnyou
+ 1036  learnyournode
+ 1037  npm install -g learnyounode
+ 1038  sudo npm install -g learnyounode
+ 1039  learnyounod
+ 1040  learnyounode
+ 1041  node
+ 1042  sudo apt-get install node
+ 1043  node
+ 1044  learnyounode
+ 1045  ssh 192.168.10.22
+ 1046  ssh maclean@192.168.1.22
+ 1047  lsusb
+ 1048  ssh maclean@192.168.1.22
+ 1049  sudo fing
+ 1050  ssh maclean@192.168.1.22
+ 1051  sudo fing
+ 1052  ssh maclean@192.168.1.22
+ 1053  sudo fing
+ 1054  formatter
+ 1055  apt-cache search cubicsdr
+ 1056  apt-cache search gqrx
+ 1057  apt-get install gqrx-sdr
+ 1058  sudo apt-get install gqrx-sdr
+ 1059  wget http://www.sbrac.org/files/build-gnuradio && chmod a+x ./build-gnuradio && ./build-gnuradio
+ 1060  sudo wget http://www.sbrac.org/files/build-gnuradio && chmod a+x ./build-gnuradio && ./build-gnuradio
+ 1061  gqrx
+ 1062  sudo apt-get install gqrx
+ 1063  sudo apt-get install gqrx-sdr
+ 1064  sudo dpkg --configure -a
+ 1065  gqrx
+ 1066  sudo apt-get install gqrx-sdr
+ 1067  gqrx
+ 1068  ls
+ 1069  PythonServer/
+ 1070  ls
+ 1071  cd PythonServer/
+ 1072  ls
+ 1073  gedit index.html
+ 1074  cd
+ 1075  cd node
+ 1076  ls
+ 1077  cd nodeserver/
+ 1078  ls
+ 1079  sudo fing
+ 1080  ssh pi@192.168.1.10
+ 1081  cd
+ 1082  ls
+ 1083  sudo u3-tool -p 0 /dev/sdb
+ 1084  u3-tool
+ 1085  sudo apt-get install u3-tool
+ 1086  sudo u3-tool -p 0 /dev/sdb
+ 1087  lsblk
+ 1088  sudo u3-tool -p 0 /dev/sr0
+ 1089  sudo u3-tool -p 0 /dev/sdb
+ 1090  lsblk
+ 1091  apt-cache search crop
+ 1092  apt-cache search paint
+ 1093  xpaint
+ 1094  sudo apt-get install xpaint
+ 1095  xpaint
+ 1096  gedit byondsetup
+ 1097  sh byondsetup
+ 1098  cd Downloads
+ 1099  wine 507.1285_byond.exe
+ 1100  wine 507.1286_byond.exe 
+ 1101  gedit byondstart.sh
+ 1102  ./byondstart.sh
+ 1103  mv byondstart.sh /home/maclean
+ 1104  cd 
+ 1105  ls
+ 1106  ./byondstart.sh
+ 1107  sudo ./byondstart.sh
+ 1108  sudo sh byondstart.sh
+ 1109  sh byondstart.sh
+ 1110  ls
+ 1111  cd C
+ 1112  cd Downloads
+ 1113  ls
+ 1114  wine 507.1285_byond.exe
+ 1115  wine 507.1286_byond.exe
+ 1116  winetricks ie8
+ 1117  ./byondstart.sh
+ 1118  cd
+ 1119  sh byondstart.sh
+ 1120  wine byond
+ 1121  wine 507.1286_byond.exe
+ 1122  cd Downloads/
+ 1123  wine 507.1286_byond.exe
+ 1124  ls
+ 1125  cd
+ 1126  ls
+ 1127  sh byondstart.sh
+ 1128  ls
+ 1129  sh byondstart.sh
+ 1130  wine byond.lnk
+ 1131  cd Byond
+ 1132  ls
+ 1133  BYOND/
+ 1134  ls
+ 1135  cd BYOND/
+ 1136  ls
+ 1137  cd cfg
+ 1138  ls
+ 1139  cd
+ 1140  cd Downloads/
+ 1141  sh byondsetup
+ 1142  export WINEARCH=win32
+ 1143  export WINEPREFIX=$HOME/.wine32_ss13/
+ 1144  export WINEDEBUG=-all
+ 1145  dc
+ 1146  cd
+ 1147  l
+ 1148  ls
+ 1149  ls -a
+ 1150  cd .wine32_ss13
+ 1151  ls
+ 1152  gedit byondstart
+ 1153  sh byondstart
+ 1154  wine byond
+ 1155  cd drive_c/ls
+ 1156  cd drive_c/
+ 1157  ls
+ 1158  cd Program\ Files/
+ 1159  ls
+ 1160  cd Common\ Files/
+ 1161  ls
+ 1162  cd
+ 1163  cd Downloads/
+ 1164  ls
+ 1165  pagekite
+ 1166  pagekite.py 3000 maclean.pagekite.me
+ 1167  ssh pi@192.168.1.10
+ 1168  ls
+ 1169  sudo fing
+ 1170  ssh pi@192.168.1.10
+ 1171  cd
+ 1172  ls
+ 1173  clear
+ 1174  git gud
+ 1175  ls
+ 1176  cd nodeserver
+ 1177  ls
+ 1178  node
+ 1179  node index.js
+ 1180  ls
+ 1181  nano index.html
+ 1182  nano index.js
+ 1183  cd socket.io
+ 1184  ls
+ 1185  cd node_modules/
+ 1186  ls
+ 1187  cd node_modules/
+ 1188  cd socket.io
+ 1189  ls
+ 1190  cd node_modules/
+ 1191  ls
+ 1192  cd
+ 1193  ls
+ 1194  git clone https://github.com/socketio/socket.io.git
+ 1195  ls
+ 1196  cd socket.io
+ 1197  ls
+ 1198  cd examples
+ 1199  ls
+ 1200  cd chat
+ 1201  npm install
+ 1202  node .
+ 1203  cd
+ 1204  cd socket.io
+ 1205  ls
+ 1206  npm install
+ 1207  cd examples/chat/
+ 1208  ls
+ 1209  node .
+ 1210  ls
+ 1211  cd
+ 1212  ls
+ 1213  cd socket.io/
+ 1214  cd examples/
+ 1215  cd chat/
+ 1216  ls
+ 1217  cat index.js
+ 1218  ls
+ 1219  cd public/
+ 1220  ls
+ 1221  cat index.html 
+ 1222  cat main.js 
+ 1223  gedit main.js 
+ 1224  cd
+ 1225  cd socket.io/examples/chat/
+ 1226  node index.js
+ 1227  cd public
+ 1228  ls
+ 1229  gedit main.js 
+ 1230  node index.js
+ 1231  cd socket.io/examples/chat/
+ 1232  cd
+ 1233  cd socket.io/examples/chat/
+ 1234  node index.js
+ 1235  cd public
+ 1236  gedit main.js 
+ 1237  cd
+ 1238  cd socket.io/examples/chat/
+ 1239  ls
+ 1240  node index.js 
+ 1241  java -jar robocode-setup-x.y.z.jar
+ 1242  cd Downloads/
+ 1243  ls
+ 1244  java -jar robocode-1.9.2.4-setup.jar 
+ 1245  robocode
+ 1246  ls
+ 1247  cd
+ 1248  ls
+ 1249  cd robocode/
+ 1250  ls
+ 1251  sh robocode.sh 
+ 1252  irc
+ 1253  clear
+ 1254  sudo dumpcap
+ 1255  wireshark
+ 1256  chown maclean /tmp/wireshark_pcapng_wlan0_20150901195711_PEjVQ9 
+ 1257  sudo chown maclean /tmp/wireshark_pcapng_wlan0_20150901195711_PEjVQ9 
+ 1258  wireshark
+ 1259  gedit quotevhtml
+ 1260  gedit quotevhtml.html
+ 1261  mv /var/www/first.pl
+ 1262  mv /var/www/first.pl /usr/local/apache2/cgi-bin/ 
+ 1263  ls /var/www/html/
+ 1264  mv /var/www/first.pl /usr/local/apache2/cgi-bin/ 
+ 1265  mv /var/www/html/first.pl /usr/local/apache2/cgi-bin/ 
+ 1266  ls
+ 1267  cd node_modules/
+ 1268  ls
+ 1269  cd brain
+ 1270  ls
+ 1271  node browser.js 
+ 1272  cat browser.js 
+ 1273  cat test
+ 1274  cat test.js 
+ 1275  cat stream-example.js
+ 1276  node stream-example.js
+ 1277  cd
+ 1278  ls
+ 1279  git clone https://github.com/mkeeter/kokopelli.git
+ 1280  ls
+ 1281  cd kokopelli/
+ 1282  ls
+ 1283  make
+ 1284  python kokopelli
+ 1285  cd util/
+ 1286  ls
+ 1287  ./ install_wxpython3.0.sh 
+ 1288  ./install_wxpython3.0.sh 
+ 1289  ls
+ 1290  cd ..
+ 1291  ls
+ 1292  ./kokopelli 
+ 1293  cd util/
+ 1294  ls
+ 1295  ./install_wxpython3.0.sh 
+ 1296  ls
+ 1297  cd ..
+ 1298  ls
+ 1299  python koko
+ 1300  python kokopelli 
+ 1301  cd util
+ 1302  ls
+ 1303  python install_wxpython3.0.sh 
+ 1304  sh install_wxpython3.0.sh 
+ 1305  sudo sh install_wxpython3.0.sh 
+ 1306  apt-get autoremove
+ 1307  sudo apt-get autoremove
+ 1308  ls
+ 1309  sudo shutdown
+ 1310  sudo shutdown now
+ 1311  sudo apt-get autoremove
+ 1312  ls
+ 1313  apt-get
+ 1314  apt-get -u
+ 1315  apt-get -u pkgnames
+ 1316  apt-cache pkgnames
+ 1317  apt-cache pkgnames | less
+ 1318  logout
+ 1319  ls
+ 1320  cd Downloads/
+ 1321  ls
+ 1322  nano parametric_involute_gear_v5.0.scad 
+ 1323  gedit parametric_involute_gear_v5.0.scad 
+ 1324  test
+ 1325  ls
+ 1326  hmmm
+ 1327  ls
+ 1328  tilp
+ 1329  ls
+ 1330  cd calcnet/
+ 1331  ls
+ 1332  gcnclient_ubuntu
+ 1333  sh gcnclient_ubuntu
+ 1334  ./gcnclient_ubuntu
+ 1335  ls
+ 1336  cat readme.txt 
+ 1337  ./gcnclient_ubuntu
+ 1338  ./gcnclient_ubuntu -n WebHub -l MacClient -d d 
+ 1339  la
+ 1340  ls
+ 1341  wine install-filter-win.exe 
+ 1342  apt-cache search libusb
+ 1343  ls
+ 1344  cat gcnclient_ubuntu 
+ 1345  ls
+ 1346  sudo apt-get install libusb-1.0-0-dev
+ 1347  ./gcnclient_ubuntu -n WebHub -l MacClient -d d 
+ 1348  ls
+ 1349  tilp
+ 1350  ls
+ 1351  ./gcnclient_ubuntu
+ 1352  ./gcnclient_ubuntu -n WebHub -l MacClient -d d 
+ 1353  sudo ./gcnclient_ubuntu -n WebHub -l MacClient -d d 
+ 1354  ifconfig
+ 1355  python pagekite.py 8081
+ 1356  pagekite.py 8081
+ 1357  pagekite.py maclean.pagekite.me 8081
+ 1358  pagekite.py 8081 maclean.pagekite.me
+ 1359  ls
+ 1360  cat xkcd
+ 1361  cat xkcdscraper.py~ 
+ 1362  ./xkcdscraper.py~ 
+ 1363  gedit xkcd
+ 1364  gedit xkcdscraper.py~ 
+ 1365  ls
+ 1366  cd
+ 1367  antimony
+ 1368  cd
+ 1369  ls
+ 1370  dumpcap -h
+ 1371  sudo dumpcap -w caplog
+ 1372  sudo dumpcap -w caplog.txt
+ 1373  sudo dumpcap -w capturelog.txt
+ 1374  dumpcap -w capturelog.txt
+ 1375  ls
+ 1376  sudo dumpcap
+ 1377  wireshark
+ 1378  git clone git://github.com/german/pong.git
+ 1379  cd pong
+ 1380  npm install
+ 1381  la
+ 1382  ls
+ 1383  node server.js 
+ 1384  ls
+ 1385  cat README.md 
+ 1386  node server.js 
+ 1387  antimony
+ 1388  ls
+ 1389  cd nodeserver/
+ 1390  ls
+ 1391  cd public/
+ 1392  ls
+ 1393  cd
+ 1394  cd node_modules/
+ 1395  ls
+ 1396  cd connect
+ 1397  ls
+ 1398  cd ..
+ 1399  sl
+ 1400  ls
+ 1401  man sl
+ 1402  cd socket.io/
+ 1403  ls
+ 1404  cat index.js 
+ 1405  cd node_modules/
+ 1406  ls
+ 1407  cd socket.io-client/
+ 1408  ls
+ 1409  cd ..
+ 1410  ls
+ 1411  pip search SimpleCV
+ 1412  pip install SimpleCV
+ 1413  sudo pip install SimpleCV
+ 1414  ls
+ 1415  mkdir PythonProjects
+ 1416  ls
+ 1417  cdd PythonProjects/
+ 1418  ls
+ 1419  cd PythonProjects/
+ 1420  ls
+ 1421  nano simplecv.py
+ 1422  python simplecv.py 
+ 1423  pip
+ 1424  pip uninstall SimpleCV
+ 1425  sudo pip uninstall SimpleCV
+ 1426  sudo apt-get install ipython python-opencv python-scipy python-numpy python-pygame
+ 1427  sudo pip install https://github.com/sightmachine/SimpleCV/zipball/develop
+ 1428  ls
+ 1429  simplecv
+ 1430  python simplecv.py 
+ 1431  pip search svgwrite
+ 1432  sudo pip install svgwrite
+ 1433  python simplecv.py 
+ 1434  nano simplecv.py 
+ 1435  python simplecv.py 
+ 1436  nano simplecv.py 
+ 1437  python simplecv.py 
+ 1438  nano simplecv.py 
+ 1439  python simplecv.py 
+ 1440  nano simplecv.py 
+ 1441  python simplecv.py 
+ 1442  nano simplecv.py 
+ 1443  python simplecv.py 
+ 1444  nano simplecv.py 
+ 1445  python simplecv.py 
+ 1446  nano simplecv.py 
+ 1447  gedit simplecv.py 
+ 1448  python simplecv.py 
+ 1449  ls
+ 1450  rm juniperbinary.png 
+ 1451  gedit simplecv.py 
+ 1452  rm juniperbinary.png 
+ 1453  python simplecv.py 
+ 1454  gedit simplecv.py 
+ 1455  python simplecv.py 
+ 1456  gedit simplecv.py 
+ 1457  python simplecv.py 
+ 1458  gedit simplecv.py 
+ 1459  python simplecv.py 
+ 1460  gedit simplecv.py 
+ 1461  python simplecv.py 
+ 1462  gedit simplecv.py 
+ 1463  python simplecv.py 
+ 1464  ls
+ 1465  cd PythonProjects/
+ 1466  python simplecv.py 
+ 1467  ls
+ 1468  simplecv
+ 1469  sudo apt-get install python-zbar
+ 1470  simplecv
+ 1471  cd
+ 1472  clear
+ 1473  apt-cache seach dogecoin
+ 1474  apt-cache search dogecoin
+ 1475  apt-cache search doge
+ 1476  apt-cache search wallet
+ 1477  ls
+ 1478  cd doge
+ 1479  cd dogecoin/
+ 1480  ls
+ 1481  chmod dogecoin-qt 
+ 1482  chmod 777 dogecoin-qt 
+ 1483  ls
+ 1484  ./dogecoin-qt 
+ 1485  ./dogecoin-qt \
+ 1486  cd
+ 1487  tilp
+ 1488  cd Desktop/
+ 1489  ls
+ 1490  cd tibasic-1.4.2/
+ 1491  ls
+ 1492  make install
+ 1493  make
+ 1494  ls
+ 1495  ./tibasic 
+ 1496  ./tibasic -v
+ 1497  ./tibasic -help
+ 1498  ls
+ 1499  cat README 
+ 1500  xinput
+ 1501  man xinput
+ 1502  xinput --disable 10
+ 1503  xinput
+ 1504  ifconfig
+ 1505  sudo lshw
+ 1506  sudo dumpcap
+ 1507  ls
+ 1508  wireshark /tmp/wireshark_pcapng_wlan0_20151203073830_6fAAUF 
+ 1509  sudo chown maclean /tmp/wireshark_pcapng_wlan0_20151203073830_6fAAUF 
+ 1510  wireshark /tmp/wireshark_pcapng_wlan0_20151203073830_6fAAUF 
+ 1511  ifconfig
+ 1512  ls
+ 1513  cd PythonServer/
+ 1514  ls
+ 1515  python simplehttp.py
+ 1516  ls
+ 1517  cd pong
+ 1518  ls
+ 1519  cd
+ 1520  antimony
+ 1521  xinput
+ 1522  xinput -list
+ 1523  man xinput
+ 1524  xinput --query-state 10
+ 1525  man xinput
+ 1526  xinput --list-props 10
+ 1527  cat /usr/share/X11/xorg.conf.d/10-evdev.conf
+ 1528  sudo nano /usr/share/X11/xorg.conf.d/10-evdev.conf
+ 1529  xinput set-prop 10 'Device Enabled' 0
+ 1530  xinput set-prop 10 'Device Enabled' 1
+ 1531  xinput set-prop 10 'Device Enabled' 0
+ 1532  gpio
+ 1533  apt-cache search cdda
+ 1534  apt-cache search cataclysm
+ 1535  sudo apt install libsdl2-dev libsdl2-ttf-dev libsdl2-image-dev
+ 1536  ls
+ 1537  cd calcnet/
+ 1538  cd
+ 1539  cd Desktop/
+ 1540  ls
+ 1541  cd cataclysmdda-0.B/
+ 1542  ls
+ 1543  ./cataclysm-tiles 
+ 1544  make clean
+ 1545  cd ..
+ 1546  l
+ 1547  ls
+ 1548  mv cataclysmdda-0.B/ /dev/null
+ 1549  sudo mv cataclysmdda-0.B/ /dev/null
+ 1550  git clone git://github.com/CleverRaven/Cataclysm-DDA.git
+ 1551  ls
+ 1552  cd Cataclysm-DDA/
+ 1553  ls
+ 1554  make
+ 1555  make TILES=1
+ 1556  ls
+ 1557  cd
+ 1558  top
+ 1559  ls Desktop/
+ 1560  ls
+ 1561  cd Desktop/
+ 1562  ls
+ 1563  cd cataclysmdda-0.B/
+ 1564  ls
+ 1565  ./cataclysm-tiles 
+ 1566  cd /usr/share
+ 1567  ls
+ 1568  cd
+ 1569  ls
+ 1570  cd Desktop/
+ 1571  ls
+ 1572  ./cataclysm-tiles 
+ 1573  ls
+ 1574  antimony
+ 1575  lm_sensors
+ 1576  sensors
+ 1577  sudo apt-get install lm-sensors
+ 1578  sensors
+ 1579  man sensor
+ 1580  sensors -s
+ 1581  sensors
+ 1582  sudo sensors
+ 1583  sudo sensors -s
+ 1584  sensors
+ 1585  sudo sensors -s
+ 1586  sensors
+ 1587  sudo sensors -s
+ 1588  man sensors
+ 1589  sensors -f
+ 1590  lspci
+ 1591  ls
+ 1592  cd urwid/
+ 1593  ls
+ 1594  cd examples/
+ 1595  ls
+ 1596  ./tour.py 
+ 1597  top
+ 1598  sensors
+ 1599  top
+ 1600  tilp
+ 1601  rtl_fm
+ 1602  sudo apt-get install rtl-sdr
+ 1603  rtl_fm
+ 1604  cd /etc/modprobe.d
+ 1605  ls
+ 1606  nano rtlsdr.conf
+ 1607  sudo nano rtlsdr.conf
+ 1608  sudo rmmod dvb_usb_rtl28xxu
+ 1609  rtl_fm -f 96.3e6 -M wbfm -s 200000 -r 48000 - | aplay -r 48k -f S16_LE
+ 1610  sudo rtl_fm -f 96.3e6 -M wbfm -s 200000 -r 48000 - | aplay -r 48k -f S16_LE
+ 1611  sudo rtl_fm -f 99.5e6 -M wbfm -s 200000 -r 48000 - | aplay -r 48k -f S16_LE
+ 1612  sudo rtl_fm -f 96.3e6 -M wbfm -s 200000 -r 48000 - | aplay -r 48k -f S16_LE
+ 1613  tl_test -t
+ 1614  rtl_test -t
+ 1615  sudo rtl_fm -f 96.3e6 -M wbfm -s 200000 -r 48000 - | aplay -r 48k -f S16_LE
+ 1616  sudo rtl_fm -f 96.3e6 -M wbfm -s 200000 -r 48000 - | arecord -r 48k -f S16_LE
+ 1617  sudo rtl_fm -f 96.3e6 -M wbfm -s 200000 -r 48000 - | arecord -r 48k -f S16_LE asdf.wav
+ 1618  ls
+ 1619  cd 
+ 1620  ls
+ 1621  aplay test
+ 1622  aplay "asf
+ 1623  asdf
+ 1624  echo asdfadfasdfasdfgafg | aplay
+ 1625  sudo rtl_fm -f 96.3e6 -M wbfm -s 200000 -r 48000 - | arecord -r 48k -f S16_LE /home/maclean/testsdr.wav
+ 1626  sudo rtl_fm -f 96.3e6 -M wbfm -s 200000 -r 48000 - | aplay -r 48k -f S16_LE
+ 1627  lsusb
+ 1628  ls
+ 1629  cat wbfm 
+ 1630  ls
+ 1631  cls
+ 1632  ls
+ 1633  wireshark
+ 1634  antimony
+ 1635  pon
+ 1636  ls
+ 1637  elinks
+ 1638  sudo apt-get install elinks
+ 1639  elinks
+ 1640  liinks
+ 1641  links
+ 1642  octave
+ 1643  gnuplot
+ 1644  sudo apt-get install gnuplot
+ 1645  gnuplot
+ 1646  ls
+ 1647  sar
+ 1648  gnuplot
+ 1649  sudo apt-get install gnuplot-x11
+ 1650  gnuplot
+ 1651  gedit sarx.conf
+ 1652  cat sarx.conf | gnuplot
+ 1653  sar
+ 1654  sudo apt-get install sysstat
+ 1655  sar
+ 1656  sudo sar
+ 1657  cd /etc/default
+ 1658  ls
+ 1659  cat sysstat 
+ 1660  sadc
+ 1661  sar
+ 1662  nano sysstat 
+ 1663  sudo nano sysstat 
+ 1664  cd
+ 1665  debconf
+ 1666  man debconf
+ 1667  sar
+ 1668  gedit sarx.txt
+ 1669  sar
+ 1670  ls
+ 1671  cd xkcd
+ 1672  ls
+ 1673  ls -a
+ 1674  ls -la
+ 1675  crontab -e
+ 1676  ls
+ 1677  cd
+ 1678  crontab -e
+ 1679  cd /etc
+ 1680  ls
+ 1681  cd cron.
+ 1682  cd cron.daily/
+ 1683  ls
+ 1684  cd ..
+ 1685  cd cron.hourly/
+ 1686  ls
+ 1687  mv xkcdscraper.py ~
+ 1688  sudo mv xkcdscraper.py ~
+ 1689  ls
+ 1690  cd
+ 1691  ls
+ 1692  ./xkcdscraper.py
+ 1693  cd xkcd
+ 1694  ls
+ 1695  cd /usr/bin
+ 1696  ls
+ 1697  sudo mkdir macsscripts
+ 1698  cd macsscripts/
+ 1699  ls
+ 1700  cd
+ 1701  sudo mv xkcdscraper.py /usr/bin/macsscripts/
+ 1702  cd xkcd/
+ 1703  ls
+ 1704  rm Fixion.jpg 
+ 1705  ls
+ 1706  crontab -e
+ 1707  ls
+ 1708  cd
+ 1709  ls
+ 1710  cd /usr/bin/macsscripts/
+ 1711  ls
+ 1712  ./xkcdscraper.py 
+ 1713  sudo apt-get update
+ 1714  sudo apt-get upgrade
+ 1715  top
+ 1716  ls
+ 1717  cd Time
+ 1718  ls
+ 1719  cd ..
+ 1720  ls
+ 1721  cd xkcd
+ 1722  ls
+ 1723  cd ..
+ 1724  ./xkcdscraper.py~ 
+ 1725  cd xkcd
+ 1726  ls
+ 1727  image
+ 1728  ximage
+ 1729  cd urwid
+ 1730  ls
+ 1731  cd ..
+ 1732  clear
+ 1733  ls
+ 1734  rm -rf Cataclysm-DDA/
+ 1735  rm -rf dogecoin/
+ 1736  cd pong
+ 1737  ls
+ 1738  cd ..
+ 1739  cd antimony
+ 1740  ls
+ 1741  cd app
+ 1742  ls
+ 1743  cd ..
+ 1744  antimony
+ 1745  cd /
+ 1746  cd etc/
+ 1747  cron
+ 1748  ls
+ 1749  cron
+ 1750  cron.daily/
+ 1751  cd cron.daily/
+ 1752  ls
+ 1753  cd ..
+ 1754  cd cron.hourly/
+ 1755  l
+ 1756  ls
+ 1757  cd ..
+ 1758  cd
+ 1759  ls
+ 1760  rn
+ 1761  rename
+ 1762  renam xkcdscraper.py~ xkcdscraper.py
+ 1763  rename xkcdscraper.py~ xkcdscraper.py
+ 1764  rename -h
+ 1765  man rename
+ 1766  mv xkcdscraper.py~ xkcdscraper.py
+ 1767  ls
+ 1768  gedit xkcdscraper.py 
+ 1769  ./xkcdscraper.py 
+ 1770  cd xkcd/
+ 1771  ls
+ 1772  cd 
+ 1773  cp xkcdscraper.py 
+ 1774  cp xkcdscraper.py /etc/cron.daily/
+ 1775  sudo cp xkcdscraper.py /etc/cron.daily/
+ 1776  cd /etc/cron.daily/
+ 1777  ls
+ 1778  cd ..
+ 1779  ls
+ 1780  cd cron.d
+ 1781  ls
+ 1782  cd ..
+ 1783  fing
+ 1784  sudo fing -i
+ 1785  sudo fing
+ 1786  sudo fing -h
+ 1787  sudo fing --interactive
+ 1788  ssh 10.0.0.14
+ 1789  ls
+ 1790  ssh -h
+ 1791  ssh -l pi 10.0.0.14
+ 1792  sudo fing --interactive
+ 1793  fing -s 10.0.0.0/24 -o text,console
+ 1794  sudo fing -s 10.0.0.0/24 -o text,console
+ 1795  cd /media
+ 1796  ls
+ 1797  cd maclean/
+ 1798  ls
+ 1799  cd A8D9-2F05/
+ 1800  ls
+ 1801  cat STM32\ \(CORTEX\ M3\)\ -\ 32-bit\ Microcontrollers.url 
+ 1802  cd
+ 1803  fing -s 10.0.0.0/24 -o text,console
+ 1804  sudo fing -s 10.0.0.0/24 -o text,console
+ 1805  lsusb
+ 1806  lsusb -v
+ 1807  lsusb
+ 1808  ifconfig
+ 1809  sudo fing
+ 1810  history
+ 1811  ping 192.168.0.1
+ 1812  ping 192.168.100.1
+ 1813  ping 192.168.0.101
+ 1814  ifconfig
+ 1815  nmap
+ 1816  nmap -v -A 192.168.0.0/16
+ 1817  cd pythontumblrbot/
+ 1818  ./markovtestpost.py 
+ 1819  ./executefile.py 
+ 1820  cd python
+ 1821  cd pythontumblrbot/
+ 1822  ls
+ 1823  git pull
+ 1824  ls
+ 1825  cat apikeyget.py 
+ 1826  cd
+ 1827  pip install pytumblr
+ 1828  ls
+ 1829  git clone https://github.com/tumblr/pytumblr.git
+ 1830  cd pytumblr/
+ 1831  ls
+ 1832  cd pytumblr/
+ 1833  ls
+ 1834  gedit request.py 
+ 1835  gedit __init__.py 
+ 1836  gedit helpers.py 
+ 1837  gedit __init__.py 
+ 1838  cd ..
+ 1839  python setup.py install
+ 1840  sudo python setup.py install
+ 1841  cd ..
+ 1842  ls
+ 1843  cd pythontumblrbot/
+ 1844  ./testmaketextpost.py 
+ 1845  ls
+ 1846  ./markovtestpost.py 
+ 1847  cd ..
+ 1848  cd pytumblr/
+ 1849  ls
+ 1850  cd pytumblr/
+ 1851  gedit __init__.py 
+ 1852  cd ..
+ 1853  python setup.py install
+ 1854  sudo python setup.py install
+ 1855  git
+ 1856  git branch
+ 1857  git help branch
+ 1858  git fork
+ 1859  fsck
+ 1860  cd
+ 1861  clear
+ 1862  openscad
+ 1863  cd Desktop/
+ 1864  CD cataclysmdda-0.B/
+ 1865  cd cataclysmdda-0.B/
+ 1866  ls
+ 1867  ./cataclysm-launcher 
+ 1868  ./cataclysm-tile
+ 1869  ./cataclysm-tiles
+ 1870  cd /tmp
+ 1871  chown maclean wireshark_pcapng_wlan0_20160709145555_k08YSc 
+ 1872  sudo chown maclean wireshark_pcapng_wlan0_20160709145555_k08YSc 
+ 1873  sudo fing
+ 1874  fing
+ 1875  fing -h
+ 1876  sudo fing --interactive
+ 1877  disk
+ 1878  fdisk
+ 1879  df
+ 1880  mancdf
+ 1881  man df
+ 1882  df -h
+ 1883  man df
+ 1884  df -B MB
+ 1885  df -B G
+ 1886  df -B GB
+ 1887  df -B T
+ 1888  df -B TB
+ 1889  df -B GB
+ 1890  df -B G
+ 1891  df -h
+ 1892  df -hb
+ 1893  df -hB
+ 1894  df -h
+ 1895  asdf
+ 1896  ls
+ 1897  man bash
+ 1898  sh
+ 1899  ifconfig
+ 1900  sudo fing
+ 1901  sudo fing --interactive
+ 1902  apache
+ 1903  man apache-daemon
+ 1904  man
+ 1905  man man
+ 1906  man -f apache
+ 1907  man -f apache2
+ 1908  man apache2
+ 1909  cd
+ 1910  ls
+ 1911  gedit launcher.py 
+ 1912  show
+ 1913  image
+ 1914  man image
+ 1915  man show
+ 1916  man
+ 1917  man -f
+ 1918  man man
+ 1919  man -k
+ 1920  man -k a
+ 1921  man -k .
+ 1922  man -k . >> manpagelist.txt
+ 1923  gedit manpagelist.txt 
+ 1924  man intro
+ 1925  xterm
+ 1926  man xterm
+ 1927  term
+ 1928  aterm
+ 1929  ferm
+ 1930  qterm
+ 1931  man qterm
+ 1932  btrerm
+ 1933  top
+ 1934  man bash
+ 1935  bash
+ 1936  ls
+ 1937  ls | less
+ 1938  xterm
+ 1939  man less
+ 1940  man more
+ 1941  les
+ 1942  less
+ 1943  vi
+ 1944  vimtutor
+ 1945  sudo apt-get install blueman
+ 1946  blueman
+ 1947  lsusub
+ 1948  lsusb
+ 1949  fing
+ 1950  sudo fing
+ 1951  ssh 10.0.1.93
+ 1952  ssh 10.0.1.93 ev3dev
+ 1953  ssh
+ 1954  ssh 10.0.1.93 ev3dev@ev3dev
+ 1955  ssh ev3dev 10.0.1.93
+ 1956  ssh ev3dev@10.0.1.93
+ 1957  ssh robot@10.0.1.93
+ 1958  lsusb
+ 1959  fuck
+ 1960  sudo apt install python3-dev python3-pip
+ 1961  sudo -H pip3 install thefuck
+ 1962  fuck
+ 1963  cat .bash_profile
+ 1964  cat .bashrc
+ 1965  gedit .bashrc
+ 1966  psh
+ 1967  ls
+ 1968  l
+ 1969  sl
+ 1970  por
+ 1971  apt-cache search atom
+ 1972  apt-get install atomix
+ 1973  sudo apt-get install atomix
+ 1974  apt-get autoremove 
+ 1975  sudo apt-get autoremove
+ 1976  sudo apt-get install atomix
+ 1977  atomix
+ 1978  apt-get remove atomix
+ 1979  sudo apt-get remove atomix
+ 1980  sudo apt-get autoremove 
+ 1981  ls
+ 1982  fuck
+ 1983  arduino
+ 1984  cd arduino-nightly/
+ 1985  ls
+ 1986  ./install.sh 
+ 1987  cd
+ 1988  arduino
+ 1989  sudo lshw
+ 1990  fuck
+ 1991  ls
+ 1992  git clone https://github.com/kaspesla/testextension.gigigigigigigahfgoafiog
+ 1993  ls
+ 1994  git clone https://github.com/kaspesla/testextension.git
+ 1995  cd testextension/
+ 1996  ls
+ 1997  history >> hist.txt
