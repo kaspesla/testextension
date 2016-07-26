@@ -11,7 +11,7 @@ function console_log(str)
 
 var cityid = "4929004";
 var citystring = "Amesbury, MA";
-var locationNameType = "id";
+var locationRequestType = "id";
 
 var cityids =
 {
