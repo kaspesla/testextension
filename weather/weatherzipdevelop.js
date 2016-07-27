@@ -11,6 +11,7 @@ function console_log(str)
 
 var cityid = "4929004";
 var citystring = "Amesbury, MA";
+var locationRequestType = "id";
 
 var cityids =
 {
@@ -41,28 +42,28 @@ new (function(ext) {
      return { status:2, msg:'Ready' };
   };
 
-  
+
   ext._shutdown = function()
   {
 
- 
+
   };
-     
+
      var cachedWeather = 0;
      var currentWeather = 0;
      var cacheInterval = 0;
-     
+
      function kelvinToCelsius(value)
      {
         return value - 273.15;
      };
 
-     
+
     function kelvinToFahrenheit(value)
      {
         return (kelvinToCelsius(value) * 1.8) + 32;
      }
-     
+
      function sendRequest(command, callback)
      {
         if (cachedWeather)
@@ -72,11 +73,11 @@ new (function(ext) {
         }
         else
         {
-     
+
             $.ajax({
                 type: "GET",
                 dataType: "jsonp",
-                url: "http://api.openweathermap.org/" + "data/2.5/weather?id=" + cityid + "&APPID=bd9989ac922908fed9b1ec1521595d99",
+                url: "http://api.openweathermap.org/" + "data/2.5/weather?" + locationRequestType + "=" + cityid + "&APPID=bd9989ac922908fed9b1ec1521595d99",
                 success: function(data) {
                    cachedWeather = data;
                    currentWeather = JSON.parse(JSON.stringify(data));
@@ -102,7 +103,7 @@ new (function(ext) {
         }
 
      }
-     
+
      function changeLocation(dir, callback)
      {
         var x = 0;
@@ -121,13 +122,13 @@ new (function(ext) {
             x = n - 1;
         }
         x %= n;
-     
+
         var newcit = cities[x];
-     
+
         setTheLocation(newcit, callback);
      }
-     
-     
+
+
      function setTheLocation(location, callback)
      {
          citystring = location;
@@ -135,15 +136,26 @@ new (function(ext) {
          console_log("Set location for " + location + " to " + loc);
          cityid = loc;
          cachedWeather = 0;  // clear cache
-     
+         locationRequestType = "id";
+
         sendRequest("",callback);
      }
-     
+
+     function setLocationZipcode(zip, callback)
+     {
+         console_log("Set zipcode to " + zip);
+         cityid = zip;
+         cachedWeather = 0;  // clear cache
+         locationRequestType = "zip";
+
+        sendRequest("",callback);
+     }
+
      ext.updateWeather = function(callback)
      {
         sendRequest("",callback);
      }
-     
+
      ext.getTemp= function()
      {
      if ( !currentWeather )
@@ -154,7 +166,7 @@ new (function(ext) {
         degreesF = Math.round(10*degreesF)/10;
         return degreesF;
      };
-     
+
      ext.getTempC= function()
      {
      if ( !currentWeather )
@@ -167,14 +179,14 @@ new (function(ext) {
      };
 
      ext.getWeather= function()
-     { 
+     {
      if ( !currentWeather )
      {
      return "";
      }
      return currentWeather.weather[0].main;
      };
-     
+
      ext.getWeatherDetails= function()
      {
      if ( !currentWeather )
@@ -183,18 +195,32 @@ new (function(ext) {
      }
      return currentWeather.weather[0].description;
      };
-     
+
+     ext.getWindDirection= function()
+     {
+     if ( !currentWeather )
+     {
+     return "";
+     }
+     return currentWeather.wind.deg;
+     };
+
      ext.setLocation = function(location, callback)
      {
         setTheLocation(location, callback);
      }
-     
+
+     ext.setZipcodeLocation = function(zip, callback)
+     {
+        setLocationZipcode(zip, callback);
+     }
+
      ext.currentLocation = function()
      {
-        return citystring;
+        return currentWeather.name;
      }
-     
-     
+
+
      ext.nextLocation = function(callback)
      {
         changeLocation(1, callback);
@@ -208,17 +234,19 @@ new (function(ext) {
   // Block and block menu descriptions
   var descriptor2 = {
   blocks: [
-           ['w', 'update weather', 'updateWeather'],
-           ['r', 'current temperature',                    'getTemp' ],
-           ['r', 'current temperature in Celsius',                    'getTempC' ],
-           ['r', 'current weather type',                    'getWeather' ],
-           ['r', 'current weather details',                    'getWeatherDetails' ],
+           ['w', 'update weather',                              'updateWeather'],
+           ['r', 'current temperature in Fahrenheit',                'getTemp' ],
+           ['r', 'current temperature in Celsius',                  'getTempC' ],
+           ['r', 'current weather type',                          'getWeather' ],
+           ['r', 'current weather details',                'getWeatherDetails' ],
+           ['r', 'current wind direction',                  'getWindDirection' ],
            ['-'],
            ['w' , 'set location to %m.locations', 'setLocation', "Amesbury, MA"],
-           ['r', 'current location', 'currentLocation'],
-           ['w' , 'next location', 'nextLocation'],
-           ['w' , 'previous location', 'prevLocation'],
-           
+           ['w' , 'set zipcode to %s', 'setZipcodeLocation',            "01860"],
+           ['r', 'current location',                          'currentLocation'],
+           ['w' , 'next location',                               'nextLocation'],
+           ['w' , 'previous location',                           'prevLocation'],
+
           ],
   menus: {
      "locations" : cities
@@ -230,4 +258,3 @@ new (function(ext) {
   console.log('registered: ');
                  });
 })({});
-
