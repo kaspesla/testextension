@@ -767,11 +767,11 @@ function howStopCode(how)
         return 0;
 }
 
-function motorsStop(how)
+function motorsStop(which, how)
 {
-    console_log("motorsStop");
+    console_log(which + " motor(s) stopped");
     
-    var motorBitField = getMotorBitsHexString("all");
+    var motorBitField = getMotorBitsHexString(which);
     
     var howHex = getPackedOutputHexString(howStopCode(how), 1);
     
@@ -1005,10 +1005,10 @@ function playFreq(freq, duration, callback)
     addToQueryQueue([TONE_QUERY, duration, callback, toneCommand]);
 }
 
-function allMotorsOff(how)
+function motorsOff(which, how)
 {
     clearDriveTimer();
-    motorsStop(how);
+    motorsStop(which, how);
 }
 
 function steeringControl(ports, what, duration, callback)
@@ -1410,11 +1410,11 @@ function(ext)
         playFreq(freq, duration, callback);
      }
      
-     ext.allMotorsOff = function(how)
+     ext.motorsOff = function(which, how)
      {
-        allMotorsOff(how)
+        motorsOff(which, how)
      }
-     
+ 
      ext.steeringControl = function(ports, what, duration, callback)
      {
         steeringControl(ports, what, duration, callback)
@@ -1481,8 +1481,8 @@ function(ext)
               ["w", "drive %m.dualMotors %m.turnStyle %n seconds",         "steeringControl",  "B+C", "forward", 3],
               [" ", "start motor %m.whichMotorPort speed %n",              "startMotors",      "B+C", 100],
               [" ", "rotate motor %m.whichMotorPort speed %n by %n degrees then %m.brakeCoast",              "motorDegrees",      "A", 100, 360, "brake"],
-              [" ", "stop all motors %m.brakeCoast",                       "allMotorsOff",     "brake"],
-              [" ", "set led %m.patterns",                       "setLED",                     "green"],
+              [" ", "stop motors %m.whichMotorPort %m.brakeCoast",                       "motorsOff",     "all", "brake"],
+              [" ", "set led %m.patterns",                                 "setLED",                 "green"],
               ["h", "when button pressed on port %m.whichInputPort",       "whenButtonPressed","1"],
               ["h", "when IR remote %m.buttons pressed port %m.whichInputPort", "whenRemoteButtonPressed","Top Left", "1"],
               ["R", "button pressed %m.whichInputPort",                    "readTouchSensorPort",   "1"],
@@ -1494,7 +1494,7 @@ function(ext)
               ["R", "motor %m.motorInputMode %m.whichMotorIndividual",     "readFromMotor",   "position", "A"],
                     ],
      "menus": {
-     "whichMotorPort":   ["A", "B", "C", "D", "A+D", "B+C"],
+     "whichMotorPort":   ["A", "B", "C", "D", "A+D", "B+C", "all"],
      "whichMotorIndividual":   ["A", "B", "C", "D"],
      "dualMotors":       ["A+D", "B+C"],
      "turnStyle":        ["forward", "reverse", "right", "left"],
