@@ -236,7 +236,7 @@ new (function(ext) {
   blocks: [
            ['w', 'update weather',                              'updateWeather'],
            ['r', 'current temperature in Fahrenheit',                'getTemp' ],
-           ['r', 'current temperature in Celsius',                  'getTempC' ],
+        //   ['r', 'current temperature in Celsius',                  'getTempC' ],
            ['r', 'current weather type',                          'getWeather' ],
            ['r', 'current weather details',                'getWeatherDetails' ],
            ['r', 'current wind direction',                  'getWindDirection' ],
