@@ -78,7 +78,6 @@ new (function(ext) {
                 type: "GET",
                 dataType: "jsonp",
                 url: "http://api.openweathermap.org/" + "data/2.5/weather?" + locationRequestType + "=" + cityid + "&APPID=bd9989ac922908fed9b1ec1521595d99",
-                console_log(url);
                 success: function(data) {
                    cachedWeather = data;
                    currentWeather = JSON.parse(JSON.stringify(data));
