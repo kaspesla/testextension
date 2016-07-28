@@ -10,22 +10,6 @@ var cityid = "4929004";
 var citystring = "Amesbury, MA";
 var locationRequestType = "id";
 
-<<<<<<< Updated upstream
-var cityids =
-{
-    "Amesbury, MA" : "4929004",
-    "New York, NY" : "5128581",
-    "London, UK" : "2643743",
-    "Paris, France" : "2988507",
-    "Honolulu, Hawaii" : "5856195",
-    "Antarctica" : "6255152",
-    "Orlando, Florida" : "4167147",
-    "Beijing, China" : "1816670",
-    "Doha, Qatar" : "290030",
-    "Buenos Aires, Argentina" : "3435910",
-    "Suva, Fiji" : "2198148",
-    "Lobujya, Nepal" : "1283119"
-=======
 var cityids = {
     "Amesbury, MA": "4929004",
     "New York, NY": "5128581",
@@ -39,7 +23,6 @@ var cityids = {
     "Buenos Aires, Argentina": "3435910",
     "Fiji": "2198148",
     "Mount Everest": "4517586"
->>>>>>> Stashed changes
 };
 
 var cities = [];
@@ -87,16 +70,9 @@ new(function(ext) {
                 dataType: "jsonp",
                 url: "http://api.openweathermap.org/" + "data/2.5/weather?" + locationRequestType + "=" + cityid + "&APPID=bd9989ac922908fed9b1ec1521595d99",
                 success: function(data) {
-<<<<<<< Updated upstream
-                   cachedWeather = data;
-                   currentWeather = JSON.parse(JSON.stringify(data));
-                   console.log("Got weather:"  + JSON.stringify(data));
-                    {
-=======
                     cachedWeather = data;
                     currentWeather = JSON.parse(JSON.stringify(data));
                     console_log("Got weather:" + JSON.stringify(data)); {
->>>>>>> Stashed changes
                         if (callback)
                             callback();
                     }
@@ -180,41 +156,6 @@ new(function(ext) {
         var degreesC = kelvinToCelsius(currentWeather.main.temp);
         degreesC = Math.round(10 * degreesC) / 10;
         return degreesC;
-<<<<<<< Updated upstream
-     };
-
-     ext.getWeather= function()
-     {
-     if ( !currentWeather )
-     {
-     return "";
-     }
-     return currentWeather.weather[0].main;
-     };
-
-     ext.getWeatherDetails= function()
-     {
-     if ( !currentWeather )
-     {
-     return "";
-     }
-     return currentWeather.weather[0].description;
-     };
-
-     ext.getWindDirection= function()
-     {
-     if ( !currentWeather )
-     {
-     return "";
-     }
-     var w = parseInt(currentWeather.wind.deg);
-if (isNaN(w))
-{ return 0; } else { return w; }
-     };
-
-     ext.setLocation = function(location, callback)
-     {
-=======
     };
 
     ext.getWeather = function() {
@@ -239,7 +180,6 @@ if (isNaN(w))
     };
 
     ext.setLocation = function(location, callback) {
->>>>>>> Stashed changes
         setTheLocation(location, callback);
     }
 
@@ -258,36 +198,6 @@ if (isNaN(w))
 
     ext.prevLocation = function(callback) {
         changeLocation(-1, callback);
-<<<<<<< Updated upstream
-     }
-
-  // Block and block menu descriptions
-  var descriptor2 = {
-  blocks: [
-           ['w', 'update weather',                              'updateWeather'],
-           ['r', 'current temperature in Fahrenheit',                'getTemp' ],
-        //   ['r', 'current temperature in Celsius',                  'getTempC' ],
-           ['r', 'current weather type',                          'getWeather' ],
-           ['r', 'current weather details',                'getWeatherDetails' ],
-           ['r', 'current wind direction',                  'getWindDirection' ],
-           ['-'],
-           ['w' , 'set location to %m.locations', 'setLocation', "Amesbury, MA"],
-           ['w' , 'set zipcode to %s', 'setZipcodeLocation',            "01860"],
-           ['r', 'current location',                          'currentLocation'],
-           ['w' , 'next location',                               'nextLocation'],
-           ['w' , 'previous location',                           'prevLocation'],
-
-          ],
-  menus: {
-     "locations" : cities
-
-    },
-  };
-     sendRequest("", function() {
-  ScratchExtensions.register('Weather', descriptor2, ext);
-  console.log('registered: ');
-                 });
-=======
     }
 
     // Block and block menu descriptions
@@ -316,5 +226,4 @@ if (isNaN(w))
         ScratchExtensions.register('Weather', descriptor2, ext);
         console.log('registered: ');
     });
->>>>>>> Stashed changes
 })({});
