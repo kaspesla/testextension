@@ -202,7 +202,7 @@ new (function(ext) {
      {
      return "";
      }
-     return currentWeather.wind.deg;
+     return parseInt(currentWeather.wind.deg);
      };
 
      ext.setLocation = function(location, callback)
