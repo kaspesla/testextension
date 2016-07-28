@@ -25,8 +25,8 @@ var cityids =
     "Beijing, China" : "1816670",
     "Doha, Qatar" : "290030",
     "Buenos Aires, Argentina" : "3435910",
-    "Fiji" : "2198148",
-    "Mount Everest" : "4517586"
+    "Suva, Fiji" : "2198148",
+    "Lobujya, Nepal" : "1283119"
 };
 
 var cities = [];
