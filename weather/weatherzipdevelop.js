@@ -202,7 +202,9 @@ new (function(ext) {
      {
      return "";
      }
-     return parseInt(currentWeather.wind.deg);
+     var w = parseInt(currentWeather.wind.deg);
+if (isNaN(w))
+{ return 0; } else { return w; }
      };
 
      ext.setLocation = function(location, callback)
