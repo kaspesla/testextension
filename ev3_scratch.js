@@ -1482,7 +1482,7 @@ function(ext)
               [" ", "start motor %m.whichMotorPort speed %n",              "startMotors",      "B+C", 100],
               [" ", "rotate motor %m.whichMotorPort speed %n by %n degrees then %m.brakeCoast",              "motorDegrees",      "A", 100, 360, "brake"],
               [" ", "stop motors %m.whichMotorPort %m.brakeCoast",                       "motorsOff",     "all", "brake"],
-              [" ", "set led %m.patterns",                                 "setLED",                 "green"],
+              [" ", "set LED %m.patterns",                                 "setLED",                 "green"],
               ["h", "when button pressed on port %m.whichInputPort",       "whenButtonPressed","1"],
               ["h", "when IR remote %m.buttons pressed port %m.whichInputPort", "whenRemoteButtonPressed","Top Left", "1"],
               ["R", "button pressed %m.whichInputPort",                    "readTouchSensorPort",   "1"],
