@@ -1151,7 +1151,7 @@ function scanPorts()
 
 function shouldChunkTranfers()
 {
-    return false;
+    return true;
 }
 
 // ScratchX specific stuff
