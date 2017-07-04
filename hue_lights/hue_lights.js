@@ -17,13 +17,24 @@ new (function(ext) {
  
  function sendLightColorCommand(lightID, HSV, fade)
  {
-     
-     sendLightCommand(lightID, {"on":true, "sat":HSV["s"], "bri":HSV["v"],"hue":HSV["h"], "transitiontime": fade});
+     var group = false;
+     if (lightID == "all")
+     {
+        group = true;
+        lightID = "2";
+     }
+     sendLightCommand(lightID, {"on":true, "sat":HSV["s"], "bri":HSV["v"],"hue":HSV["h"], "transitiontime": fade}, group);
  }
 
  function sendLightOnOffCommand(lightID, onOff, fade)
  {
-     sendLightCommand(lightID, {"on":onOff, "transitiontime": fade, "bri" : ((onOff) ? 254 : 0) });
+     var group = false;
+     if (lightID == "all")
+     {
+         group = true;
+         lightID = "2";
+     }
+     sendLightCommand(lightID, {"on":onOff, "transitiontime": fade, "bri" : ((onOff) ? 254 : 0) }, group);
  }
  
 function rgb2hsv (rgb) {
@@ -66,14 +77,15 @@ function rgb2hsv (rgb) {
     };
 }
  
- function sendLightCommand(lightID, command)
+ function sendLightCommand(lightID, command, group)
  {
-     console.log("lightID: " + lightID + " " + JSON.stringify(command));
+     var url = "http://75.67.188.88:14567/api/5vS7oWcynKVNNhNruHKMGiuX8cNgxDBcNmtOf5bU/" + ((group) ? "groups" : "lights") + "/" + lightID +"/" + ((group) ? "action" : "state");
+     console.log("url: " + url + " command: " + JSON.stringify(command));
  $.ajax({
         type: "PUT",
         dataType: "json",
         data: JSON.stringify(command),
-        url: "http://75.67.188.88:14567/api/5vS7oWcynKVNNhNruHKMGiuX8cNgxDBcNmtOf5bU/lights/" + lightID +"/state",
+        url: url,
         success: function(data) {
         },
         error: function(jqxhr, textStatus, error) {
@@ -129,6 +141,12 @@ ext.lightColor = function(light, color)
      sendLightColorCommand(light, rgb2hsv(colorValues[color]), 0);
 }
 
+ext.lightColorRGB = function(light,r,g,b)
+{
+     sendLightColorCommand(light, rgb2hsv([r,g,b]), 0);
+}
+
+     
  ext.lightColorFade = function(light, color, fade)
  {
      fad = parseFloat(fade) * 8;
@@ -165,9 +183,10 @@ ext.lightOnFade = function(light, fade)
            [' ', 'light %m.lights off fade: %n seconds',                                   'lightOffFade',     "1", "1.0"],
            [' ', 'Light %m.lights color %m.colors',                                   'lightColor',     "1",  "Red"],
            [' ', 'Light %m.lights color %m.colors fade: %n seconds',                                   'lightColorFade',     "1",  "Red", "1.0"],
+           [' ', 'Light %m.lights r: %n g: %n b: %n',                                   'lightColorRGB',     "1",  "255", "0", "255"],
          ],
   menus: {
-  lights:["1","2","3", "4"],
+  lights:["1","2","3", "4", "all"],
   colors:colors,
     },
   };
