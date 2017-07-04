@@ -1,11 +1,19 @@
 
 new (function(ext) {
   // Cleanup function when the extension is unloaded
-
+var errMessage = "";
+     
   ext._getStatus = function()
   {
     // xxx do a ping
-     return { status:2, msg:'Ready' };
+     if (gotLights)
+     {
+        return { status:2, msg:'Ready' };
+     }
+     else
+     {
+       return { status:1, msg:errMessage };
+     }
   };
 
   
@@ -18,10 +26,14 @@ new (function(ext) {
  function sendLightColorCommand(lightID, HSV, fade)
  {
      var group = false;
-     if (lightID == "all")
+     for (var key in groups)
      {
-        group = true;
-        lightID = "2";
+     if (groups[key]["name"] == lightID)
+     {
+     group = true;
+     lightID = key;
+     break;
+     }
      }
      sendLightCommand(lightID, {"on":true, "sat":HSV["s"], "bri":HSV["v"],"hue":HSV["h"], "transitiontime": fade}, group);
  }
@@ -29,10 +41,14 @@ new (function(ext) {
  function sendLightOnOffCommand(lightID, onOff, fade)
  {
      var group = false;
-     if (lightID == "all")
+     for (var key in groups)
      {
-         group = true;
-         lightID = "2";
+     if (groups[key]["name"] == lightID)
+     {
+     group = true;
+     lightID = key;
+     break;
+     }
      }
      sendLightCommand(lightID, {"on":onOff, "transitiontime": fade, "bri" : ((onOff) ? 254 : 0) }, group);
  }
@@ -79,7 +95,7 @@ function rgb2hsv (rgb) {
  
  function sendLightCommand(lightID, command, group)
  {
-     var url = "http://75.67.188.88:14567/api/5vS7oWcynKVNNhNruHKMGiuX8cNgxDBcNmtOf5bU/" + ((group) ? "groups" : "lights") + "/" + lightID +"/" + ((group) ? "action" : "state");
+     var url = lightserver + ((group) ? "groups" : "lights") + "/" + lightID +"/" + ((group) ? "action" : "state");
      console.log("url: " + url + " command: " + JSON.stringify(command));
  $.ajax({
         type: "PUT",
@@ -118,7 +134,6 @@ return result ?
        {"name" :  "Olive", "hex" : "#808000"},
        {"name" : "Purple", "hex" : "#800080"},
        {"name" : "Red", "hex" : "#FF0000"},
-       {"name" :  "Silver", "hex" : "#C0C0C0"},
        {"name" : "Teal", "hex" : "#008080"},
        {"name" : "White", "hex" : "#FFFFFF"},
        {"name" : "Yellow", "hex" : "#FFFF00"}
@@ -169,11 +184,20 @@ ext.lightOnFade = function(light, fade)
     sendLightOnOffCommand(light, true, fad);
  }
 
+ext.setServer = function(server)
+{
+     lightserver = server;
+     pingLights();
+}
  ext.lightOffFade = function(light, fade)
  {
      fad = parseFloat(fade) * 8;
    sendLightOnOffCommand(light, false, fad);
  }
+    
+function registerExtension()
+{
+     
   // Block and block menu descriptions
   var descriptor2 = {
   blocks: [
@@ -186,12 +210,112 @@ ext.lightOnFade = function(light, fade)
            [' ', 'Light %m.lights r: %n g: %n b: %n',                                   'lightColorRGB',     "1",  "255", "0", "255"],
          ],
   menus: {
-  lights:["1","2","3", "4", "all"],
+  lights:lights,
   colors:colors,
     },
   };
+     if (!lightserver)
+     {
+        descriptor2["blocks"].unshift( [' ', 'connect to %n',                                   'setServer',     "http://75.67.188.88:14567/api/5vS7oWcynKVNNhNruHKMGiuX8cNgxDBcNmtOf5bU/"]);
+     }
+     ScratchExtensions.register('Light Control', descriptor2, ext);
+     console.log('registered: ' + lightserver);
+}
+ function pingGroups()
+ {
+     var url = lightserver + "groups";
+     $.ajax({
+            type: "GET",
+            dataType: "json",
+            url: url,
+            success: function(data)
+            {
+                console.log(data);
+            try{
+                for (var key in data)
+                {
+                    if (data[key]["lights"].length > 0)
+                    {
+                        groups[key] = data[key];
+                        lights.push(data[key]["name"]);
+                    }
+                }
+            } catch (err)
+            {
+            console.log(err);
 
-  ScratchExtensions.register('Light Control', descriptor2, ext);
-  console.log('registered: ');
+            }
+            console.log(lights);
+            if (lights.length> 0)
+            {
+                gotLights = true;
+            }
+            else
+            {
+                errMessage = 'No lights found.';
+            }
+            registerExtension();
+            },
+            error: function(jqxhr, textStatus, error) {
+            errMessage = 'Error connecting.';
+
+            registerExtension();
+            }
+        });
+ }
+
+
+ function pingLights()
+ {
+     var url = lightserver + "lights";
+     $.ajax({
+            type: "GET",
+            dataType: "json",
+            url: url,
+            success: function(data)
+            {
+                console.log(data);
+            try{
+                for (var key in data) {
+                if (data[key]["uniqueid"])
+                    lights.push(key);
+            
+            }
+            } catch (err)
+            {
+            console.log(err);
+            }
+                pingGroups();
+            },
+            error: function(jqxhr, textStatus, error) {
+            errMessage = 'Error connecting.';
+            registerExtension();
+            }
+    });
+ }
+ 
+ 
+ var url_string = document.location;
+ var url = new URL(url_string);
+
+ var lightserver = url.searchParams.get("lightserver");
+
+ var lights = [];
+ var groups = {};
+ var gotLights = false;
+ if (lightserver)
+ {
+     pingLights();
+ }
+ else
+     {
+     /*
+     errMessage = "No server.";
+     lights = ["1","2","3", "4", "all"];
+     registerExtension();
+      */
+     lightserver = "http://75.67.188.88:14567/api/5vS7oWcynKVNNhNruHKMGiuX8cNgxDBcNmtOf5bU/";
+     pingLights();
+     }
 })({});
 
