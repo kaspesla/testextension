@@ -23,33 +23,40 @@ var errMessage = "";
  
   };
  
- function sendLightColorCommand(lightID, HSV, fade)
- {
+function findLightID(lightName)
+{
      var group = false;
      for (var key in groups)
      {
-     if (groups[key]["name"] == lightID)
+     if (groups[key]["name"] == lightName)
      {
      group = true;
-     lightID = key;
-     break;
+     return [group, key];
      }
      }
-     sendLightCommand(lightID, {"on":true, "sat":HSV["s"], "bri":HSV["v"],"hue":HSV["h"], "transitiontime": fade}, group);
+     for (var key in lights)
+     {
+     if (lights[key]["name"] == lightName)
+     {
+     return [group, key];
+     }
+     }
+}
+ function sendLightColorCommand(lightName, HSV, fade)
+ {
+     var result = findLightID(lightName);
+     var group = result[0];
+     var lightID = result[1];
+     
+         sendLightCommand(lightID, {"on":true, "sat":HSV["s"], "bri":HSV["v"],"hue":HSV["h"], "transitiontime": fade}, group);
  }
 
- function sendLightOnOffCommand(lightID, onOff, fade)
+ function sendLightOnOffCommand(lightName, onOff, fade)
  {
-     var group = false;
-     for (var key in groups)
-     {
-     if (groups[key]["name"] == lightID)
-     {
-     group = true;
-     lightID = key;
-     break;
-     }
-     }
+     var result = findLightID(lightName);
+     var group = result[0];
+     var lightID = result[1];
+     
      sendLightCommand(lightID, {"on":onOff, "transitiontime": fade, "bri" : ((onOff) ? 254 : 0) }, group);
  }
  
@@ -199,18 +206,19 @@ function registerExtension()
 {
      
   // Block and block menu descriptions
+     var name1 = menuNames[0];
   var descriptor2 = {
   blocks: [
-           [' ', 'light %m.lights on',                                   'lightOn',     "1"],
-           [' ', 'light %m.lights off',                                   'lightOff',     "1"],
-           [' ', 'light %m.lights on fade: %n seconds',                                   'lightOnFade',     "1", "1.0"],
-           [' ', 'light %m.lights off fade: %n seconds',                                   'lightOffFade',     "1", "1.0"],
-           [' ', 'Light %m.lights color %m.colors',                                   'lightColor',     "1",  "Red"],
-           [' ', 'Light %m.lights color %m.colors fade: %n seconds',                                   'lightColorFade',     "1",  "Red", "1.0"],
-           [' ', 'Light %m.lights r: %n g: %n b: %n',                                   'lightColorRGB',     "1",  "255", "0", "255"],
+           [' ', 'light %m.lights on',                                   'lightOn',     name1],
+           [' ', 'light %m.lights off',                                   'lightOff',     name1],
+           [' ', 'light %m.lights on fade: %n seconds',                                   'lightOnFade',     name1, "1.0"],
+           [' ', 'light %m.lights off fade: %n seconds',                                   'lightOffFade',     name1, "1.0"],
+           [' ', 'Light %m.lights color %m.colors',                                   'lightColor',     name1,  "Red"],
+           [' ', 'Light %m.lights color %m.colors fade: %n seconds',                                   'lightColorFade',     name1,  "Red", "1.0"],
+           [' ', 'Light %m.lights r: %n g: %n b: %n',                                   'lightColorRGB',     name1,  "255", "0", "255"],
          ],
   menus: {
-  lights:lights,
+  lights:menuNames,
   colors:colors,
     },
   };
@@ -237,7 +245,7 @@ function registerExtension()
                     if (data[key]["lights"].length > 0)
                     {
                         groups[key] = data[key];
-                        lights.push(data[key]["name"]);
+                        menuNames.push(data[key]["name"]);
                     }
                 }
             } catch (err)
@@ -245,8 +253,8 @@ function registerExtension()
             console.log(err);
 
             }
-            console.log(lights);
-            if (lights.length> 0)
+            console.log(menuNames);
+            if (menuNames.length> 0)
             {
                 gotLights = true;
             }
@@ -278,8 +286,12 @@ function registerExtension()
             try{
                 for (var key in data) {
                 if (data[key]["uniqueid"])
-                    lights.push(key);
+            {
+                lights[key] = data[key];
+
+                menuNames.push(data[key]["name"]);
             
+            }
             }
             } catch (err)
             {
@@ -300,8 +312,9 @@ function registerExtension()
 
  var lightserver = url.searchParams.get("lightserver");
 
- var lights = [];
+var lights = {};
  var groups = {};
+var menuNames = [];
  var gotLights = false;
  if (lightserver)
  {
