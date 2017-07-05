@@ -310,7 +310,7 @@ function registerExtension()
  var url_string = document.location;
  var url = new URL(url_string);
 
- var lightserver = url.searchParams.get("lightserver");
+     var lightserver; // = url.searchParams.get("lightserver");
 
 var lights = {};
  var groups = {};
