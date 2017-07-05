@@ -178,6 +178,13 @@ ext.lightColorRGB = function(light,r,g,b, callback)
      waitAndCall(callback, noWait);
 }
 
+ext.lightColorRGBFade = function(light,r,g,b, fade, callback)
+{
+     fad = parseFloat(fade) * 8;
+     sendLightColorCommand(light, rgb2hsv([r,g,b]), fad);
+     waitAndCall(callback, fade);
+}
+
      
  ext.lightColorFade = function(light, color, fade, callback)
  {
@@ -224,13 +231,14 @@ function registerExtension()
      var name1 = menuNames[0];
   var descriptor2 = {
   blocks: [
-           ['w', 'light %m.lights on',                                   'lightOn',     name1],
-           ['w', 'light %m.lights off',                                   'lightOff',     name1],
-           ['w', 'light %m.lights on fade: %n seconds',                                   'lightOnFade',     name1, "1.0"],
-           ['w', 'light %m.lights off fade: %n seconds',                                   'lightOffFade',     name1, "1.0"],
-           ['w', 'Light %m.lights color %m.colors',                                   'lightColor',     name1,  "Red"],
-           ['w', 'Light %m.lights color %m.colors fade: %n seconds',                                   'lightColorFade',     name1,  "Red", "1.0"],
-           ['w', 'Light %m.lights r: %n g: %n b: %n',                                   'lightColorRGB',     name1,  "255", "0", "255"],
+           ['w', '%m.lights on',                                   'lightOn',     name1],
+           ['w', '%m.lights off',                                   'lightOff',     name1],
+           ['w', '%m.lights on fade: %n seconds',                                   'lightOnFade',     name1, "1.0"],
+           ['w', '%m.lights off fade: %n seconds',                                   'lightOffFade',     name1, "1.0"],
+           ['w', '%m.lights color %m.colors',                                   'lightColor',     name1,  "Red"],
+           ['w', '%m.lights color %m.colors fade: %n seconds',                                   'lightColorFade',     name1,  "Red", "1.0"],
+           ['w', '%m.lights r: %n g: %n b: %n',                                   'lightColorRGB',     name1,  "255", "0", "255"],
+           ['w', '%m.lights r: %n g: %n b: %n fade: %n seconds',                                   'lightColorRGBFade',     name1,  "255", "0", "255", "1.0"],
          ],
   menus: {
   lights:menuNames,
