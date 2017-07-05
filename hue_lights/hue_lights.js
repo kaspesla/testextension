@@ -160,7 +160,7 @@ return result ?
      
 var noWait = 0.25;
      
-functon waitAndCall(callback, time)
+function waitAndCall(callback, time)
 {
      window.setTimeout(function() {
                        callback();
