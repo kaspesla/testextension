@@ -186,9 +186,9 @@ ext.lightColorRGB = function(light,r,g,b, callback)
      waitAndCall(callback, fade);
  }
 
- ext.lightOn = function(light)
+ ext.lightOn = function(light, callback)
  {
-     sendLightOnOffCommand(light, true, 0, callback);
+     sendLightOnOffCommand(light, true, 0);
      waitAndCall(callback, noWait);
  }
 
