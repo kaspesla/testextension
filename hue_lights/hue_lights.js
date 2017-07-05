@@ -158,49 +158,64 @@ return result ?
      console.log(colors);
      console.log(colorValues);
      
-ext.lightColor = function(light, color)
+var noWait = 0.25;
+     
+functon waitAndCall(callback, time)
+{
+     window.setTimeout(function() {
+                       callback();
+                       }, time * 1000);
+}
+ext.lightColor = function(light, color, callback)
 {
      sendLightColorCommand(light, rgb2hsv(colorValues[color]), 0);
+     waitAndCall(callback, noWait);
 }
 
-ext.lightColorRGB = function(light,r,g,b)
+ext.lightColorRGB = function(light,r,g,b, callback)
 {
      sendLightColorCommand(light, rgb2hsv([r,g,b]), 0);
+     waitAndCall(callback, noWait);
 }
 
      
- ext.lightColorFade = function(light, color, fade)
+ ext.lightColorFade = function(light, color, fade, callback)
  {
      fad = parseFloat(fade) * 8;
      sendLightColorCommand(light, rgb2hsv(colorValues[color]), fad);
+     waitAndCall(callback, fade);
  }
 
  ext.lightOn = function(light)
  {
-     sendLightOnOffCommand(light, true, 0);
+     sendLightOnOffCommand(light, true, 0, callback);
+     waitAndCall(callback, noWait);
  }
 
- ext.lightOff = function(light)
+ ext.lightOff = function(light, callback)
  {
      sendLightOnOffCommand(light, false, 0);
- }
+     waitAndCall(callback, noWait);
+}
 
-ext.lightOnFade = function(light, fade)
+ext.lightOnFade = function(light, fade, callback)
  {
      fad = parseFloat(fade) * 8;
     sendLightOnOffCommand(light, true, fad);
- }
+     waitAndCall(callback, fade);
+}
 
 ext.setServer = function(server)
 {
      lightserver = server;
      pingLights();
 }
- ext.lightOffFade = function(light, fade)
+ ext.lightOffFade = function(light, fade, callback)
  {
      fad = parseFloat(fade) * 8;
    sendLightOnOffCommand(light, false, fad);
- }
+     waitAndCall(callback, fade);
+}
     
 function registerExtension()
 {
@@ -209,13 +224,13 @@ function registerExtension()
      var name1 = menuNames[0];
   var descriptor2 = {
   blocks: [
-           [' ', 'light %m.lights on',                                   'lightOn',     name1],
-           [' ', 'light %m.lights off',                                   'lightOff',     name1],
-           [' ', 'light %m.lights on fade: %n seconds',                                   'lightOnFade',     name1, "1.0"],
-           [' ', 'light %m.lights off fade: %n seconds',                                   'lightOffFade',     name1, "1.0"],
-           [' ', 'Light %m.lights color %m.colors',                                   'lightColor',     name1,  "Red"],
-           [' ', 'Light %m.lights color %m.colors fade: %n seconds',                                   'lightColorFade',     name1,  "Red", "1.0"],
-           [' ', 'Light %m.lights r: %n g: %n b: %n',                                   'lightColorRGB',     name1,  "255", "0", "255"],
+           ['w', 'light %m.lights on',                                   'lightOn',     name1],
+           ['w', 'light %m.lights off',                                   'lightOff',     name1],
+           ['w', 'light %m.lights on fade: %n seconds',                                   'lightOnFade',     name1, "1.0"],
+           ['w', 'light %m.lights off fade: %n seconds',                                   'lightOffFade',     name1, "1.0"],
+           ['w', 'Light %m.lights color %m.colors',                                   'lightColor',     name1,  "Red"],
+           ['w', 'Light %m.lights color %m.colors fade: %n seconds',                                   'lightColorFade',     name1,  "Red", "1.0"],
+           ['w', 'Light %m.lights r: %n g: %n b: %n',                                   'lightColorRGB',     name1,  "255", "0", "255"],
          ],
   menus: {
   lights:menuNames,
