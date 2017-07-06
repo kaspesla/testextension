@@ -139,6 +139,7 @@ return result ?
        {"name" : "Maroon", "hex" : "#800000"},
        {"name" :  "Navy", "hex" : "#000080"},
        {"name" :  "Olive", "hex" : "#808000"},
+       {"name" :  "Orange", "hex" : "#FFA500"},
        {"name" : "Purple", "hex" : "#800080"},
        {"name" : "Red", "hex" : "#FF0000"},
        {"name" : "Teal", "hex" : "#008080"},
