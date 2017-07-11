@@ -175,7 +175,7 @@ ext.lightColor = function(light, color, callback)
      waitAndCall(callback, noWait);
 }
 
-ext.lightColorBrightness = function(light, color, callback, brightness)
+ext.lightColorBrightness = function(light, color, brightness, callback)
 {
     var tosend = rgb2hsv(colorValues[color]);
     tosend.v = brightness;
