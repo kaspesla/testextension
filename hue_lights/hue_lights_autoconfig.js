@@ -213,24 +213,117 @@ ext.lightOnFade = function(light, fade, callback)
      waitAndCall(callback, fade);
 }
 
-ext.setServer = function(server)
+
+var configCallback;
+ext.setServer = function(server, port, callback)
 {
-     lightserver = server;
-     pingLights();
+     configCallback = callback;
+     getHueUser(server, port)
 }
+     
  ext.lightOffFade = function(light, fade, callback)
  {
      fad = parseFloat(fade) * 8;
    sendLightOnOffCommand(light, false, fad);
      waitAndCall(callback, fade);
 }
+     
+function getHueUser(server, port)
+{
+     tryToMakeUser(server, port);
+}
+
+function tryToMakeUser(server, port)
+{
+     
+     var url = "http://" + server + ":" + port + "/api";
+     var command = { "devicetype" : "scratchx#extension" };
+     $.ajax({
+            type: "POST",
+            dataType: "json",
+            data: JSON.stringify(command),
+            url: url,
+             timeout: 3000, // sets timeout to 3 seconds
+            success: function(data)
+            {
+            console.log(JSON.stringify(data));
+
+            try
+            {
+            var success = data[0]["success"];
+            if (success)
+            {
+                var username = success["username"];
+
+            var query = window.location.href;
+            var vars = query.split('#');
+            
+                alert("You're good to go.\n\nIMPORTANT: You will be redirected to a new URL which you should bookmark and use from now on. Keep that URL secret it; it has a secret key in it");
+            
+                var newURL = vars[0] + "&lightserver=" + url + "/" + username + "/#scratch";
+            
+                console.log("newURL: " + newURL);
+                configCallback();
+            
+                document.location = newURL;
+            }
+            else
+            {
+              var error = data[0]["error"];
+             if (error)
+            {
+            var description = error["description"];
+               if (description == "link button not pressed")
+               {
+                    if (confirm("Please walk over and press the pairing button on top of the Hue base and then come back and press OK."))
+                    {
+                    window.setTimeout(function() {
+                             tryToMakeUser(server, port);
+                              }, 200);
+            
+                    return;
+                    }
+                    else
+                    {
+                         configCallback();
+                    }
+                }
+                else
+                {
+                    alert("Sorry, an unexpected error occured: " + description);
+                    configCallback();
+                }
+            }
+            else
+            {
+                alert("Sorry, an unexpected thing occured: " + JSON.stringify(data));
+                configCallback();
+            }
+            }
+            }
+            catch (err)
+            {
+                 alert("Sorry, a very unexpected thing occured:" + err);
+                configCallback();
+            }
+            }
+            ,
+            error: function(jqxhr, textStatus, error) {
+            console.log("Error from api config: " + textStatus + " " + error );
+            alert("Sorry, it could not connect to your Hue base. Do you have the IP and port correct?");
+
+            configCallback();
+            }});
+     
+     
+ }
     
 function registerExtension()
 {
      
   // Block and block menu descriptions
      var name1 = menuNames[0];
-  var descriptor2 = {
+  var descriptor_configed = {
   blocks: [
            ['w', '%m.lights on',                                   'lightOn',     name1],
            ['w', '%m.lights off',                                   'lightOff',     name1],
@@ -246,11 +339,17 @@ function registerExtension()
   colors:colors,
     },
   };
-     if (!lightserver)
-     {
-        descriptor2["blocks"].unshift( [' ', 'connect to %n',                                   'setServer',     "http://75.67.188.88:14567/api/5vS7oWcynKVNNhNruHKMGiuX8cNgxDBcNmtOf5bU/"]);
-     }
-     ScratchExtensions.register('Light Control', descriptor2, ext);
+     var descriptor_unconfiged = {
+     blocks: [ ['w', 'Setup Philips Hue IP %n port %n',                                   'setServer',     "75.67.188.88", "14567"]
+              ],
+     menus: { },
+     };
+     
+     if (lightserver)
+        ScratchExtensions.register('Light Control', descriptor_configed, ext);
+     else
+        ScratchExtensions.register('Light Control', descriptor_unconfiged, ext);
+     
      console.log('registered: ' + lightserver);
 }
  function pingGroups()
@@ -330,11 +429,21 @@ function registerExtension()
     });
  }
  
+ function getQueryVariable(variable) {
+var query = window.location.search.substring(1);
+var vars = query.split('&');
+for (var i = 0; i < vars.length; i++) {
+    var pair = vars[i].split('=');
+    if (decodeURIComponent(pair[0]) == variable) {
+        return decodeURIComponent(pair[1]);
+    }
+}
+console.log('Query variable %s not found', variable);
+}
  
  var url_string = document.location;
- var url = new URL(url_string);
 
-     var lightserver; // = url.searchParams.get("lightserver");
+ var lightserver = getQueryVariable("lightserver");
 
 var lights = {};
  var groups = {};
@@ -346,13 +455,8 @@ var menuNames = [];
  }
  else
      {
-     /*
      errMessage = "No server.";
-     lights = ["1","2","3", "4", "all"];
      registerExtension();
-      */
-     lightserver = "http://75.67.188.88:14567/api/5vS7oWcynKVNNhNruHKMGiuX8cNgxDBcNmtOf5bU/";
-     pingLights();
      }
 })({});
 
