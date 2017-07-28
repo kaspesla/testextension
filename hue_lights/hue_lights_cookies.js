@@ -231,7 +231,23 @@ ext.setServer = function(server, port, callback)
 function getHueUser(server, port)
 {
      tryToMakeUser(server, port);
+     
+     //bypass pairing for testing
+     //setUpCookie(server, port, "76EVqjrSCgtHIZNpZACeY-4sLIHj7pwjdvEnWdX5");
 }
+     
+function setUpCookie(server, port, username)
+ {
+     alert("You're good to go. You won't have to reconnect next time.");
+     
+     var url = "http://" + server + ":" + port + "/api/" + username + "/";
+     
+     createCookie("lightserver", url);
+     console.log("username: " + url);
+     configCallback();
+     
+     document.location.reload();
+ }
 
 function tryToMakeUser(server, port)
 {
@@ -254,18 +270,8 @@ function tryToMakeUser(server, port)
             if (success)
             {
                 var username = success["username"];
-
-            var query = window.location.href;
-            var vars = query.split('#');
             
-                alert("You're good to go.\n\nIMPORTANT: You will be redirected to a new URL which you should bookmark and use from now on. Keep that URL secret it; it has a secret key in it");
-            
-                var newURL = vars[0] + "&lightserver=" + url + "/" + username + "/#scratch";
-            
-                console.log("newURL: " + newURL);
-                configCallback();
-            
-                document.location = newURL;
+                setUpCookie(server, port, username);
             }
             else
             {
@@ -317,6 +323,21 @@ function tryToMakeUser(server, port)
      
      
  }
+
+
+function eraseCookie(name) {
+     console.log("remove cookie: " + name);
+	createCookie(name,"",-1);
+}
+     
+ext.unpair = function()
+{
+     if (confirm("Are you sure you want to unpair?"))
+     {
+         eraseCookie("lightserver");
+         document.location.reload();
+     }
+}
     
 function registerExtension()
 {
@@ -333,6 +354,10 @@ function registerExtension()
            ['w', '%m.lights color %m.colors fade: %n seconds',                                   'lightColorFade',     name1,  "Red", "1.0"],
            ['w', '%m.lights r: %n g: %n b: %n',                                   'lightColorRGB',     name1,  "255", "0", "255"],
            ['w', '%m.lights r: %n g: %n b: %n fade: %n seconds',                                   'lightColorRGBFade',     name1,  "255", "0", "255", "1.0"],
+           ["-"],
+           ["-"],
+           [' ', 'unpair base station','unpair']
+           
          ],
   menus: {
   lights:menuNames,
@@ -429,21 +454,30 @@ function registerExtension()
     });
  }
  
- function getQueryVariable(variable) {
-var query = window.location.search.substring(1);
-var vars = query.split('&');
-for (var i = 0; i < vars.length; i++) {
-    var pair = vars[i].split('=');
-    if (decodeURIComponent(pair[0]) == variable) {
-        return decodeURIComponent(pair[1]);
-    }
+function createCookie(name,value,days) {
+	if (days) {
+		var date = new Date();
+		date.setTime(date.getTime()+(days*24*60*60*1000));
+		var expires = "; expires="+date.toGMTString();
+	}
+	else var expires = "";
+	document.cookie = name+"="+value+expires+"; path=/";
 }
-console.log('Query variable %s not found', variable);
+     
+function readCookie(name) {
+    var nameEQ = name + "=";
+    var ca = document.cookie.split(';');
+    for(var i=0;i < ca.length;i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1,c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+    }
+    return null;
 }
  
  var url_string = document.location;
 
- var lightserver = getQueryVariable("lightserver");
+var lightserver = readCookie("lightserver");
 
 var lights = {};
  var groups = {};
