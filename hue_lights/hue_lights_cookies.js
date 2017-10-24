@@ -178,10 +178,16 @@ ext.lightColorRGB = function(light,r,g,b, callback)
      sendLightColorCommand(light, rgb2hsv([r,g,b]), 0);
      waitAndCall(callback, noWait);
 }
+     
+function fadeMap(fade)
+ {
+     return Math.round(parseFloat(fade) * 8);
+
+ }
 
 ext.lightColorRGBFade = function(light,r,g,b, fade, callback)
 {
-     fad = parseFloat(fade) * 8;
+     fad = fadeMap(fade)
      sendLightColorCommand(light, rgb2hsv([r,g,b]), fad);
      waitAndCall(callback, fade);
 }
@@ -189,7 +195,7 @@ ext.lightColorRGBFade = function(light,r,g,b, fade, callback)
      
  ext.lightColorFade = function(light, color, fade, callback)
  {
-     fad = parseFloat(fade) * 8;
+     fad = fadeMap(fade)
      sendLightColorCommand(light, rgb2hsv(colorValues[color]), fad);
      waitAndCall(callback, fade);
  }
@@ -208,7 +214,7 @@ ext.lightColorRGBFade = function(light,r,g,b, fade, callback)
 
 ext.lightOnFade = function(light, fade, callback)
  {
-     fad = parseFloat(fade) * 8;
+     fad = fadeMap(fade)
     sendLightOnOffCommand(light, true, fad);
      waitAndCall(callback, fade);
 }
@@ -223,7 +229,7 @@ ext.setServer = function(server, port, callback)
      
  ext.lightOffFade = function(light, fade, callback)
  {
-     fad = parseFloat(fade) * 8;
+     fad = fadeMap(fade)
    sendLightOnOffCommand(light, false, fad);
      waitAndCall(callback, fade);
 }
