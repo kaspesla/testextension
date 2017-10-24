@@ -144,7 +144,13 @@ return result ?
        {"name" : "Red", "hex" : "#FF0000"},
        {"name" : "Teal", "hex" : "#008080"},
        {"name" : "White", "hex" : "#FFFFFF"},
-       {"name" : "Yellow", "hex" : "#FFFF00"}
+       {"name" : "Yellow", "hex" : "#FFFF00"},
+       {"name" : "Cyan", "hex" : "#00FFFF"},
+       {"name" : "Gold", "hex" : "#FFD700"},
+       {"name" : "Green-Blue", "hex" : "#5F9EA0"},
+       {"name" : "Yellow-Green", "hex" : "#9ACD32"},
+       {"name" : "Orange-Red", "hex" : "#FF4500"},
+       {"name" : "Sea green", "hex" : "#2E8B57"}
       ];
      
      var colorValues = {};
