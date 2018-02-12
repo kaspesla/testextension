@@ -205,6 +205,13 @@ ext.lightColorRGBFade = function(light,r,g,b, fade, callback)
      sendLightColorCommand(light, rgb2hsv(colorValues[color]), fad);
      waitAndCall(callback, fade);
  }
+ 
+ ext.lightColorFade2 = function(light, color, fade, callback)
+ {
+     fad = fadeMap(fade)
+     sendLightColorCommand(light, rgb2hsv(colorValues[color]), fad);
+     waitAndCall(callback, fade);
+ }
 
  ext.lightOn = function(light, callback)
  {
@@ -364,7 +371,7 @@ function registerExtension()
            ['w', '%m.lights off fade: %n seconds',                                   'lightOffFade',     name1, "1.0"],
            ['w', '%m.lights color %m.colors',                                   'lightColor',     name1,  "Red"],
            ['w', '%m.lights color %m.colors fade: %n seconds',                                   'lightColorFade',     name1,  "Red", "1.0"],
-           ['w', '%m.lights color named %s fade: %n seconds',                                   'lightColorFade',     name1,  "Red", "1.0"],
+           ['w', '%m.lights color named %s fade: %n seconds',                                   'lightColorFade2',     name1,  "Red", "1.0"],
            ['w', '%m.lights r: %n g: %n b: %n',                                   'lightColorRGB',     name1,  "255", "0", "255"],
            ['w', '%m.lights r: %n g: %n b: %n fade: %n seconds',                                   'lightColorRGBFade',     name1,  "255", "0", "255", "1.0"],
            ["-"],
