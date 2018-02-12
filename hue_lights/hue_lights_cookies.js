@@ -254,7 +254,7 @@ function setUpCookie(server, port, username)
      
      var url = "http://" + server + ":" + port + "/api/" + username + "/";
      
-     createCookie("lightserver", url);
+     createCookie("lightserver", url, 10000);
      console.log("username: " + url);
      configCallback();
      
