@@ -385,7 +385,7 @@ function registerExtension()
     },
   };
      var descriptor_unconfiged = {
-     blocks: [ ['w', 'Setup Philips Hue IP %n port %n',                                   'setServer',     "75.67.188.88", "14567"]
+     blocks: [ ['w', 'Setup Philips Hue Server %s port %n',                                   'setServer',     "10.0.1.123", "80"]
               ],
      menus: { },
      };
