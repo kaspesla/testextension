@@ -379,8 +379,8 @@ function registerExtension()
            ['w', '%m.lights color %m.colors fade: %n seconds',                                   'lightColorFade',     name1,  "Red", "1.0"],
            ['w', '%m.lights color named %s fade: %n seconds',                                   'lightColorFade2',     name1,  "Red", "1.0"],
            ['w', '%m.lights r: %n g: %n b: %n',                                   'lightColorRGB',     name1,  "255", "0", "255"],
-           ['w', '%m.lights hex: %s',                                   'lightColorHex',     name1,  "#FF0000"],
            ['w', '%m.lights r: %n g: %n b: %n fade: %n seconds',                                   'lightColorRGBFade',     name1,  "255", "0", "255", "1.0"],
+           ['w', '%m.lights hex: %s',                                   'lightColorHex',     name1,  "#FF0000"],
            ["-"],
            ["-"],
            [' ', 'unpair base station','unpair']
