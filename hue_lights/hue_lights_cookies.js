@@ -220,7 +220,7 @@ ext.lightColorRGBFade = function(light,r,g,b, fade, callback)
      waitAndCall(callback, fade);
  }
 
- ext.lightColorHex = function(light, hex, fade, callback)
+ ext.lightColorHexFade = function(light, hex, fade, callback)
 {
     fad = fadeMap(fade)
      sendLightColorCommand(light, rgb2hsv(hexToRgb(hex)), fad);
