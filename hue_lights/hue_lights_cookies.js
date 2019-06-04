@@ -259,7 +259,7 @@ function setUpCookie(server, port, username)
  {
      alert("You're good to go. You won't have to reconnect next time.");
      
-     var url = "http://" + server + ":" + port + "/api/" + username + "/";
+     var url = "https://" + server + ":" + port + "/api/" + username + "/";
      
      createCookie("lightserver", url, 10000);
      console.log("username: " + url);
@@ -271,7 +271,7 @@ function setUpCookie(server, port, username)
 function tryToMakeUser(server, port)
 {
      
-     var url = "http://" + server + ":" + port + "/api";
+     var url = "https://" + server + ":" + port + "/api";
      var command = { "devicetype" : "scratchx#extension" };
      $.ajax({
             type: "POST",
