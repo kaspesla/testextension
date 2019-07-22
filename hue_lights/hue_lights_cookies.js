@@ -418,7 +418,7 @@ new(function(ext) {
                 ['w', '%m.lights r: %n g: %n b: %n', 'lightColorRGB', name1, "255", "0", "255"],
                 ['w', '%m.lights r: %n g: %n b: %n fade: %n seconds', 'lightColorRGBFade', name1, "255", "0", "255", "1.0"],
                 ['w', '%m.lights hue: %n sat: %n val: %n', 'lightColorHSV', name1, "255", "0", "255"],
-                ['w', '%m.lights hue: %n sat: %n val: %n fade: %n seconds', 'lightColorHSVFade', name1, "255", "0", "255", "1.0"],
+                ['w', '%m.lights hue: %n sat: %n val: %n fade: %n seconds', 'lightColorHSVFade', name1, "65535", "0", "255", "1.0"],
                 ['w', '%m.lights hex: %s', 'lightColorHex', name1, "#FF0000"],
                 ['w', '%m.lights hex: %s fade: %n seconds', 'lightColorHexFade', name1, "#FF0000", "1.0"],
                 ["-"],
