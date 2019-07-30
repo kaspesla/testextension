@@ -194,6 +194,7 @@ var ledColors = {
     "orange pulse": "09"
 }
 
+var sound_volume = 20;
 
 function clearSensorStatuses() {
     var numSensorBlocks = 9;
@@ -947,7 +948,7 @@ function motorDegrees(which, speed, degrees, howStop) {
 function playTone(tone, duration, callback) {
     var freq = frequencies[tone];
     console_log("playTone " + tone + " duration: " + duration + " freq: " + freq);
-    var volume = 100;
+    var volume = sound_volume;
     var volString = getPackedOutputHexString(volume, 1);
     var freqString = getPackedOutputHexString(freq, 2);
     var durString = getPackedOutputHexString(duration, 2);
@@ -959,7 +960,7 @@ function playTone(tone, duration, callback) {
 
 function playFreq(freq, duration, callback) {
     console_log("playFreq duration: " + duration + " freq: " + freq);
-    var volume = 100;
+    var volume = sound_volume;
     var volString = getPackedOutputHexString(volume, 1);
     var freqString = getPackedOutputHexString(freq, 2);
     var durString = getPackedOutputHexString(duration, 2);
@@ -969,14 +970,24 @@ function playFreq(freq, duration, callback) {
     addToQueryQueue([TONE_QUERY, duration, callback, toneCommand]);
 }
 
+function setVolume(volume) {
+    if (volume > 100) {
+        sound_volume = 100;
+    } else if (volume < 0) {
+        sound_volume = 0;
+    } else {
+        sound_volume = volume;
+    }
+}
+
 function motorsOff(which, how) {
     clearDriveTimer();
     motorsStop(which, how);
 }
 
-function steeringControl(ports, what, duration, callback) {
+function steeringControl(ports, what, duration, speed, callback) {
     clearDriveTimer();
-    var defaultSpeed = 50;
+    var defaultSpeed = speed;
     var motorCommand = null;
     if (what == 'forward') {
         motorCommand = motor(ports, defaultSpeed);
@@ -1009,10 +1020,13 @@ function whenRemoteButtonPressed(IRbutton, port) {
     return (global_sensor_result[portInt] == IRbutton);
 }
 
-function readTouchSensorPort(port, callback) {
+/* DEPRECATED
+function readTouchSensorPort(port, callback)
+{
     var portInt = parseInt(port) - 1;
     readTouchSensor(portInt, callback);
 }
+*/
 
 function readColorSensorPort(port, mode, callback) {
     var modeCode = AMBIENT_INTENSITY;
@@ -1063,6 +1077,22 @@ function readGyroPort(mode, port, callback) {
     readFromSensor2(portInt, GYRO_SENSOR, modeCode, callback);
 }
 
+function resetGyroPort(port, callback) {
+    motorsOff("all", "brake"); // brakes movement to reset gyro. Robot must be idle while resetting but maybe enforcing total brake is too much
+
+    var portInt = parseInt(port) - 1;
+
+    readFromSensor2(portInt, GYRO_SENSOR, GYRO_RATE, callback); // reads angular speed
+    console_log("Rate");
+    readFromSensor2(portInt, GYRO_SENSOR, GYRO_ANGLE, callback); // reads angle
+    console_log("Back to angle");
+    window.setTimeout(function() { //Wait 200ms
+        callback();
+    }, 200);
+    console_log("End of waiting time");
+    // playFreq(10, 100, callback); //waits 100ms to allow for reset. Older version
+}
+
 function readDistanceSensorPort(port, callback) {
     var portInt = parseInt(port) - 1;
 
@@ -1110,7 +1140,7 @@ function scanPorts() {
 // delegate stuff
 
 function shouldChunkTranfers() {
-    return true;
+    return false;
 }
 
 // ScratchX specific stuff
@@ -1336,15 +1366,23 @@ function checkConnected() {
             playFreq(freq, duration, callback);
         }
 
+        ext.setVolume = function(volume) {
+            setVolume(volume);
+        }
+
         ext.motorsOff = function(which, how) {
             motorsOff(which, how)
         }
 
-        ext.steeringControl = function(ports, what, duration, callback) {
-            steeringControl(ports, what, duration, callback)
+        ext.steeringControl = function(ports, what, duration, speed, callback) {
+            steeringControl(ports, what, duration, speed, callback)
         }
 
         ext.whenButtonPressed = function(port) {
+            return whenButtonPressed(port);
+        }
+
+        ext.whenButtonPressed_b = function(port) {
             return whenButtonPressed(port);
         }
 
@@ -1352,9 +1390,12 @@ function checkConnected() {
             return whenRemoteButtonPressed(IRbutton, port);
         }
 
-        ext.readTouchSensorPort = function(port, callback) {
-            readTouchSensorPort(port, callback);
+        /* DEPRECATED
+        ext.readTouchSensorPort = function(port, callback)
+        {
+           readTouchSensorPort(port, callback);
         }
+        */
 
         ext.readColorSensorPort = function(port, mode, callback) {
             readColorSensorPort(port, mode, callback);
@@ -1367,6 +1408,10 @@ function checkConnected() {
 
         ext.readGyroPort = function(mode, port, callback) {
             readGyroPort(mode, port, callback);
+        }
+
+        ext.resetGyroPort = function(port, callback) {
+            resetGyroPort(port, callback);
         }
 
         ext.readDistanceSensorPort = function(port, callback) {
@@ -1391,20 +1436,23 @@ function checkConnected() {
         // Block and block menu descriptions
         var descriptor = {
             blocks: [
-                ["w", "drive %m.dualMotors %m.turnStyle %n seconds", "steeringControl", "B+C", "forward", 3],
+                ["w", "drive %m.dualMotors %m.turnStyle %n seconds at speed %n", "steeringControl", "B+C", "forward", 3, 60],
                 [" ", "start motor %m.whichMotorPort speed %n", "startMotors", "B+C", 100],
                 [" ", "rotate motor %m.whichMotorPort speed %n by %n degrees then %m.brakeCoast", "motorDegrees", "A", 100, 360, "brake"],
                 [" ", "stop motors %m.whichMotorPort %m.brakeCoast", "motorsOff", "all", "brake"],
                 [" ", "set LED %m.patterns", "setLED", "green"],
                 ["h", "when button pressed on port %m.whichInputPort", "whenButtonPressed", "1"],
+                ["b", "button pressed %m.whichInputPort", "whenButtonPressed_b", "1"],
                 ["h", "when IR remote %m.buttons pressed port %m.whichInputPort", "whenRemoteButtonPressed", "Top Left", "1"],
-                ["R", "button pressed %m.whichInputPort", "readTouchSensorPort", "1"],
                 ["w", "play note %m.note duration %n ms", "playTone", "C5", 500],
                 ["w", "play frequency %n duration %n ms", "playFreq", "262", 500],
+                [" ", "set brick's volume to %n", "setVolume", 20],
                 ["R", "light sensor %m.whichInputPort %m.lightSensorMode", "readColorSensorPort", "1", "color"],
                 ["R", "measure distance %m.whichInputPort", "readDistanceSensorPort", "1"],
                 ["R", "remote button %m.whichInputPort", "readRemoteButtonPort", "1"],
                 ["R", "motor %m.motorInputMode %m.whichMotorIndividual", "readFromMotor", "position", "A"],
+                ["R", "gyro  %m.gyroMode %m.whichInputPort", "readGyroPort", "angle", "1"],
+                ["w", "reset gyro %m.whichInputPort", "resetGyroPort", "1"],
             ],
             "menus": {
                 "whichMotorPort": ["A", "B", "C", "D", "A+D", "B+C", "all"],
@@ -1422,7 +1470,6 @@ function checkConnected() {
             },
         };
 
-        // ['R', 'gyro  %m.gyroMode %m.whichInputPort',                 'readGyroPort',  'angle', '1'],
         //    ['w', 'wait until light sensor %m.whichInputPort detects black line',   'waitUntilDarkLinePort',   '1'],
         //    ['R', 'battery level',   'readBatteryLevel'],
         //  [' ', 'reconnect', 'reconnectToDevice'],
